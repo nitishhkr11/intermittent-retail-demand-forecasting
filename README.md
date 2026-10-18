@@ -1,121 +1,273 @@
-# Forecasting Intermittent Retail Demand
+# RiverDemand
+### Forecasting Intermittent Retail Demand for Inventory Decision Support
 
-A comparative classical–machine learning framework for inventory decision
-support, built on the Walmart M5 Forecasting–Accuracy dataset.
+**RiverDemand** is a retail demand forecasting project built on the Walmart M5 Forecasting–Accuracy dataset. It combines demand-pattern classification, classical time-series forecasting, intermittent-demand methods, and chronological walk-forward evaluation to investigate how forecasting performance varies across retail demand patterns.
 
-**Status: Phase 1, Stage 3 (EDA) — no forecasting results yet.**
+The long-term goal is to translate reliable forecasts into more informed inventory replenishment decisions.
 
-## Problem
+## Project Status
 
-Retail demand for individual SKUs is often intermittent — many zero-sales
-days punctuated by irregular spikes — which breaks the assumptions behind
-many standard forecasting methods. This project:
+**Current milestone: Phase 2 — Classical and intermittent-demand forecasting**
 
-1. Classifies products by demand pattern (Smooth / Intermittent / Erratic /
-   Lumpy) using ADI and CV².
-2. Compares classical, intermittent-demand-specific, machine-learning, and
-   deep-learning forecasters against each pattern, using walk-forward
-   backtesting (no random train/test splitting).
-3. Asks whether the best-performing model depends on the demand pattern.
-4. Converts the resulting forecasts into inventory reorder recommendations.
+| Component | Status |
+|---|---|
+| Data preprocessing and validation | Implemented |
+| Exploratory data analysis | Implemented |
+| Demand classification using ADI and CV² | Implemented |
+| Classical forecasting and walk-forward evaluation | Implemented |
+| Croston and TSB intermittent-demand models | Implemented and evaluated |
+| XGBoost and LSTM/GRU forecasting | Planned |
+| Prophet comparison | Planned |
+| Inventory optimization and interactive dashboard | Planned |
 
-Scope is deliberately narrow: one store (`CA_1`), one department
-(`FOODS_3`), ~20-25 representative products plus one dense aggregate
-series — not the full M5 catalog.
+## Problem Statement
 
-## Current stage: Stage 4
+Retail products frequently exhibit different demand patterns. Some sell consistently, while others have long periods of zero sales interrupted by irregular demand. Applying the same forecasting method to every product can produce inconsistent results.
 
-Implemented so far (all part of the faculty's Phase 1 / synopsis prep):
-- **Stage 1 — data layer** (`src/data/`): loads the raw M5 files, scopes
-  them to `CA_1` / `FOODS_3`, converts wide to long format, joins
-  calendar and price information, validates the result.
-- **Stage 2 — demand classification** (`src/analysis/demand_classification.py`,
-  `src/analysis/eda.py::build_aggregate_series`): computes ADI and CV²
-  for the *entire* CA_1/FOODS_3 catalog, classifies every item into
-  Smooth / Intermittent / Erratic / Lumpy (plus explicit `NoDemand` /
-  `InsufficientData` labels for series the quadrant rule can't score),
-  selects up to 5 representative items per category without fabricating
-  any, and builds the full-catalog aggregate daily series.
-- **Stage 3 — EDA** (`src/analysis/eda.py`): dataset overview, missing-value
-  analysis, rolling statistics, day-of-week pattern, demand-category
-  distribution, ADI/CV² quadrants, and representative-product plots.
-  Figures save to `reports/phase1/`.
-- **Stage 4 — synopsis preparation**: `reports/phase1/synopsis_notes.md`,
-  `references.md`, and `figure_manifest.md`, plus the synopsis slide
-  deck. No forecasting model of any kind — Phase 2/3 modeling is
-  presented as a planned methodology, not a result.
-- `notebooks/01_data_understanding.ipynb`, `notebooks/02_eda.ipynb`,
-  `notebooks/03_demand_classification.ipynb`.
+RiverDemand investigates three questions:
 
-Not yet implemented: any forecasting model, backtesting, the inventory
-layer, and the Streamlit dashboard. `notebooks/04`-`09` remain
-placeholders for later phases.
+1. How can retail products be classified according to their demand characteristics?
+2. How do classical and intermittent-demand forecasting methods compare under chronological validation?
+3. Does forecasting performance vary by demand category, and how can these differences inform future inventory decisions?
 
-## Setup
+## Dataset and Scope
+
+The project uses the Walmart M5 Forecasting–Accuracy dataset, which contains retail sales histories, calendar information, and selling prices.
+
+The analysis deliberately focuses on a manageable subset rather than the entire catalog.
+
+| Property | Value |
+|---|---|
+| Store | `CA_1` |
+| Department | `FOODS_3` |
+| Products analyzed | 823 |
+| Daily observations per product | 1,941 |
+| Date range | 2011-01-29 to 2016-05-22 |
+| Product-level panel size | 1,597,443 item-date rows |
+| Representative products | 20 — five per demand category |
+
+The products are classified using Average Demand Interval (ADI) and squared coefficient of variation (CV²) into four demand categories: **Smooth, Intermittent, Erratic, and Lumpy**.
+
+| Demand category | Products | Share |
+|---|---:|---:|
+| Intermittent | 460 | 55.89% |
+| Lumpy | 256 | 31.11% |
+| Smooth | 80 | 9.72% |
+| Erratic | 27 | 3.28% |
+
+Twenty representative products—five per category—are selected for detailed item-level experiments.
+
+## Methodology
+
+### 1. Data Engineering and Exploratory Analysis
+
+The preprocessing workflow loads the M5 sales, calendar, and selling-price files; restricts the data to the selected store and department; transforms the sales history into a daily item-date panel; and validates dates, records, and data quality.
+
+Exploratory analysis examines missing values, sales distributions, temporal patterns, demand-category frequencies, and representative product histories.
+
+### 2. Demand Classification
+
+ADI and CV² are used to characterize demand frequency and variability. This classification provides a structured way to examine how forecasting behavior differs between continuous and intermittent sales patterns.
+
+### 3. Classical Forecasting
+
+The aggregate daily demand series is evaluated using:
+
+- Seasonal Naive
+- ARIMA
+- SARIMA
+- Holt-Winters exponential smoothing
+
+Stationarity tests, ACF/PACF analysis, residual diagnostics, and convergence checks support model development and interpretation.
+
+### 4. Intermittent-Demand Forecasting
+
+For the 20 representative products, the experiments compare:
+
+- Seasonal Naive
+- Croston's method
+- Teunter–Syntetos–Babai (TSB)
+
+These methods are evaluated across the four demand categories to investigate whether their relative performance depends on the characteristics of the product's sales history.
+
+### 5. Leakage-Aware Evaluation
+
+Model comparisons use expanding-window walk-forward validation rather than random train/test splitting. Each development fold uses historical observations to forecast a subsequent 28-day period.
+
+The final 28 days are reserved as an untouched holdout. The reported development results do not use that holdout for model selection.
+
+## Classical Forecasting Results
+
+The following table summarizes the mean metrics from five expanding-window folds for the **aggregate CA_1 / FOODS_3 daily sales series**.
+
+| Model | MAE ↓ | RMSE ↓ | MAPE ↓ |
+|---|---:|---:|---:|
+| Seasonal Naive | 256.55 | 329.05 | 12.08% |
+| ARIMA(6,1,1) | 245.61 | 333.37 | 11.32% |
+| SARIMA(6,1,1)(0,0,2,7) | 227.96 | 302.22 | 10.64% |
+| Holt-Winters, additive trend | **193.35** | **266.44** | **9.00%** |
+
+*Lower values are better. MAPE excludes observations with zero actual demand. These are development-period aggregate-series results, not item-level scores or final-holdout results.*
+
+Holt-Winters achieved the lowest mean MAE, RMSE, and MAPE among these aggregate-series candidates. SARIMA also improved on the Seasonal Naive baseline across all three reported metrics. ARIMA improved MAE and MAPE but did not improve RMSE.
+
+These findings apply to the selected aggregate series and evaluation design; they do not establish a universally best forecasting method for every individual product.
+
+## Intermittent-Demand Results
+
+The table below gives category-level macro-average MAE and RMSE across the five selected products in each category and the walk-forward folds.
+
+| Category | Method | MAE ↓ | RMSE ↓ |
+|---|---|---:|---:|
+| Smooth | Seasonal Naive | 2.94 | 3.87 |
+| Smooth | Croston | 2.50 | 3.22 |
+| Smooth | TSB | **2.30** | **3.04** |
+| Intermittent | Seasonal Naive | 1.10 | 1.55 |
+| Intermittent | Croston | 1.03 | 1.32 |
+| Intermittent | TSB | **0.95** | **1.22** |
+| Erratic | Seasonal Naive | 4.04 | 5.12 |
+| Erratic | Croston | 4.39 | 5.11 |
+| Erratic | TSB | **3.39** | **4.26** |
+| Lumpy | Seasonal Naive | 1.29 | 1.80 |
+| Lumpy | Croston | 1.59 | 1.86 |
+| Lumpy | TSB | **1.19** | **1.48** |
+
+TSB outperformed the Seasonal Naive baseline on both MAE and RMSE in all four categories in this selected sample. Croston improved MAE for Smooth and Intermittent products but did not do so for Erratic and Lumpy products.
+
+These category-level findings are exploratory and should not be generalized to all 823 products without further evaluation.
+
+## Diagnostics and Limitations
+
+The project includes residual autocorrelation checks and model-convergence diagnostics. Some SARIMA folds exhibited convergence issues, and significant residual autocorrelation remained in the diagnostic tests. These limitations are documented rather than treating the models as statistically perfect.
+
+Other limitations include the restricted store-department scope, the small representative product sample used in intermittent-demand comparisons, and the absence of reported final-holdout performance at this stage.
+
+The forecasting experiments establish a reproducible baseline for subsequent model extensions; they do not yet establish improvements in real-world inventory costs or service levels.
+
+## Technology Stack
+
+- **Language:** Python
+- **Data processing:** pandas, NumPy
+- **Statistical forecasting:** statsmodels, pmdarima
+- **Evaluation:** scikit-learn and project-specific backtesting utilities
+- **Visualization:** Matplotlib and Seaborn
+- **Testing:** pytest
+- **Notebooks:** Jupyter
+
+See `requirements.txt` for the project's dependency specification.
+
+## Getting Started
+
+### Prerequisites
+
+Install a compatible Python version and Git. Clone the repository:
 
 ```bash
+git clone https://github.com/nitishhkr11/intermittent-retail-demand-forecasting.git
+cd intermittent-retail-demand-forecasting
+```
+
+Create and activate a virtual environment.
+
+**Windows PowerShell**
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-Download the **M5 Forecasting – Accuracy** dataset from Kaggle and place
-`sales_train_evaluation.csv`, `calendar.csv`, and `sell_prices.csv` into
-`data/raw/`. Raw data is not committed to this repo (see `.gitignore`).
+### Prepare the Dataset
 
-## Running the pipeline
+Download the Walmart M5 Forecasting–Accuracy dataset from Kaggle, subject to its applicable terms. Place these files in `data/raw/`:
 
-```bash
-python -m src.data.preprocessor              # Stage 1: raw -> data/interim/panel_ca1_foods3.parquet
-python -m src.analysis.demand_classification # Stage 2: classification + selection + aggregate series
+```text
+sales_train_evaluation.csv
+calendar.csv
+sell_prices.csv
 ```
 
-Then open `notebooks/01_data_understanding.ipynb`,
-`notebooks/02_eda.ipynb`, and `notebooks/03_demand_classification.ipynb`
-to explore the results. Stage 3's figures also save to `reports/phase1/`.
+The raw dataset is not included in this repository. The `.gitignore` configuration excludes raw, intermediate, and processed data files.
 
-## Tests
+### Run the Data Pipeline
+
+From the repository root, run:
+
+```bash
+python -m src.data.preprocessor
+python -m src.analysis.demand_classification
+```
+
+Then open the notebooks in order:
+
+1. `notebooks/01_data_understanding.ipynb`
+2. `notebooks/02_eda.ipynb`
+3. `notebooks/03_demand_classification.ipynb`
+4. `notebooks/04_classical_models.ipynb`
+5. `notebooks/05_intermittent_models.ipynb`
+
+The notebooks document the analysis and forecasting experiments. Run them using a kernel associated with the project's environment.
+
+### Run Tests
 
 ```bash
 pytest tests/
 ```
 
-## Repository structure
+## Repository Structure
 
+```text
+intermittent-retail-demand-forecasting/
+├── app/                  # Dashboard structure; further development planned
+├── artifacts/            # Generated forecasts, metrics and model outputs
+├── config.yaml            # Centralized project configuration
+├── data/                  # Local raw, intermediate and processed data
+├── notebooks/             # EDA, classification and forecasting experiments
+├── reports/
+│   ├── phase1/            # Synopsis analysis and figures
+│   ├── phase2/            # Forecasting diagnostics and comparison figures
+│   ├── phase3/            # Planned future-phase deliverables
+│   └── final/             # Final project deliverables
+├── src/
+│   ├── analysis/          # Demand classification, EDA and diagnostics
+│   ├── data/              # Loading, preprocessing, validation and splitting
+│   ├── evaluation/        # Metrics, backtesting and model comparisons
+│   ├── inventory/         # Inventory decision-support components
+│   ├── models/            # Classical and intermittent-demand models
+│   ├── utils/             # Configuration, paths, logging and plotting
+│   └── pipeline.py        # Pipeline orchestration
+├── tests/                 # Automated tests
+├── requirements.txt
+├── LICENSE
+└── README.md
 ```
-src/
-├── pipeline.py   # full orchestration across all layers (Phase 2/3)
-├── data/         # loading, scoping, cleaning, validation, splitting (Phase 1-2)
-├── analysis/     # demand classification, EDA (Phase 1); model diagnostics (Phase 2)
-├── models/       # baseline/arima/sarima/holt_winters/croston/tsb (Phase 2);
-│                 # xgboost/prophet/lstm_gru (Phase 3) -- common interface throughout
-├── evaluation/   # backtesting, metrics, residuals, comparison (Phase 2)
-├── inventory/    # reorder point / safety stock (Phase 3)
-└── utils/        # config, paths, logging, plotting
-app/              # Streamlit dashboard: pages/ + components/ (Phase 3)
-notebooks/        # 01 data understanding -> 09 model comparison
-artifacts/        # models, forecasts, metrics, residuals, inventory (generated, gitignored)
-reports/          # phase1/ phase2/ phase3/ final/ write-ups
-tests/            # mirrors src/
-```
-
-Only `src/data/`, `src/analysis/demand_classification.py`,
-`src/analysis/eda.py`, `src/utils/`, `tests/data/`, `tests/analysis/`,
-and `notebooks/01`-`03` have real logic right now — everything else is
-a scaffolded placeholder for its phase (see each file's docstring).
 
 ## Roadmap
 
-Phase numbers below follow the faculty's Synopsis/Mid-Sem/Final
-rubric, not the build-stage numbering used in commit history.
+### Phase 2 — Classical and Intermittent-Demand Forecasting
 
-- **Phase 1** *(current)* — data understanding, preprocessing, demand
-  classification, EDA, synopsis preparation. No forecasting model or
-  forecast result of any kind.
-- **Phase 2** — Seasonal Naive, ARIMA, SARIMA, Holt-Winters, Croston,
-  TSB, walk-forward backtesting, RMSE/MAE/MAPE, model comparison.
-- **Phase 3** — XGBoost, LSTM/GRU, Prophet (where appropriate),
-  comparative analysis, inventory decision support, the Streamlit
-  dashboard, final report/codebase.
+Completed components include chronological evaluation, aggregate-series comparisons, Croston/TSB experiments, and forecasting diagnostics.
+
+### Phase 3 — Advanced Models and Inventory Decision Support
+
+Planned work includes:
+
+- XGBoost using leakage-safe lag, rolling and calendar features
+- LSTM/GRU experiments for appropriate time-series data
+- Prophet evaluation where appropriate
+- Comparative model analysis using a consistent evaluation protocol
+- Inventory decision support with explicit lead-time and replenishment assumptions
+- An interactive Streamlit dashboard
+- Final reporting, limitations, and actionable recommendations
+
+These extensions will be evaluated before being presented as completed results.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+This project is distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
+
+## Author
+
+**Nitish Kumar**
+
+GitHub: [@nitishhkr11](https://github.com/nitishhkr11)
