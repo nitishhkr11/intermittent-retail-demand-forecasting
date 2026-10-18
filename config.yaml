@@ -1,0 +1,98 @@
+# Configuration for the Intermittent Retail Demand Forecasting project.
+#
+# Every path and parameter the pipeline needs lives here, not hardcoded
+# in the source files. This file grows as later phases are implemented
+# (model hyperparameters, backtest settings, inventory assumptions) —
+# Stage 1 (data layer), Stage 2 (demand classification), and Stage 3
+# (EDA) are covered by the sections below. All three are part of the
+# faculty's Phase 1 (synopsis preparation), not separate rubric phases.
+#
+# The `backtest` and `phase2` sections below are Phase 2 Step 2
+# (evaluation/split framework + Seasonal Naive baseline).
+
+data:
+  raw_dir: data/raw
+  interim_dir: data/interim
+  processed_dir: data/processed
+  sales_file: sales_train_evaluation.csv
+  calendar_file: calendar.csv
+  prices_file: sell_prices.csv
+
+scope:
+  store_id: CA_1
+  dept_id: FOODS_3
+
+classification:
+  adi_threshold: 1.32   # Syntetos-Boylan-Croston cutoff
+  cv2_threshold: 0.49   # Syntetos-Boylan-Croston cutoff
+  n_per_category: 5     # representative items to select per demand class
+  random_seed: 42       # for reproducible representative selection
+
+output:
+  panel_filename: panel_ca1_foods3.parquet
+  classification_filename: demand_classification.parquet
+  selected_items_filename: selected_items.parquet
+  aggregate_filename: aggregate_ca1_foods3.parquet
+  selected_items_daily_sales_filename: selected_items_daily_sales.parquet
+
+reports:
+  phase1_dir: reports/phase1
+  phase2_dir: reports/phase2
+
+backtest:
+  holdout_days: 28    # final, untouched test set reserved from the tail of the series
+  horizon: 28          # forecast horizon, every fold
+  n_folds: 5            # rolling-origin folds during development-period comparison
+  season_length: 7     # weekly seasonality for Seasonal Naive
+
+# Phase 2 Step 5: classical model orders. Fixed candidates carried over
+# from Step 4's ACF/PACF + auto_arima diagnostics -- this step fits and
+# backtests them, it does not re-run an order search.
+models:
+  arima_order: [6, 1, 1]              # (p, d, q)
+  sarima_order: [6, 1, 1]             # (p, d, q), same non-seasonal part as ARIMA
+  sarima_seasonal_order: [0, 0, 2, 7] # (P, D, Q, m), m=7 weekly
+  holt_winters_seasonal_periods: 7
+  # Phase 2 Step 7: fixed, documented smoothing parameters for the first
+  # Croston/TSB comparison -- literature-standard defaults (Croston 1972;
+  # Teunter-Syntetos-Babai 2011), not tuned on any fold's forecast window.
+  croston_alpha: 0.1   # smoothing weight, demand size and inter-demand interval
+  tsb_alpha: 0.1        # smoothing weight, occurrence probability
+  tsb_beta: 0.1          # smoothing weight, demand size (occurrence periods only)
+
+phase2:
+  forecasts_dir: artifacts/forecasts
+  metrics_dir: artifacts/metrics
+  seasonal_naive_forecasts_filename: seasonal_naive_backtest_forecasts.csv
+  seasonal_naive_metrics_filename: seasonal_naive_backtest_metrics.csv
+  seasonal_naive_plot_filename: seasonal_naive_forecast_vs_actual.png
+  arima_forecasts_filename: arima_backtest_forecasts.csv
+  arima_metrics_filename: arima_backtest_metrics.csv
+  sarima_forecasts_filename: sarima_backtest_forecasts.csv
+  sarima_metrics_filename: sarima_backtest_metrics.csv
+  holt_winters_forecasts_filename: holt_winters_backtest_forecasts.csv
+  holt_winters_metrics_filename: holt_winters_backtest_metrics.csv
+  holt_winters_trend_comparison_filename: holt_winters_trend_comparison.csv
+  model_comparison_metrics_filename: model_comparison_backtest_metrics.csv
+  model_comparison_plot_filename: model_comparison_mae_rmse.png
+  # Phase 2 Step 6 -- residual diagnostics and classical-model validation
+  residual_fold_summary_filename: residual_diagnostics_fold_summary.csv
+  residual_ljung_box_filename: residual_diagnostics_ljung_box.csv
+  residual_diagnostics_plot_prefix: residual_diagnostics
+  sarima_fold3_sensitivity_filename: sarima_fold3_convergence_sensitivity.csv
+  holt_winters_trend_selection_caveat_filename: holt_winters_trend_selection_caveat.csv
+  # Phase 2 Step 7 -- item-level Croston/TSB vs. per-item Seasonal Naive,
+  # across the 20 selected items. Distinct filenames from the Step 2-6
+  # keys above: those are the single CA_1/FOODS_3 AGGREGATE series,
+  # these are per-item -- the two are never on the same error scale
+  # (see notebook Section 12's explicit caveat).
+  item_level_long_results_filename: item_level_backtest_long.csv
+  item_level_fold_summary_filename: item_level_backtest_fold_summary.csv
+  item_level_per_item_summary_filename: item_level_per_item_summary.csv
+  item_level_category_summary_filename: item_level_category_macro_avg_summary.csv
+  item_level_category_mae_plot_filename: item_level_category_mae_comparison.png
+  item_level_category_rmse_plot_filename: item_level_category_rmse_comparison.png
+  item_level_example_forecasts_plot_filename: item_level_example_forecasts.png
+
+logging:
+  level: INFO

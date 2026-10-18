@@ -1,0 +1,15 @@
+# Phase 1: data layer + EDA notebook. Phase 2+ libraries (xgboost,
+# tensorflow, prophet) and app libraries (streamlit, plotly) are added
+# when their phase starts, not stubbed in ahead of time.
+
+pandas>=2.0
+numpy>=1.24
+pyarrow>=14.0      # parquet read/write backend for pandas
+pyyaml>=6.0        # config.yaml loading
+pytest>=7.4        # test suite
+matplotlib>=3.7    # basic EDA visualizations
+jupyter>=1.0       # run notebooks/01_data_understanding.ipynb
+
+# Phase 2
+statsmodels>=0.14  # ADF test (Step 3), ACF/PACF (Step 4); ARIMA/SARIMA/Holt-Winters reuse it later
+pmdarima>=2.0      # auto_arima order-search cross-check (Step 4) -- diagnostic only, no model fit yet
