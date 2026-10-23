@@ -13,3 +13,6 @@ jupyter>=1.0       # run notebooks/01_data_understanding.ipynb
 # Phase 2
 statsmodels>=0.14  # ADF test (Step 3), ACF/PACF (Step 4); ARIMA/SARIMA/Holt-Winters reuse it later
 pmdarima>=2.0      # auto_arima order-search cross-check (Step 4) -- diagnostic only, no model fit yet
+
+# Phase 3
+xgboost>=2.0       # Step 1: pooled / per-item XGBRegressor (developed and tested with 3.4.1)

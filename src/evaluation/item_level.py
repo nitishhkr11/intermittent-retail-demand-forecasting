@@ -24,13 +24,18 @@ from being "more accurate" models. Nothing in this module mixes the two.
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List
+from typing import Any, Callable, Dict, List
 
 import numpy as np
 import pandas as pd
 
 from src.data.splitter import split_final_holdout
-from src.evaluation.backtesting import BacktestFoldResult, run_backtest, summarize_backtest
+from src.evaluation.backtesting import (
+    BacktestFoldResult,
+    generate_rolling_origins,
+    run_backtest,
+    summarize_backtest,
+)
 from src.models.base import BaseForecaster
 from src.utils.logging import get_logger
 
@@ -278,7 +283,12 @@ def plot_category_comparison(category_summary: pd.DataFrame, metric: str = "MAE_
     return ax
 
 
-_MODEL_PLOT_COLORS = {"SeasonalNaive": "#8C8C8C", "Croston": "#B0862B", "TSB": "#3B6E8F"}
+_MODEL_PLOT_COLORS = {
+    "SeasonalNaive": "#8C8C8C",
+    "Croston": "#B0862B",
+    "TSB": "#3B6E8F",
+    "XGBoost": "#8B3A3A",  # Phase 3 Step 1; prefix-matched, so every XGBoost variant shares it
+}
 
 
 def plot_example_item_forecasts(long_table: pd.DataFrame, item_ids: List[str], fold: int, ax_cols: int = 2):
@@ -334,3 +344,290 @@ def plot_example_item_forecasts(long_table: pd.DataFrame, item_ids: List[str], f
     fig.suptitle(f"Example item-level forecasts vs. actual -- fold {fold}")
     fig.tight_layout()
     return fig
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 Step 1 additions -- pooled (global) models.
+#
+# Everything above is the completed Phase 2 Step 7 code and is unchanged.
+# The functions below only ADD to it: a walk-forward runner for a model that
+# is fit ONCE per fold on all items together, and a guard that two result
+# tables describe exactly the same evaluation cells. The per-fold metric
+# tables are still built by the existing `summarize_backtest` and
+# `fold_results_to_long_table`, and `per_item_summary` /
+# `category_macro_average_summary` above are reused unmodified on the result.
+# ---------------------------------------------------------------------------
+
+
+def run_pooled_item_level_backtest(
+    daily_sales: pd.DataFrame,
+    item_ids: List[str],
+    pooled_factory: Callable[[], Any],
+    horizon: int = 28,
+    n_folds: int = 5,
+    holdout_days: int = 28,
+) -> Dict[str, pd.DataFrame]:
+    """Walk-forward evaluation of ONE pooled model that is fit on all `item_ids` together, per fold.
+
+    Fold boundaries come from the existing `generate_rolling_origins` on the
+    development series (the same function `run_backtest` uses), so every
+    item has exactly the folds, training windows and forecast windows it has
+    in `run_item_level_backtests`. Each item's series is carved off by the
+    existing `item_development_series`, which never returns the final
+    holdout days; nothing here reads a date after the development end.
+
+    `pooled_factory()` must return an object with
+      * `fit({item_id: date-indexed Series})` -- given training prefixes only,
+      * `predict(horizon) -> {item_id: array of length horizon}` -- called
+        with no data argument, so no forecast-window actuals can reach it,
+      * `forecast_dates(horizon)` -- checked here against the fold's test dates,
+      * `fit_diagnostics() -> dict`,
+      * optionally `item_class_table()` and `feature_importance()`.
+    A new instance is built for every fold.
+
+    A fit or predict exception is recorded on that fold (every item gets
+    `success=False` and the error text, exactly as `run_backtest` records a
+    failed fold) instead of aborting the run. A misaligned forecast calendar
+    or a wrong-shaped prediction is a protocol error, not a model failure,
+    and raises.
+
+    Returns a dict of DataFrames:
+      "long"              one row per (item, fold, date); same schema as
+                          `run_item_level_backtests`'s "long"
+      "fold_summary"      one row per (item, fold); same schema as that
+                          function's "fold_summary" (`summarize_backtest` plus
+                          item_id / demand_class)
+      "fold_diagnostics"  one row per fold: success/error plus whatever the
+                          model's `fit_diagnostics()` reported
+      "fold_item_classes" per fold and item, the demand class computed from
+                          that fold's training window next to the Phase 1 label
+                          (empty if the model has no `item_class_table`)
+      "feature_importance" per fold and feature, the model's gain importance
+                          (empty if the model has no `feature_importance`)
+    `demand_class` in "long"/"fold_summary" is the Phase 1 label, used only to
+    group results -- the same role it has in `run_item_level_backtests`.
+    """
+    if not item_ids:
+        raise ValueError("item_ids must not be empty.")
+    if len(set(item_ids)) != len(item_ids):
+        raise ValueError("item_ids contains duplicates.")
+
+    class_lookup = (
+        daily_sales[["item_id", "demand_class"]].drop_duplicates().set_index("item_id")["demand_class"]
+    )
+    series_by_item = {
+        item_id: item_development_series(daily_sales, item_id, holdout_days=holdout_days)
+        for item_id in item_ids
+    }
+    reference_index = series_by_item[item_ids[0]].index
+    for item_id, series in series_by_item.items():
+        if not series.index.equals(reference_index):
+            raise ValueError(
+                f"Item {item_id!r} has a different development calendar from {item_ids[0]!r}; "
+                "a pooled model needs every item on one shared set of dates."
+            )
+    origins = generate_rolling_origins(len(reference_index), horizon=horizon, n_folds=n_folds)
+    logger.info(
+        "Pooled backtest: %d items, development %s to %s (%d obs), %d folds, horizon %d",
+        len(item_ids), reference_index[0].date(), reference_index[-1].date(),
+        len(reference_index), n_folds, horizon,
+    )
+
+    results_by_item: Dict[str, List[BacktestFoldResult]] = {item_id: [] for item_id in item_ids}
+    diagnostic_rows: List[Dict[str, Any]] = []
+    class_tables: List[pd.DataFrame] = []
+    importance_tables: List[pd.DataFrame] = []
+
+    for origin in origins:
+        training = {item_id: series.iloc[: origin.train_end] for item_id, series in series_by_item.items()}
+        test_index = reference_index[origin.test_start : origin.test_end]
+
+        forecaster = None
+        predictions: Dict[str, Any] = {}
+        diagnostics: Dict[str, Any] = {}
+        success = True
+        error = None
+        try:
+            forecaster = pooled_factory()
+            forecaster.fit(training)
+            predictions = forecaster.predict(horizon)
+        except Exception as exc:  # noqa: BLE001 -- a model failure is a reportable fold, not a crash
+            success = False
+            error = f"{type(exc).__name__}: {exc}"
+            logger.error("[pooled] fold %d FAILED during fit/predict: %s", origin.fold, error)
+        else:
+            try:
+                diagnostics = forecaster.fit_diagnostics() or {}
+            except Exception as diag_exc:  # noqa: BLE001
+                logger.warning("[pooled] fold %d: fit_diagnostics() raised %s -- continuing", origin.fold, diag_exc)
+
+        if success:
+            # Protocol integrity: these are bugs if they ever fail, so they raise.
+            if not forecaster.forecast_dates(horizon).equals(test_index):
+                raise ValueError(
+                    f"Fold {origin.fold}: the model's forecast dates differ from the fold's test dates."
+                )
+            if set(predictions) != set(item_ids):
+                raise ValueError(f"Fold {origin.fold}: predictions cover a different set of items than were fit.")
+            for item_id in item_ids:
+                if np.asarray(predictions[item_id], dtype=float).shape != (horizon,):
+                    raise ValueError(f"Fold {origin.fold}: forecast for {item_id!r} does not have length {horizon}.")
+
+        model_name = getattr(forecaster, "name", None) or getattr(pooled_factory, "__name__", "UnknownModel")
+
+        for item_id in item_ids:
+            series = series_by_item[item_id]
+            results_by_item[item_id].append(
+                BacktestFoldResult(
+                    model_name=model_name,
+                    fold=origin.fold,
+                    origin_date=training[item_id].index[-1],
+                    forecast_start=test_index[0],
+                    forecast_end=test_index[-1],
+                    dates=test_index,
+                    actuals=series.iloc[origin.test_start : origin.test_end].to_numpy(dtype=float),
+                    predictions=np.asarray(predictions[item_id], dtype=float) if success else None,
+                    success=success,
+                    error=error,
+                    diagnostics=dict(diagnostics),
+                )
+            )
+
+        row: Dict[str, Any] = {
+            "model": model_name,
+            "fold": origin.fold,
+            "origin_date": training[item_ids[0]].index[-1].date(),
+            "forecast_start": test_index[0].date(),
+            "forecast_end": test_index[-1].date(),
+            "success": success,
+            "error": error,
+        }
+        for key, value in diagnostics.items():
+            row.setdefault(key, value)
+        diagnostic_rows.append(row)
+
+        if success and hasattr(forecaster, "item_class_table"):
+            table = forecaster.item_class_table().rename(columns={"demand_class": "fold_local_class"})
+            table.insert(0, "fold", origin.fold)
+            table["phase1_class"] = table["item_id"].map(class_lookup)
+            class_tables.append(table)
+        if success and hasattr(forecaster, "feature_importance"):
+            try:
+                importance = forecaster.feature_importance("gain")
+            except Exception as imp_exc:  # noqa: BLE001
+                logger.warning("[pooled] fold %d: feature_importance() raised %s -- skipped", origin.fold, imp_exc)
+            else:
+                importance_tables.append(
+                    pd.DataFrame({"fold": origin.fold, "feature": importance.index, "gain": importance.to_numpy()})
+                )
+
+    long_tables = []
+    fold_summaries = []
+    for item_id in item_ids:
+        demand_class = class_lookup.loc[item_id]
+        results = results_by_item[item_id]
+        long_tables.append(fold_results_to_long_table(results, item_id, demand_class))
+        fold_summary = summarize_backtest(results)
+        fold_summary.insert(0, "item_id", item_id)
+        fold_summary.insert(1, "demand_class", demand_class)
+        fold_summaries.append(fold_summary)
+
+    return {
+        "long": pd.concat(long_tables, ignore_index=True),
+        "fold_summary": pd.concat(fold_summaries, ignore_index=True),
+        "fold_diagnostics": pd.DataFrame(diagnostic_rows),
+        "fold_item_classes": pd.concat(class_tables, ignore_index=True) if class_tables else pd.DataFrame(),
+        "feature_importance": pd.concat(importance_tables, ignore_index=True) if importance_tables else pd.DataFrame(),
+    }
+
+
+def check_same_evaluation_grid(
+    reference_long: pd.DataFrame, other_long: pd.DataFrame, atol: float = 0.0
+) -> Dict[str, Any]:
+    """Raise unless two long result tables evaluate exactly the same (item, fold, date) cells.
+
+    "Same" means the same set of cells and, in every cell, the same actual
+    value (within `atol`). Prediction and model columns are ignored, and either
+    table may hold several models. `date` may be a date, a Timestamp or a
+    string (a CSV read back from disk), and is compared as a calendar day.
+
+    Used to guarantee that a new model is scored on the same items, folds and
+    days as the Phase 2 baselines before their errors are put side by side.
+    Returns a small dict describing the grid that matched.
+    """
+    key = ["item_id", "fold", "date"]
+    grids = {}
+    for label, table in (("reference", reference_long), ("other", other_long)):
+        missing = set(key + ["actual"]) - set(table.columns)
+        if missing:
+            raise ValueError(f"{label} table is missing column(s): {sorted(missing)}")
+        grid = table[key + ["actual"]].copy()
+        grid["date"] = pd.to_datetime(grid["date"]).dt.normalize()
+        grid = grid.drop_duplicates()
+        if grid.duplicated(key).any():
+            raise ValueError(f"{label} table has more than one actual value for the same (item_id, fold, date) cell.")
+        grids[label] = grid
+
+    merged = grids["reference"].merge(
+        grids["other"], on=key, how="outer", suffixes=("_reference", "_other"), indicator=True
+    )
+    n_only_reference = int((merged["_merge"] == "left_only").sum())
+    n_only_other = int((merged["_merge"] == "right_only").sum())
+    if n_only_reference or n_only_other:
+        raise ValueError(
+            f"Evaluation grids differ: {n_only_reference} cell(s) only in the reference table, "
+            f"{n_only_other} only in the other table."
+        )
+    max_diff = float((merged["actual_reference"] - merged["actual_other"]).abs().max()) if len(merged) else 0.0
+    if max_diff > atol:
+        raise ValueError(f"Actual values differ between the tables (max absolute difference {max_diff:g}).")
+    return {
+        "n_cells": int(len(merged)),
+        "n_items": int(merged["item_id"].nunique()),
+        "n_folds": int(merged["fold"].nunique()),
+        "max_abs_actual_diff": max_diff,
+    }
+
+
+def plot_category_comparison_by_model_color(
+    category_summary: pd.DataFrame, metric: str = "MAE_macro_mean", ax=None
+):
+    """Grouped bars by demand category, one bar per model, coloured by MODEL NAME.
+
+    Same layout and input as `plot_category_comparison` (which is left unchanged
+    for the Phase 2 figures). The difference: a model's colour comes from
+    `_MODEL_PLOT_COLORS` (prefix-matched, the same mapping
+    `plot_example_item_forecasts` uses) instead of from its position in the
+    legend, so a model keeps one colour across every Phase 3 figure however many
+    models a chart shows. Models that share a prefix (the XGBoost variants)
+    share a colour -- show one variant per family in a single chart.
+    """
+    import matplotlib.pyplot as plt
+
+    if ax is None:
+        _, ax = plt.subplots(figsize=(9, 5))
+
+    categories = [c for c in CATEGORY_ORDER if c in set(category_summary["demand_class"])]
+    models = list(dict.fromkeys(category_summary["model"]))
+    n_models = max(len(models), 1)
+    x = np.arange(len(categories))
+    width = 0.8 / n_models
+
+    for i, model in enumerate(models):
+        heights = []
+        for c in categories:
+            match = category_summary.loc[
+                (category_summary["demand_class"] == c) & (category_summary["model"] == model), metric
+            ]
+            heights.append(match.iloc[0] if len(match) else np.nan)
+        color = next((col for key, col in _MODEL_PLOT_COLORS.items() if str(model).startswith(key)), "#4C4C4C")
+        offset = (i - (n_models - 1) / 2) * width
+        ax.bar(x + offset, heights, width, label=model, color=color)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(categories)
+    ax.set_ylabel(metric.replace("_", " "))
+    ax.set_title(f"Item-level {metric.replace('_', ' ')} by demand category (macro-average across items)")
+    ax.legend(title="Model")
+    ax.figure.tight_layout()
+    return ax

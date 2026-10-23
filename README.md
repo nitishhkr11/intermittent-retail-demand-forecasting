@@ -16,9 +16,10 @@ The long-term goal is to translate reliable forecasts into more informed invento
 | Demand classification using ADI and CV² | Implemented |
 | Classical forecasting and walk-forward evaluation | Implemented |
 | Croston and TSB intermittent-demand models | Implemented and evaluated |
-| XGBoost and LSTM/GRU forecasting | Planned |
+| XGBoost pooled forecasting (20 representative products) | Implemented and evaluated on development folds |
+| LSTM/GRU deep-learning forecasting | Planned |
 | Prophet comparison | Planned |
-| Inventory optimization and interactive dashboard | Planned |
+| Inventory decision support and interactive dashboard | Planned |
 
 ## Problem Statement
 
@@ -218,7 +219,7 @@ pytest tests/
 
 ```text
 intermittent-retail-demand-forecasting/
-├── app/                  # Dashboard structure; further development planned
+├── app/                  # Streamlit dashboard; implementation planned
 ├── artifacts/            # Generated forecasts, metrics and model outputs
 ├── config.yaml            # Centralized project configuration
 ├── data/                  # Local raw, intermediate and processed data
@@ -226,7 +227,7 @@ intermittent-retail-demand-forecasting/
 ├── reports/
 │   ├── phase1/            # Synopsis analysis and figures
 │   ├── phase2/            # Forecasting diagnostics and comparison figures
-│   ├── phase3/            # Planned future-phase deliverables
+│   ├── phase3/            # XGBoost Step 1 report and figures; further work pending
 │   └── final/             # Final project deliverables
 ├── src/
 │   ├── analysis/          # Demand classification, EDA and diagnostics
@@ -248,17 +249,26 @@ intermittent-retail-demand-forecasting/
 
 Completed components include chronological evaluation, aggregate-series comparisons, Croston/TSB experiments, and forecasting diagnostics.
 
-### Phase 3 — Advanced Models and Inventory Decision Support
+### Phase 3 — Advanced Forecasting and Inventory Decision Support
 
-Planned work includes:
+**Completed: Step 1 — XGBoost forecasting**
 
-- XGBoost using leakage-safe lag, rolling and calendar features
-- LSTM/GRU experiments for appropriate time-series data
-- Prophet evaluation where appropriate
-- Comparative model analysis using a consistent evaluation protocol
-- Inventory decision support with explicit lead-time and replenishment assumptions
-- An interactive Streamlit dashboard
-- Final reporting, limitations, and actionable recommendations
+- Implemented a pooled XGBoost regressor using leakage-safe lag, rolling, calendar, and demand-category features.
+- Evaluated the model on 20 representative products using five expanding-window folds with a 28-day forecast horizon.
+- Compared development-fold MAE, RMSE, and MAPE against Seasonal Naive, Croston, and TSB.
+- Added automated tests, diagnostic figures, and the report `reports/phase3/XGBoost_Step1_Report.md`.
+- The full automated test suite passed 363 tests in the reported run.
+
+The XGBoost results are development-fold results only. The final 28-day holdout has not been evaluated, and no universal winning model has been established.
+
+**Remaining work**
+
+- Implement and evaluate LSTM/GRU forecasting.
+- Evaluate Prophet where appropriate.
+- Complete cross-model comparison using compatible evaluation periods and metrics.
+- Develop inventory decision support with explicit lead-time, safety-stock, and replenishment assumptions.
+- Complete the interactive Streamlit dashboard.
+- Freeze model selection, conduct the final holdout evaluation under the documented protocol, and prepare the final report and presentation.
 
 These extensions will be evaluated before being presented as completed results.
 
