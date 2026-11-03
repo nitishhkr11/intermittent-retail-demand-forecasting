@@ -1,283 +1,207 @@
-# RiverDemand
-### Forecasting Intermittent Retail Demand for Inventory Decision Support
+# RiverDemand: Forecasting Intermittent Retail Demand
 
-**RiverDemand** is a retail demand forecasting project built on the Walmart M5 Forecasting–Accuracy dataset. It combines demand-pattern classification, classical time-series forecasting, intermittent-demand methods, and chronological walk-forward evaluation to investigate how forecasting performance varies across retail demand patterns.
+A comparative classical, machine-learning and deep-learning forecasting framework for inventory decision
+support, built on the Walmart M5 Forecasting - Accuracy dataset (store `CA_1`, department `FOODS_3`,
+823 items, 1,941 days, 2011-01-29 to 2016-05-22).
 
-The long-term goal is to translate reliable forecasts into more informed inventory replenishment decisions.
+**Status: Phases 1-3 are implemented and every development result below was produced by running the code in this
+repository. The final holdout (the last 28 days, 2016-04-25 to 2016-05-22) has NOT been evaluated.** It is reserved for one
+final evaluation of frozen candidates (see "Final holdout").
 
-## Project Status
+## What is in the repository
 
-**Current milestone: Phase 2 — Classical and intermittent-demand forecasting**
+| Part | Where | State |
+|---|---|---|
+| Data layer, demand classification (ADI / CV²), EDA | `src/data/`, `src/analysis/`, `notebooks/01`-`03` | Phase 1, complete |
+| Walk-forward backtesting, metrics, residual diagnostics | `src/evaluation/`, `notebooks/04` | Phase 2, complete |
+| Seasonal Naive, ARIMA, SARIMA, Holt-Winters (aggregate series) | `src/models/`, `notebooks/04` | Phase 2, complete |
+| Croston, TSB (item level) | `src/models/croston.py`, `tsb.py`, `notebooks/04`, `05` | Phase 2, complete |
+| XGBoost: pooled and per-item, leak-safe features, recursive 28-day forecast | `src/models/xgboost_model.py`, `notebooks/06` | Phase 3, complete |
+| Intermittent-demand experiment on 20 items and on all 823 items, fold-local demand classes | `src/evaluation/intermittent_experiment.py`, `notebooks/05` | Phase 3, complete |
+| LSTM / GRU (PyTorch, CPU, seed ensemble, resumable) | `src/models/lstm_gru.py`, `notebooks/07` | Phase 3, complete |
+| Prophet (additive, multiplicative, no-regressors) | `src/models/prophet_model.py`, `notebooks/08` | Phase 3, complete |
+| Unified comparison from saved artifacts (aggregate and item level kept apart) | `src/evaluation/model_comparison.py`, `notebooks/09` | Phase 3, complete |
+| Inventory layer: reorder point, safety stock, service-level backtest | `src/inventory/`, `notebooks/10` | Phase 3, complete |
+| Streamlit dashboard, six pages, light and dark theme | `app/` | Phase 3, complete |
+| Controlled final-holdout workflow (freeze, then run once) | `src/evaluation/final_holdout.py` | Phase 3, complete; **not run** |
 
-| Component | Status |
-|---|---|
-| Data preprocessing and validation | Implemented |
-| Exploratory data analysis | Implemented |
-| Demand classification using ADI and CV² | Implemented |
-| Classical forecasting and walk-forward evaluation | Implemented |
-| Croston and TSB intermittent-demand models | Implemented and evaluated |
-| XGBoost pooled forecasting (20 representative products) | Implemented and evaluated on development folds |
-| LSTM/GRU deep-learning forecasting | Planned |
-| Prophet comparison | Planned |
-| Inventory decision support and interactive dashboard | Planned |
+## Protocol (the rules every result obeys)
 
-## Problem Statement
+- **No random splitting.** Five expanding-window walk-forward folds of 28 days inside the 1,913-day development window
+  (2011-01-29 to 2016-04-24). Fold 1 forecasts 2015-12-07 to 2016-01-03; fold 5 forecasts 2016-03-28 to 2016-04-24.
+- **No leakage.** Scalers, features, class labels and hyper-parameters are fitted on a fold's training prefix only; tests
+  perturb the validation tail and the forecast window and check that nothing the model sees changes.
+- **Final holdout untouched.** 2016-04-25 to 2016-05-22 is never loaded by a notebook, a model, or the dashboard.
+  Only `src/evaluation/final_holdout.py` can read it, and only after candidates are frozen and an explicit confirmation
+  phrase is typed.
+- **Aggregate and item-level errors are never ranked together.** The aggregate series is in thousands of units per day;
+  one item is a few units per day. They live in separate tables, tabs and conclusions.
+- **Nothing is invented.** A model without a saved forecast file is absent from every table and chart, with a message
+  naming the file and the command that creates it. A failed fit is reported, never replaced by a naive forecast.
 
-Retail products frequently exhibit different demand patterns. Some sell consistently, while others have long periods of zero sales interrupted by irregular demand. Applying the same forecasting method to every product can produce inconsistent results.
+## Development results (five folds, no significance test)
 
-RiverDemand investigates three questions:
+All numbers are recomputed from the saved forecast files by `notebooks/09_model_comparison.ipynb`. "Lowest" describes
+these five overlapping-history folds only: the spread between folds is as large as many of the gaps between models,
+and no significance test was run.
 
-1. How can retail products be classified according to their demand characteristics?
-2. How do classical and intermittent-demand forecasting methods compare under chronological validation?
-3. Does forecasting performance vary by demand category, and how can these differences inform future inventory decisions?
+**Aggregate series (units per day, mean of five folds; std = standard deviation across folds)**
 
-## Dataset and Scope
+| Model | MAE | MAE std | RMSE | WAPE | MASE |
+|---|---:|---:|---:|---:|---:|
+| LSTM (calendar inputs) | 181.6 | 42.9 | 234.7 | 0.094 | 0.690 |
+| Holt-Winters (additive trend) | 193.3 | 62.2 | 266.4 | 0.100 | 0.734 |
+| GRU (calendar inputs) | 199.3 | 61.0 | 251.8 | 0.103 | 0.757 |
+| GRU (univariate) | 203.1 | 73.8 | 278.8 | 0.106 | 0.771 |
+| LSTM (univariate) | 209.7 | 81.1 | 286.2 | 0.109 | 0.796 |
+| Prophet (additive) | 222.2 | 44.7 | 272.7 | 0.113 | 0.844 |
+| Prophet (additive, no regressors) | 225.9 | 53.7 | 294.6 | 0.116 | 0.858 |
+| SARIMA(6,1,1)x(0,0,2,7) | 228.0 | 68.8 | 302.2 | 0.118 | 0.865 |
+| Prophet (multiplicative) | 228.0 | 46.1 | 279.0 | 0.116 | 0.866 |
+| ARIMA(6,1,1) | 245.6 | 44.7 | 333.4 | 0.124 | 0.933 |
+| Seasonal Naive | 256.6 | 52.4 | 329.1 | 0.131 | 0.974 |
 
-The project uses the Walmart M5 Forecasting–Accuracy dataset, which contains retail sales histories, calendar information, and selling prices.
+**Item level (20 selected items, macro average: every item counts equally; units per item per day)**
 
-The analysis deliberately focuses on a manageable subset rather than the entire catalog.
-
-| Property | Value |
-|---|---|
-| Store | `CA_1` |
-| Department | `FOODS_3` |
-| Products analyzed | 823 |
-| Daily observations per product | 1,941 |
-| Date range | 2011-01-29 to 2016-05-22 |
-| Product-level panel size | 1,597,443 item-date rows |
-| Representative products | 20 — five per demand category |
-
-The products are classified using Average Demand Interval (ADI) and squared coefficient of variation (CV²) into four demand categories: **Smooth, Intermittent, Erratic, and Lumpy**.
-
-| Demand category | Products | Share |
-|---|---:|---:|
-| Intermittent | 460 | 55.89% |
-| Lumpy | 256 | 31.11% |
-| Smooth | 80 | 9.72% |
-| Erratic | 27 | 3.28% |
-
-Twenty representative products—five per category—are selected for detailed item-level experiments.
-
-## Methodology
-
-### 1. Data Engineering and Exploratory Analysis
-
-The preprocessing workflow loads the M5 sales, calendar, and selling-price files; restricts the data to the selected store and department; transforms the sales history into a daily item-date panel; and validates dates, records, and data quality.
-
-Exploratory analysis examines missing values, sales distributions, temporal patterns, demand-category frequencies, and representative product histories.
-
-### 2. Demand Classification
-
-ADI and CV² are used to characterize demand frequency and variability. This classification provides a structured way to examine how forecasting behavior differs between continuous and intermittent sales patterns.
-
-### 3. Classical Forecasting
-
-The aggregate daily demand series is evaluated using:
-
-- Seasonal Naive
-- ARIMA
-- SARIMA
-- Holt-Winters exponential smoothing
-
-Stationarity tests, ACF/PACF analysis, residual diagnostics, and convergence checks support model development and interpretation.
-
-### 4. Intermittent-Demand Forecasting
-
-For the 20 representative products, the experiments compare:
-
-- Seasonal Naive
-- Croston's method
-- Teunter–Syntetos–Babai (TSB)
-
-These methods are evaluated across the four demand categories to investigate whether their relative performance depends on the characteristics of the product's sales history.
-
-### 5. Leakage-Aware Evaluation
-
-Model comparisons use expanding-window walk-forward validation rather than random train/test splitting. Each development fold uses historical observations to forecast a subsequent 28-day period.
-
-The final 28 days are reserved as an untouched holdout. The reported development results do not use that holdout for model selection.
-
-## Classical Forecasting Results
-
-The following table summarizes the mean metrics from five expanding-window folds for the **aggregate CA_1 / FOODS_3 daily sales series**.
-
-| Model | MAE ↓ | RMSE ↓ | MAPE ↓ |
+| Model | MAE | RMSE | MASE |
 |---|---:|---:|---:|
-| Seasonal Naive | 256.55 | 329.05 | 12.08% |
-| ARIMA(6,1,1) | 245.61 | 333.37 | 11.32% |
-| SARIMA(6,1,1)(0,0,2,7) | 227.96 | 302.22 | 10.64% |
-| Holt-Winters, additive trend | **193.35** | **266.44** | **9.00%** |
+| TSB (alpha 0.1, beta 0.1) | 1.954 | 2.500 | 1.410 |
+| XGBoost (pooled, no event features) | 1.965 | 2.461 | 1.408 |
+| XGBoost (pooled, Poisson loss) | 1.976 | 2.461 | 1.402 |
+| XGBoost (pooled) | 1.980 | 2.467 | 1.396 |
+| XGBoost (per item) | 2.058 | 2.586 | 1.574 |
+| Seasonal Naive | 2.342 | 3.083 | 1.607 |
+| Croston (alpha 0.1) | 2.380 | 2.876 | 1.553 |
 
-*Lower values are better. MAPE excludes observations with zero actual demand. These are development-period aggregate-series results, not item-level scores or final-holdout results.*
+Differences among TSB and the three pooled XGBoost variants are far smaller than the fold-to-fold variation; the
+per-class tables in notebook 09 show that the ranking changes with the demand class and with the error measure.
 
-Holt-Winters achieved the lowest mean MAE, RMSE, and MAPE among these aggregate-series candidates. SARIMA also improved on the Seasonal Naive baseline across all three reported metrics. ARIMA improved MAE and MAPE but did not improve RMSE.
+**Inventory (notebook 10, illustrative assumptions, no cost model, no savings claimed).** A reorder point built from
+saved forecasts and saved forecast errors reached lower cycle service on later folds than its target in all 16
+(model, target) combinations (for example 87.7% to 89.8% achieved at a 95% target). The notebook reports the
+interval and lists plausible reasons without isolating them.
 
-These findings apply to the selected aggregate series and evaluation design; they do not establish a universally best forecasting method for every individual product.
-
-## Intermittent-Demand Results
-
-The table below gives category-level macro-average MAE and RMSE across the five selected products in each category and the walk-forward folds.
-
-| Category | Method | MAE ↓ | RMSE ↓ |
-|---|---|---:|---:|
-| Smooth | Seasonal Naive | 2.94 | 3.87 |
-| Smooth | Croston | 2.50 | 3.22 |
-| Smooth | TSB | **2.30** | **3.04** |
-| Intermittent | Seasonal Naive | 1.10 | 1.55 |
-| Intermittent | Croston | 1.03 | 1.32 |
-| Intermittent | TSB | **0.95** | **1.22** |
-| Erratic | Seasonal Naive | 4.04 | 5.12 |
-| Erratic | Croston | 4.39 | 5.11 |
-| Erratic | TSB | **3.39** | **4.26** |
-| Lumpy | Seasonal Naive | 1.29 | 1.80 |
-| Lumpy | Croston | 1.59 | 1.86 |
-| Lumpy | TSB | **1.19** | **1.48** |
-
-TSB outperformed the Seasonal Naive baseline on both MAE and RMSE in all four categories in this selected sample. Croston improved MAE for Smooth and Intermittent products but did not do so for Erratic and Lumpy products.
-
-These category-level findings are exploratory and should not be generalized to all 823 products without further evaluation.
-
-## Diagnostics and Limitations
-
-The project includes residual autocorrelation checks and model-convergence diagnostics. Some SARIMA folds exhibited convergence issues, and significant residual autocorrelation remained in the diagnostic tests. These limitations are documented rather than treating the models as statistically perfect.
-
-Other limitations include the restricted store-department scope, the small representative product sample used in intermittent-demand comparisons, and the absence of reported final-holdout performance at this stage.
-
-The forecasting experiments establish a reproducible baseline for subsequent model extensions; they do not yet establish improvements in real-world inventory costs or service levels.
-
-## Technology Stack
-
-- **Language:** Python
-- **Data processing:** pandas, NumPy
-- **Statistical forecasting:** statsmodels, pmdarima
-- **Evaluation:** scikit-learn and project-specific backtesting utilities
-- **Visualization:** Matplotlib and Seaborn
-- **Testing:** pytest
-- **Notebooks:** Jupyter
-
-See `requirements.txt` for the project's dependency specification.
-
-## Getting Started
-
-### Prerequisites
-
-Install a compatible Python version and Git. Clone the repository:
-
-```bash
-git clone https://github.com/nitishhkr11/intermittent-retail-demand-forecasting.git
-cd intermittent-retail-demand-forecasting
-```
-
-Create and activate a virtual environment.
-
-**Windows PowerShell**
+## Setup (Windows, PowerShell)
 
 ```powershell
-python -m venv .venv
+cd "C:\path\to\intermittent-retail-demand-forecasting"
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements-phase3.txt      # requirements.txt + torch + prophet + streamlit + plotly
 ```
 
-### Prepare the Dataset
+`requirements.txt` alone is enough for Phases 1-2 and XGBoost. The heavy libraries are optional and each one only
+affects the part that uses it: `torch` (notebook 07), `prophet` (notebook 08), `streamlit` and `plotly` (the dashboard).
+If `torch` or `prophet` is missing, the model raises an ImportError that names the package and the exact install
+command; nothing else is substituted and labelled LSTM, GRU or Prophet. The tests that need an optional library skip
+themselves, with that command, when it is absent.
 
-Download the Walmart M5 Forecasting–Accuracy dataset from Kaggle, subject to its applicable terms. Place these files in `data/raw/`:
+Place the raw M5 files `sales_train_evaluation.csv`, `calendar.csv` and `sell_prices.csv` in `data/raw/`. They are not in
+Git and never should be.
 
-```text
-sales_train_evaluation.csv
-calendar.csv
-sell_prices.csv
-```
+**Prophet on Windows:** Prophet starts a bundled Stan executable. If the project (and its `.venv`) sits in a path with
+spaces, such as `D:\My Folder\project`, Stan can fail to start. The saved Prophet results do not need it. To re-run notebook 08,
+use a virtual environment outside the spaced path (for example `python -m venv C:\venvs\riverdemand`), see
+`MERGE_AND_RUN_WINDOWS.md`.
 
-The raw dataset is not included in this repository. The `.gitignore` configuration excludes raw, intermediate, and processed data files.
+## Run order
 
-### Run the Data Pipeline
-
-From the repository root, run:
-
-```bash
+```powershell
+# Phase 1 data (needs the raw files)
 python -m src.data.preprocessor
 python -m src.analysis.demand_classification
+
+# Phase 2 and 3 development artifacts (each notebook writes its own files; run in this order)
+python -m jupyter nbconvert --to notebook --execute --inplace notebooks/04_classical_models.ipynb
+python -m jupyter nbconvert --to notebook --execute --inplace notebooks/05_intermittent_models.ipynb
+python -m jupyter nbconvert --to notebook --execute --inplace notebooks/06_xgboost.ipynb
+python -m jupyter nbconvert --to notebook --execute --inplace notebooks/07_lstm_gru.ipynb      # about 20 minutes on one CPU thread; resumable
+python -m jupyter nbconvert --to notebook --execute --inplace notebooks/08_prophet.ipynb
+python -m jupyter nbconvert --to notebook --execute --inplace notebooks/09_model_comparison.ipynb
+python -m jupyter nbconvert --to notebook --execute --inplace notebooks/10_inventory_decision_support.ipynb
+
+# Dashboard
+streamlit run app/app.py
+
+# Tests
+python -m pytest -m "not slow"        # minutes, no notebook re-execution
+python -m pytest                       # also re-executes notebooks (slow tests)
 ```
 
-Then open the notebooks in order:
+Notebook 07 saves a checkpoint after every (variant, fold) in `artifacts/models/lstm_gru_checkpoints/` (git-ignored). If a
+run is interrupted, re-running it continues from the checkpoints; a checkpoint is used only when the settings, the data
+and the library versions are unchanged. The executed notebook states how many folds came from checkpoints.
 
-1. `notebooks/01_data_understanding.ipynb`
-2. `notebooks/02_eda.ipynb`
-3. `notebooks/03_demand_classification.ipynb`
-4. `notebooks/04_classical_models.ipynb`
-5. `notebooks/05_intermittent_models.ipynb`
+## Dashboard
 
-The notebooks document the analysis and forecasting experiments. Run them using a kernel associated with the project's environment.
+`streamlit run app/app.py` opens six pages: **Overview**, **Forecast Explorer**, **Model Comparison**, **Inventory
+Decisions**, **Model Reliability** and **About & Methodology**. The sidebar has a working **Dark mode** switch (it changes
+the sidebar, cards, inputs, tables, tooltips and charts, and survives page changes), a data-scope summary and the
+final-holdout status.
 
-### Run Tests
+- The dashboard only **reads saved artifacts**. It trains nothing and never forecasts beyond 2016-04-24.
+- If an artifact is missing, the page says which file, why it matters and the exact PowerShell command that creates it.
+- Aggregate and item-level results appear in separate tabs and are never ranked against each other.
+- Each page has a collapsed provenance area (file, modification time, content hash).
+- Open directly in dark mode with `http://localhost:8501/?theme=dark`.
 
-```bash
-pytest tests/
+The design was derived from the written specification; no reference screenshots were provided.
+
+## Final holdout
+
+```powershell
+python -m src.evaluation.final_holdout status     # read-only: what is frozen, what is evaluated, what is missing
+python -m src.evaluation.final_holdout freeze     # writes artifacts/final/frozen_candidates.json (development evidence only)
+python -m src.evaluation.final_holdout run --confirm EVALUATE-FINAL-HOLDOUT-ONCE
 ```
 
-## Repository Structure
+`freeze` picks each scope's headline model by lowest mean development-fold MAE and stores a hash of the settings.
+`run` refuses to start without the exact phrase, without a freeze, if the settings changed since the freeze, if the
+evaluation already happened (unless `--override-existing`, which archives the old files), or if a model name drifted.
+Forecasts are made before the actuals are first read. A candidate that fails is reported as failed, never substituted.
+Aggregate and item-level results are reported separately. **Nothing has been frozen or evaluated in this repository.**
 
-```text
-intermittent-retail-demand-forecasting/
-├── app/                  # Streamlit dashboard; implementation planned
-├── artifacts/            # Generated forecasts, metrics and model outputs
-├── config.yaml            # Centralized project configuration
-├── data/                  # Local raw, intermediate and processed data
-├── notebooks/             # EDA, classification and forecasting experiments
-├── reports/
-│   ├── phase1/            # Synopsis analysis and figures
-│   ├── phase2/            # Forecasting diagnostics and comparison figures
-│   ├── phase3/            # XGBoost Step 1 report and figures; further work pending
-│   └── final/             # Final project deliverables
-├── src/
-│   ├── analysis/          # Demand classification, EDA and diagnostics
-│   ├── data/              # Loading, preprocessing, validation and splitting
-│   ├── evaluation/        # Metrics, backtesting and model comparisons
-│   ├── inventory/         # Inventory decision-support components
-│   ├── models/            # Classical and intermittent-demand models
-│   ├── utils/             # Configuration, paths, logging and plotting
-│   └── pipeline.py        # Pipeline orchestration
-├── tests/                 # Automated tests
-├── requirements.txt
-├── LICENSE
-└── README.md
+## Repository structure
+
+```
+app/                  Streamlit dashboard: app.py (entry), views/ (six pages), components/, theme.py, data_access.py
+artifacts/            generated results (git-ignored): forecasts/, metrics/, inventory/, models/, final/
+config.yaml           every setting; Phase 3 sections: phase3, neural, prophet, xgboost, final_holdout, dashboard
+data/                 raw/ (never committed), interim/, processed/
+notebooks/            01 data -> 10 inventory decision support
+reports/              phase1/, phase2/, phase3/ (figures and write-ups)
+src/
+  data/               loading, scoping, validation, splitting, aggregate-series loader
+  analysis/           demand classification, EDA, model diagnostics
+  models/             baseline, arima, sarima, holt_winters, croston, tsb, xgboost_model, lstm_gru, prophet_model
+  evaluation/         backtesting, metrics, residuals, forecast artifacts, model comparison,
+                      intermittent experiment, final holdout
+  inventory/          reorder point, safety stock, service-level backtest
+  utils/              config, paths, provenance helpers
+tests/                mirrors src/ and app/
+.streamlit/           dashboard theme defaults
 ```
 
-## Roadmap
+## Limitations and known caveats
 
-### Phase 2 — Classical and Intermittent-Demand Forecasting
-
-Completed components include chronological evaluation, aggregate-series comparisons, Croston/TSB experiments, and forecasting diagnostics.
-
-### Phase 3 — Advanced Forecasting and Inventory Decision Support
-
-**Completed: Step 1 — XGBoost forecasting**
-
-- Implemented a pooled XGBoost regressor using leakage-safe lag, rolling, calendar, and demand-category features.
-- Evaluated the model on 20 representative products using five expanding-window folds with a 28-day forecast horizon.
-- Compared development-fold MAE, RMSE, and MAPE against Seasonal Naive, Croston, and TSB.
-- Added automated tests, diagnostic figures, and the report `reports/phase3/XGBoost_Step1_Report.md`.
-- The full automated test suite passed 363 tests in the reported run.
-
-The XGBoost results are development-fold results only. The final 28-day holdout has not been evaluated, and no universal winning model has been established.
-
-**Remaining work**
-
-- Implement and evaluate LSTM/GRU forecasting.
-- Evaluate Prophet where appropriate.
-- Complete cross-model comparison using compatible evaluation periods and metrics.
-- Develop inventory decision support with explicit lead-time, safety-stock, and replenishment assumptions.
-- Complete the interactive Streamlit dashboard.
-- Freeze model selection, conduct the final holdout evaluation under the documented protocol, and prepare the final report and presentation.
-
-These extensions will be evaluated before being presented as completed results.
+- One store, one department, 20 selected items plus the aggregate series: the results do not generalise to other stores,
+  categories or seasons.
+- Five walk-forward folds with overlapping history are a small sample. Fold-to-fold variation is reported next to every
+  mean; no statistical significance test was run, so no model is declared significantly better.
+- The neural networks are small, fixed-size starting points (one layer, 32 units, no hyper-parameter search). The
+  `calendar` variants use event and SNAP information that the Phase 2 classical models do not use, so differences between
+  families mix model class and information set; the `univariate` variants are the like-for-like comparison.
+- Neural and Prophet results depend on library versions and the platform; a re-run on another machine can differ in the
+  last digits. The run metadata records the versions that produced the saved numbers (Python 3.13, torch 2.15.0,
+  prophet 1.5.0, pandas 3.0.5, Linux).
+- Demand classes for model selection are fold-local (computed from each fold's training prefix); the Phase 1 labels were
+  computed on the full history, so 110 of 4,115 (item, fold) pairs change class.
+- Sales are censored by stock-outs, so true demand can be higher than recorded. The inventory layer uses illustrative
+  lead times and service levels, no cost model and claims no savings.
+- `src/pipeline.py` is a documented placeholder; the real entry points are the commands in "Run order".
+- `notebooks/06_xgboost.ipynb` still carries its original Step 1 sentence that Phase 3 was not complete; it was left
+  byte-for-byte unchanged because it is a completed deliverable and a test asserts it.
 
 ## License
 
-This project is distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
-
-## Author
-
-**Nitish Kumar**
-
-GitHub: [@nitishhkr11](https://github.com/nitishhkr11)
+MIT, see [LICENSE](LICENSE).
