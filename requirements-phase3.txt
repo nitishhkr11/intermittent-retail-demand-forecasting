@@ -1,0 +1,41 @@
+# Phase 3 additions -- install INTO the existing project .venv (PowerShell):
+#
+#     .\.venv\Scripts\Activate.ps1
+#     python -m pip install --upgrade pip
+#     python -m pip install -r requirements-phase3.txt
+#
+# This file pulls in requirements.txt first, so one command sets up everything.
+# The heavy libraries are only needed for the pieces that use them, so you can also
+# install them one at a time:
+#
+#     python -m pip install torch       # LSTM / GRU          (notebook 07, src/models/lstm_gru.py)
+#     python -m pip install prophet     # Prophet             (notebook 08, src/models/prophet_model.py)
+#     python -m pip install streamlit plotly   # dashboard     (app/)
+#
+# Versions below are the ones this Phase 3 work was developed and tested with (Python 3.13 on Linux; the fast tests
+# were also run on Python 3.11 with pandas 2.0.3 and streamlit 1.49.1, see reports/phase3/PHASE3_TEST_RECORD.md).
+# A lower bound that was not itself tested says so in its comment.
+# Nothing in Phase 1 / Phase 2 / XGBoost needs this file, except the two version floors right below.
+
+-r requirements.txt
+
+# Two floors that the earlier phases already depend on but requirements.txt does not state (found by running the tests
+# on older versions):
+statsmodels>=0.15      # src/analysis/diagnostics.py passes result_object=True to adfuller/acf (0.14.6 raises TypeError)
+pandas>=2.2            # tests/evaluation/test_item_level_pooled.py uses groupby.apply(..., include_groups=False); the
+                       # Phase 3 code that does not need torch or prophet ran on pandas 2.0.3 in the Python 3.11 check
+
+# Neural sequence models. The CPU build is all that is needed: on Windows, the default
+# `pip install torch` wheel from PyPI is the CPU build (a large download, over 100 MB). TensorFlow is NOT used.
+torch>=2.5,<3          # developed and tested with 2.15.0 (the lower bound is not tested)
+
+# Prophet. Wheels bundle the Stan backend (no compiler needed on Windows, Linux or macOS).
+prophet>=1.1.6,<2      # developed and tested with 1.5.0 (the lower bound is not tested; pulls in cmdstanpy, holidays)
+
+# Dashboard
+streamlit>=1.46,<2     # tested with 1.49.1 (Python 3.11) and 1.66.1 (Python 3.13); versions below 1.49 were not tested
+plotly>=5.24,<8        # tested with 5.24.1 (Python 3.11) and 7.1.0 (Python 3.13)
+
+# Notebook execution used by the tests (already installed with `jupyter` above, listed for clarity)
+nbclient>=0.10
+nbformat>=5.9

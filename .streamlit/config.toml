@@ -1,0 +1,21 @@
+# RiverDemand dashboard settings. The light/dark toggle in the sidebar re-themes the app at run time (app/theme.py);
+# these values are the starting point (light) that the toggle overrides.
+[theme]
+base = "light"
+primaryColor = "#1c5cab"
+backgroundColor = "#f5f4f0"
+secondaryBackgroundColor = "#fcfcfb"
+textColor = "#0b0b0b"
+font = "sans serif"
+
+[server]
+headless = true
+runOnSave = false
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+showErrorDetails = "none"
