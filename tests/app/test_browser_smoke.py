@@ -93,6 +93,7 @@ def _open(browser, url, size=(1366, 768)):
 def test_dark_and_light_paint_differently_in_the_browser(server, browser, size):
     light = _paint(_open(browser, server + "/?theme=light", size))
     dark = _paint(_open(browser, server + "/?theme=dark", size))
+    assert light["app"] == "rgb(255, 255, 255)" and light["side"] == "rgb(255, 255, 255)"
     assert _luma(_rgb(light["app"])) > 200 and _luma(_rgb(dark["app"])) < 60
     assert _luma(_rgb(light["side"])) > 180 and _luma(_rgb(dark["side"])) < 70, "the sidebar does not follow the theme"
     assert _luma(_rgb(light["text"])) < 90 and _luma(_rgb(dark["text"])) > 170, "headings keep their colour across themes"
@@ -114,15 +115,42 @@ def test_the_toggle_switches_the_live_page_and_the_choice_survives_navigation(se
     assert _luma(_rgb(_paint(page)["app"])) > 200
 
 
+def test_warning_and_information_panels_stay_white_with_semantic_accents(server, browser):
+    page = _open(browser, server + "/Inventory_Decision?theme=light")
+    warning = page.locator(".rd-callout.warn").first
+    info = page.locator(".rd-callout.info").first
+    assert warning.count() == 1 and info.count() >= 1
+    warning_style = warning.evaluate("e => ({background:getComputedStyle(e).backgroundColor, accent:getComputedStyle(e).borderLeftColor})")
+    info_style = info.evaluate("e => ({background:getComputedStyle(e).backgroundColor, accent:getComputedStyle(e).borderLeftColor})")
+    assert warning_style == {"background": "rgb(255, 255, 255)", "accent": "rgb(138, 90, 0)"}
+    assert info_style == {"background": "rgb(255, 255, 255)", "accent": "rgb(37, 99, 235)"}
+
+
+RESPONSIVE_SIZES = [(1920, 1080), (1440, 900), (1366, 768), (768, 1024), (390, 844)]
+
+
 @pytest.mark.parametrize("name,slug", list(PAGE_URLS.items()))
 @pytest.mark.parametrize("theme_name", ["light", "dark"])
-def test_each_page_loads_in_the_browser_with_no_script_error_and_no_sideways_scroll(server, browser, name, slug, theme_name):
-    page = _open(browser, f"{server}/{slug}?theme={theme_name}")
+@pytest.mark.parametrize("size", RESPONSIVE_SIZES)
+def test_each_page_loads_in_the_browser_with_no_script_error_and_no_sideways_scroll(server, browser, name, slug, theme_name, size):
+    page = _open(browser, f"{server}/{slug}?theme={theme_name}", size)
     assert page.locator('[data-testid="stException"]').count() == 0, f"{name}: Streamlit reported an exception"
     assert page.locator("h1").first.inner_text().strip().lower().startswith(name.split(" &")[0].lower()[:8])
     overflow = page.evaluate("() => document.documentElement.scrollWidth - document.documentElement.clientWidth")
     assert overflow <= 2, f"{name}: the page scrolls sideways by {overflow}px"
     folder = os.environ.get("RIVERDEMAND_SCREENSHOT_DIR")
-    if folder:
+    if folder and size[0] in (1920, 1440, 1366):
         Path(folder).mkdir(parents=True, exist_ok=True)
-        page.screenshot(path=str(Path(folder) / f"{slug or 'Overview'}_{theme_name}_{page.viewport_size['width']}.png"), full_page=True)
+        page.screenshot(path=str(Path(folder) / f"{slug or 'Overview'}_{theme_name}_{size[0]}.png"), full_page=True)
+
+
+@pytest.mark.parametrize("size,columns", [((1920, 1080), 3), ((1440, 900), 3), ((1366, 768), 3), ((768, 1024), 2), ((390, 844), 1)])
+def test_overview_kpis_use_a_responsive_three_two_one_column_grid(server, browser, size, columns):
+    page = _open(browser, server + "/?theme=light", size)
+    cards = page.locator(".rd-kpis .rd-card")
+    assert cards.count() == 6
+    tops = page.locator(".rd-kpis .rd-card").evaluate_all("els => els.map(e => Math.round(e.getBoundingClientRect().top))")
+    rows = {}
+    for top in tops:
+        rows[top] = rows.get(top, 0) + 1
+    assert sorted(rows.values(), reverse=True) == sorted([columns] * (6 // columns) + ([6 % columns] if 6 % columns else []), reverse=True)

@@ -21,34 +21,38 @@ SESSION_KEY = "rd_theme"
 # Token tables. "series" follows the validated categorical order (blue, orange, aqua, yellow, magenta, green, violet, red).
 THEMES: Dict[str, Dict[str, Any]] = {
     "light": {
-        "bg": "#f5f4f0",
-        "surface": "#fcfcfb",
-        "surface_alt": "#eceae4",
-        "border": "#b9b7ae",
-        "border_soft": "#d6d4cc",
-        "text": "#0b0b0b",
-        "text_secondary": "#3f3e39",
-        "muted": "#55544d",
-        "accent": "#1c5cab",
-        "accent_soft": "#dce8f8",
+        "bg": "#FFFFFF",
+        "surface": "#FFFFFF",
+        "surface_alt": "#F8FAFC",
+        "table_header": "#F1F5F9",
+        "table_cell_y": "0.55rem",
+        "border": "#E5E7EB",
+        "border_soft": "#E5E7EB",
+        "text": "#111827",
+        "text_secondary": "#475569",
+        "muted": "#64748B",
+        "accent": "#2563EB",
+        "accent_soft": "#EFF6FF",
         "on_accent": "#ffffff",
-        "grid": "#d9d7cf",
+        "grid": "#E5E7EB",
         "good": "#0d6b0d",
         "warning": "#8a5a00",
         "critical": "#b32d2d",
         "info": "#1c5cab",
         "good_bg": "#e3f2e3",
-        "warning_bg": "#fbefd2",
+        "warning_bg": "#FFFFFF",
         "critical_bg": "#f9e1e1",
-        "info_bg": "#dce8f8",
+        "info_bg": "#FFFFFF",
         "series": ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"],
-        "history": "#3f3e39",
+        "history": "#475569",
         "color_scheme": "light",
     },
     "dark": {
         "bg": "#111110",
         "surface": "#1a1a19",
         "surface_alt": "#262624",
+        "table_header": "#262624",
+        "table_cell_y": "0.4rem",
         "border": "#6b6a63",
         "border_soft": "#3a3a37",
         "text": "#f0efec",
@@ -80,6 +84,7 @@ TEXT_PAIRS = (
     ("good", "good_bg", 4.5), ("warning", "warning_bg", 4.5), ("critical", "critical_bg", 4.5), ("info", "info_bg", 4.5),
     ("text", "good_bg", 4.5), ("text", "warning_bg", 4.5), ("text", "critical_bg", 4.5), ("text", "info_bg", 4.5),
     ("on_accent", "accent", 4.5),
+    ("warning", "warning_bg", 4.5), ("info", "info_bg", 4.5),
 )
 
 
@@ -132,6 +137,7 @@ def build_css(theme: str) -> str:
     return f"""<style>
 :root {{
   --rd-bg: {t['bg']}; --rd-surface: {t['surface']}; --rd-surface-alt: {t['surface_alt']};
+  --rd-table-header: {t['table_header']}; --rd-table-cell-y: {t['table_cell_y']};
   --rd-border: {t['border']}; --rd-border-soft: {t['border_soft']};
   --rd-text: {t['text']}; --rd-text-2: {t['text_secondary']}; --rd-muted: {t['muted']};
   --rd-accent: {t['accent']}; --rd-accent-soft: {t['accent_soft']}; --rd-on-accent: {t['on_accent']};
@@ -144,7 +150,10 @@ html, body, .stApp, [data-testid="stApp"], [data-testid="stAppViewContainer"], [
 }}
 [data-testid="stHeader"] {{ background: transparent !important; }}
 [data-testid="stHeader"] *, [data-testid="stToolbar"] * {{ color: var(--rd-text-2) !important; }}
-[data-testid="stMain"] .block-container {{ padding-top: 2.2rem; padding-bottom: 4rem; max-width: 1280px; }}
+[data-testid="stMain"] .block-container {{
+  box-sizing: border-box; width: 100%; max-width: 1360px; margin-inline: auto;
+  padding: 2rem clamp(1rem, 2.2vw, 2rem) 4rem;
+}}
 .stApp, .stApp p, .stApp li, .stApp label, .stApp span, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5,
 .stApp [data-testid="stMarkdownContainer"], .stApp [data-testid="stWidgetLabel"] p, .stApp [data-testid="stCaptionContainer"] {{
   color: var(--rd-text);
@@ -158,7 +167,7 @@ html, body, .stApp, [data-testid="stApp"], [data-testid="stAppViewContainer"], [
 
 /* sidebar */
 [data-testid="stSidebar"], [data-testid="stSidebar"] > div {{ background: var(--rd-surface) !important; }}
-[data-testid="stSidebar"] {{ border-right: 1px solid var(--rd-border-soft); }}
+[data-testid="stSidebar"] {{ width: 17rem !important; min-width: 17rem !important; border-right: 1px solid var(--rd-border-soft); }}
 [data-testid="stSidebar"] * {{ color: var(--rd-text); }}
 [data-testid="stSidebar"] .rd-muted, [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color: var(--rd-muted) !important; }}
 [data-testid="stSidebar"] [data-testid="stPageLink"] a, [data-testid="stSidebar"] [data-testid="stPageLink-NavLink"] {{
@@ -235,10 +244,12 @@ div:has(> [data-testid="stSelectboxVirtualDropdown"]), div:has(> [role="listbox"
 .rd-tagline {{ font-size: 0.86rem; color: var(--rd-muted) !important; margin: 0 0 0.9rem 0; line-height: 1.35; }}
 .rd-side-label {{ font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rd-muted) !important; margin: 1rem 0 0.35rem 0; }}
 .rd-scope {{ font-size: 0.85rem; line-height: 1.5; color: var(--rd-text-2) !important; }}
-.rd-page-title {{ margin-bottom: 0.15rem; }}
-.rd-lede {{ color: var(--rd-text-2) !important; font-size: 1.02rem; margin: 0 0 1.1rem 0; max-width: 62rem; line-height: 1.5; }}
-.rd-kpis {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.8rem; margin: 0.4rem 0 1.2rem 0; }}
-.rd-card {{ background: var(--rd-surface); border: 1px solid var(--rd-border-soft); border-radius: 12px; padding: 0.9rem 1rem; }}
+.rd-page-title {{ margin: 0 0 0.15rem 0; line-height: 1.2; }}
+.rd-lede {{ color: var(--rd-text-2) !important; font-size: 1.02rem; margin: 0 0 1.25rem 0; max-width: 76ch; line-height: 1.5; }}
+[data-testid="stMain"] [data-testid="stMarkdownContainer"] > p {{ max-width: 92ch; }}
+.rd-kpis {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; align-items: stretch; gap: 0.9rem; margin: 0.4rem 0 1.6rem 0; }}
+.rd-kpis.count-4 {{ grid-template-columns: repeat(4, minmax(0, 1fr)); }}
+.rd-card {{ box-sizing: border-box; height: 100%; min-height: 8.25rem; background: var(--rd-surface); border: 1px solid var(--rd-border-soft); border-radius: 12px; padding: 0.9rem 1rem; }}
 .rd-card .k {{ font-size: 0.78rem; font-weight: 650; letter-spacing: 0.03em; color: var(--rd-muted) !important; text-transform: uppercase; }}
 .rd-card .v {{ font-size: 1.7rem; font-weight: 700; line-height: 1.2; margin: 0.15rem 0; color: var(--rd-text) !important; }}
 .rd-card .v.sm {{ font-size: 1.2rem; overflow-wrap: anywhere; }}
@@ -255,23 +266,38 @@ div:has(> [data-testid="stSelectboxVirtualDropdown"]), div:has(> [role="listbox"
 .rd-callout * {{ color: var(--rd-text); }}
 .rd-callout.ok {{ border-left-color: var(--rd-good); background: var(--rd-good-bg); }}
 .rd-callout.warn {{ border-left-color: var(--rd-warning); background: var(--rd-warning-bg); }}
+.rd-callout.warn .t span[aria-hidden="true"] {{ color: var(--rd-warning) !important; }}
 .rd-callout.error {{ border-left-color: var(--rd-critical); background: var(--rd-critical-bg); }}
 .rd-callout.info {{ border-left-color: var(--rd-info); background: var(--rd-info-bg); }}
+.rd-callout.info .t span[aria-hidden="true"] {{ color: var(--rd-info) !important; }}
 .rd-code {{ background: var(--rd-surface-alt); color: var(--rd-text) !important; border: 1px solid var(--rd-border-soft); border-radius: 8px;
   padding: 0.55rem 0.75rem; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.84rem;
   overflow-x: auto; white-space: pre; margin: 0.3rem 0; }}
 code {{ background: var(--rd-surface-alt) !important; color: var(--rd-text) !important; padding: 0.05rem 0.3rem; border-radius: 4px; }}
-.rd-table-wrap {{ overflow: auto; border: 1px solid var(--rd-border-soft); border-radius: 10px; background: var(--rd-surface); margin: 0.4rem 0 0.8rem 0; }}
-table.rd-table {{ border-collapse: collapse; width: 100%; font-size: 0.86rem; color: var(--rd-text); }}
+.rd-table-wrap {{ box-sizing: border-box; width: 100%; max-width: 100%; overflow: auto; overscroll-behavior-x: contain; border: 1px solid var(--rd-border-soft); border-radius: 10px; background: var(--rd-surface); margin: 0.4rem 0 0.8rem 0; }}
+table.rd-table {{ border-collapse: collapse; width: max-content; min-width: 100%; table-layout: auto; font-size: 0.86rem; color: var(--rd-text); }}
 table.rd-table caption {{ text-align: left; padding: 0.5rem 0.75rem; font-weight: 650; color: var(--rd-text-2); caption-side: top; }}
-table.rd-table th {{ position: sticky; top: 0; background: var(--rd-surface-alt); color: var(--rd-text); text-align: left; font-weight: 700;
+table.rd-table th {{ position: sticky; top: 0; background: var(--rd-table-header); color: var(--rd-text); text-align: left; font-weight: 700;
   padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--rd-border); white-space: nowrap; }}
-table.rd-table td {{ padding: 0.4rem 0.75rem; border-bottom: 1px solid var(--rd-border-soft); color: var(--rd-text); }}
-table.rd-table td.num, table.rd-table th.num {{ text-align: right; font-variant-numeric: tabular-nums; }}
+table.rd-table td {{ min-width: 4.5rem; padding: var(--rd-table-cell-y) 0.75rem; border-bottom: 1px solid var(--rd-border-soft); color: var(--rd-text); overflow-wrap: anywhere; }}
+table.rd-table td.num, table.rd-table th.num {{ min-width: 6rem; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }}
 table.rd-table tr:last-child td {{ border-bottom: none; }}
 table.rd-table tr.best td {{ background: var(--rd-accent-soft); font-weight: 650; }}
 .rd-prov {{ font-size: 0.84rem; color: var(--rd-text-2) !important; }}
 .rd-hint {{ color: var(--rd-muted) !important; font-size: 0.86rem; }}
+@media (max-width: 1000px) {{
+  .rd-kpis, .rd-kpis.count-4 {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+  [data-testid="stMain"] [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap !important; gap: 1rem; }}
+  [data-testid="stMain"] [data-testid="stHorizontalBlock"] > [data-testid="column"] {{ flex: 1 1 calc(50% - 1rem) !important; min-width: min(100%, 20rem) !important; }}
+}}
+@media (max-width: 600px) {{
+  [data-testid="stMain"] .block-container {{ padding: 1.25rem 1rem 3rem; }}
+  .rd-kpis, .rd-kpis.count-4 {{ grid-template-columns: minmax(0, 1fr); gap: 0.7rem; }}
+  .rd-kpis {{ grid-auto-rows: auto; }}
+  .rd-card {{ min-height: 7rem; }}
+  [data-testid="stMain"] [data-testid="stHorizontalBlock"] > [data-testid="column"] {{ flex-basis: 100% !important; min-width: 100% !important; }}
+  .rd-page-title {{ font-size: 1.65rem !important; }}
+}}
 </style>"""
 
 
