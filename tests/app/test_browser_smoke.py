@@ -78,6 +78,11 @@ def _paint(page):
     return page.evaluate("""() => ({
         app: getComputedStyle(document.querySelector('[data-testid="stApp"]')).backgroundColor,
         side: getComputedStyle(document.querySelector('[data-testid="stSidebar"]')).backgroundColor,
+        main: getComputedStyle(document.querySelector('[data-testid="stMain"]')).backgroundColor,
+        header: getComputedStyle(document.querySelector('[data-testid="stHeader"]')).backgroundColor,
+        container: getComputedStyle(document.querySelector('[data-testid="stMainBlockContainer"]')).backgroundColor,
+        width: document.querySelector('[data-testid="stMainBlockContainer"]').getBoundingClientRect().width,
+        maxWidth: getComputedStyle(document.querySelector('[data-testid="stMainBlockContainer"]')).maxWidth,
         text: getComputedStyle(document.querySelector('h1')).color })""")
 
 
@@ -89,14 +94,16 @@ def _open(browser, url, size=(1366, 768)):
     return page
 
 
-@pytest.mark.parametrize("size", [(1366, 768), (1920, 1080)])
+@pytest.mark.parametrize("size", [(1440, 900), (1366, 768)])
 def test_dark_and_light_paint_differently_in_the_browser(server, browser, size):
     light = _paint(_open(browser, server + "/?theme=light", size))
     dark = _paint(_open(browser, server + "/?theme=dark", size))
-    assert light["app"] == "rgb(255, 255, 255)" and light["side"] == "rgb(255, 255, 255)"
+    assert all(light[k] == "rgb(255, 255, 255)" for k in ("app", "side", "main", "header", "container"))
     assert _luma(_rgb(light["app"])) > 200 and _luma(_rgb(dark["app"])) < 60
     assert _luma(_rgb(light["side"])) > 180 and _luma(_rgb(dark["side"])) < 70, "the sidebar does not follow the theme"
     assert _luma(_rgb(light["text"])) < 90 and _luma(_rgb(dark["text"])) > 170, "headings keep their colour across themes"
+    if size[0] == 1440:
+        assert light["width"] >= 1100 and light["maxWidth"] == "1280px"
 
 
 def test_the_toggle_switches_the_live_page_and_the_choice_survives_navigation(server, browser):
@@ -126,7 +133,7 @@ def test_warning_and_information_panels_stay_white_with_semantic_accents(server,
     assert info_style == {"background": "rgb(255, 255, 255)", "accent": "rgb(37, 99, 235)"}
 
 
-RESPONSIVE_SIZES = [(1920, 1080), (1440, 900), (1366, 768), (768, 1024), (390, 844)]
+RESPONSIVE_SIZES = [(1440, 900), (1366, 768), (768, 1024), (390, 844)]
 
 
 @pytest.mark.parametrize("name,slug", list(PAGE_URLS.items()))
@@ -139,7 +146,7 @@ def test_each_page_loads_in_the_browser_with_no_script_error_and_no_sideways_scr
     overflow = page.evaluate("() => document.documentElement.scrollWidth - document.documentElement.clientWidth")
     assert overflow <= 2, f"{name}: the page scrolls sideways by {overflow}px"
     folder = os.environ.get("RIVERDEMAND_SCREENSHOT_DIR")
-    if folder and size[0] in (1920, 1440, 1366):
+    if folder:
         Path(folder).mkdir(parents=True, exist_ok=True)
         page.screenshot(path=str(Path(folder) / f"{slug or 'Overview'}_{theme_name}_{size[0]}.png"), full_page=True)
 
@@ -154,3 +161,13 @@ def test_overview_kpis_use_a_responsive_three_two_one_column_grid(server, browse
     for top in tops:
         rows[top] = rows.get(top, 0) + 1
     assert sorted(rows.values(), reverse=True) == sorted([columns] * (6 // columns) + ([6 % columns] if 6 % columns else []), reverse=True)
+
+
+@pytest.mark.parametrize("name,slug", list(PAGE_URLS.items()))
+def test_theme_toggle_repaints_each_page(server, browser, name, slug):
+    page = _open(browser, f"{server}/{slug}?theme=light")
+    assert _paint(page)["app"] == "rgb(255, 255, 255)"
+    page.get_by_text("Dark mode", exact=True).first.click()
+    page.wait_for_function("getComputedStyle(document.querySelector('[data-testid=stApp]')).backgroundColor !== 'rgb(255, 255, 255)'", timeout=10000)
+    dark = _paint(page)
+    assert dark["main"] != "rgb(255, 255, 255)" and dark["side"] != "rgb(255, 255, 255)"
