@@ -47,6 +47,10 @@ def package(output: Path | None = None) -> Path:
         "feature_importance_summary.csv", "pooled_fold_metrics.csv",
         "item_fold_metrics.csv", "fold_manifest.json", "independent_audit.json",
     ))
+    xgb_audit = resolve_path(Path("artifacts/expanded_xgboost/independent_audit.json"))
+    if xgb_audit.is_file():
+        audited_files = json.loads(xgb_audit.read_text(encoding="utf-8")).get("artifact_sha256", {})
+        required.extend(Path("artifacts/expanded_xgboost") / name for name in audited_files if name != "forecasts.csv")
     required.extend(Path("artifacts/expanded_intermittent") / name for name in (
         "model_summary.csv", "class_summary.csv", "fold_metrics.csv", "fold_class_summary.csv",
     ))

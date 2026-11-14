@@ -38,7 +38,4 @@ Provider reference: [Streamlit Community Cloud deployment](https://docs.streamli
 The final-evaluation bundle was rebuilt after the one-time holdout run. It packages the hashed development/dashboard inputs plus compact final results, class summary, and evaluation record; it does not include row-level final predictions or raw M5 files. Public deployment and a remote GitHub Actions result remain unverified.
 
 
-Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 7,691,254 bytes, SHA-256 `0f3118283fd2f81a33b6a695210b1d240dd5fdcad15d8fa5151030a3d84a17ae`; 102 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.
-
-
-CI evidence archive: `expanded_xgboost_forecasts_ci.zip` is a CI-only compressed development forecast input needed to independently check the full XGBoost audit hashes. It is extracted only by the test workflow; it is not part of the dashboard data bundle.
+Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 8,458,777 bytes, SHA-256 `9c1d3fd5eff3a24eeb42375e25bf1297d79a2380bca680f824fb54d65ab114f7`; 112 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.

@@ -125,7 +125,7 @@ This does not meet the configured 95% target. 6,584 cells had fewer than two ear
 - Limitation retained: before the cutoff fix, some development loaders transiently read reserved sales values before slicing; those values did not enter training, selection, or scoring.
 
 
-Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 7,691,254 bytes, SHA-256 `0f3118283fd2f81a33b6a695210b1d240dd5fdcad15d8fa5151030a3d84a17ae`; 102 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.
+Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 8,458,777 bytes, SHA-256 `9c1d3fd5eff3a24eeb42375e25bf1297d79a2380bca680f824fb54d65ab114f7`; 112 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.
 
 
-Remote validation attempt: GitHub Actions run 43642698613 passed the 216-test browser suite, then failed two pipeline resume checks because compact bundle omissions prevented checking large development XGBoost and neural audit hashes. Added a separate CI-only compressed XGBoost forecast input and completed the neural audit inputs in the dashboard summary archive. Rerun status follows the next push.
+CI archive follow-up: the previous run passed all 216 browser tests but the XGBoost resume audit still lacked non-forecast hashed outputs. The dashboard package now includes every independently audited XGBoost artifact except its 228 MB daily CSV; the separate CI archive supplies that CSV. Local package hash checks and pipeline/deployment/final-guard tests pass.

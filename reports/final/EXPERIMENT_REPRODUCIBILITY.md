@@ -63,4 +63,4 @@ The deployment-only sales extracts are described by `artifacts/dashboard_data/de
 On 15 November 2026, `python -m pytest tests/app -q` passed 214 browser/UI tests and `python -m pytest -q -m "not slow"` passed 958 tests, deselecting 83 slow tests, with zero failures and one Windows ZMQ Proactor warning. Browser screenshots cover six pages, light/dark modes, and 1920/1440/1366/768/390 px. No GitHub Actions run or public deployment is claimed.
 
 
-Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 7,691,254 bytes, SHA-256 `0f3118283fd2f81a33b6a695210b1d240dd5fdcad15d8fa5151030a3d84a17ae`; 102 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.
+Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 8,458,777 bytes, SHA-256 `9c1d3fd5eff3a24eeb42375e25bf1297d79a2380bca680f824fb54d65ab114f7`; 112 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.
