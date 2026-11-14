@@ -39,7 +39,8 @@ def package(output: Path | None = None) -> Path:
     # The expanded comparison page only needs compact summaries and fold tables, not the 175 MB daily forecast file.
     required.extend(Path("artifacts/expanded_seasonal") / name for name in ("model_summary.csv", "legacy_vs_fold_local.csv"))
     required.extend(Path("artifacts/expanded_neural") / name for name in (
-        "model_summary.csv", "fold_metrics.csv", "training_diagnostics.csv", "forecasts.csv", "completion_verification.json",
+        "model_summary.csv", "fold_metrics.csv", "training_diagnostics.csv", "forecasts.csv",
+        "seed_metrics.csv", "training_history.csv", "run_metadata.json", "completion_verification.json",
     ))
     required.extend(Path("artifacts/expanded_xgboost") / name for name in (
         "pooled_model_summary.csv", "matched_sample_model_summary.csv", "paired_fold_comparisons.csv",

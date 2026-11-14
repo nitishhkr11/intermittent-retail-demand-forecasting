@@ -29,6 +29,7 @@ jobs:
       - name: Restore verified dashboard and development summaries
         run: |
           python -c "from zipfile import ZipFile; ZipFile('reports/final/dashboard_data_bundle_final_evaluation.zip').extractall('.')"
+          python -c "from zipfile import ZipFile; ZipFile('reports/final/expanded_xgboost_forecasts_ci.zip').extractall('.')"
       - name: Prepare test report directory
         run: mkdir -p reports/ci
       - name: Dashboard tests

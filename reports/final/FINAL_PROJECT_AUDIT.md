@@ -119,4 +119,4 @@ Local verification: `pytest tests/app -q` passed 214 tests; `pytest -q -m "not s
 Public provider deployment and a remote GitHub Actions run were not verified. The deployable data package is `dashboard_data_bundle_final_evaluation.zip`; it contains compact evaluation summaries and the record, excludes raw M5 inputs and row-level final forecasts. This is local completion evidence, not a claim of production operation.
 
 
-Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 7,431,020 bytes, SHA-256 `1ba069f8c14470e4cc55ff18268011cc1d8d299b30a15fe0e91502781987cdb8`; 99 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.
+Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 7,691,254 bytes, SHA-256 `0f3118283fd2f81a33b6a695210b1d240dd5fdcad15d8fa5151030a3d84a17ae`; 102 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.
