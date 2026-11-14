@@ -1,0 +1,264 @@
+{
+  "class_candidate_map": {
+    "Erratic": "XGBoost(pooled,lags_calendar_events_poisson,poisson)",
+    "Intermittent": "XGBoost(pooled,lags_calendar)",
+    "Lumpy": "TSB(alpha=0.1,beta=0.1)",
+    "NoDemand": "SeasonalNaive",
+    "Smooth": "XGBoost(pooled,lags_calendar_events_poisson,poisson)"
+  },
+  "config_sections": [
+    "backtest",
+    "models",
+    "xgboost",
+    "neural",
+    "prophet",
+    "final_holdout"
+  ],
+  "config_sha256": "92ab5c50fbc1a341d2c12a27382d71f59b8afc483a1184b32be11306955b3f86",
+  "development_artifact_sha256": {
+    "artifacts/expanded_intermittent/fold_class_summary.csv": "b4255417b8c431d0354f547e0f8ce2d932435ded6f99a99c530ac8a85295cd1b",
+    "artifacts/expanded_intermittent/fold_metrics.csv": "eeaf135e397156beb57791cc17059eeaa1695020eb10bf17b10a433f8a3bf507",
+    "artifacts/expanded_inventory_calibration_v2/calibration_model_class_summary.csv": "dd686832ffcbde5a0e5b43245354ce0178138c88f65581a4134c448c3b159d40",
+    "artifacts/expanded_inventory_calibration_v2/calibration_model_summary.csv": "1296efb5a5954b8a5075bc1469960fbbe2be1aabf32db3908f1498772c81a571",
+    "artifacts/expanded_neural/forecasts.csv": "af7d19ed733b547f8ac7c568ee58adec3d029e57af31a7a79cd5b290e0efedb1",
+    "artifacts/expanded_neural/model_summary.csv": "8371671f96c72156750dc0cf178ee44e6be3749354808d88f7c104c6c4c2d0b7",
+    "artifacts/expanded_prophet_block_conformal/model_summary.csv": "59af8e6a4bf6b08f05349a6238cd1c34f7e54e4821d83e9042f5a6127075ba7d",
+    "artifacts/expanded_seasonal/fold_manifest.json": "7679e3b637006b5b5b150627b8127fd87caa21ac36268d481bf679ff755c4132",
+    "artifacts/expanded_seasonal/model_summary.csv": "3b1c05533624d66e7c8e5b33603e300ac7a24a5fd7c67845753c8218aa57e063",
+    "artifacts/expanded_xgboost/fold_manifest.json": "c854722e138a6eb4314aacd7117d1b6dc3abb27bdfb22b260d8331b2cbfa75d8",
+    "artifacts/expanded_xgboost/independent_audit.json": "406c9748c9eaae0455ff5db1726faee4cb61f01359ba148c1a13aa4df084a470",
+    "artifacts/expanded_xgboost/item_fold_metrics.csv": "8e77633143ea50512b0407c60b5aa8ae7936e5223a1edfa4231625dfa99322d3",
+    "config.yaml": "6fcd13a95bf50d99098ab87d21d32dc86fb9af716209ddb1d9095dadffb49fdf"
+  },
+  "development_selection_manifest": "artifacts/final/DEVELOPMENT_SELECTION.json",
+  "development_selection_sha256": "dc30db717a67f656135d8c2232f51bf422cba3b438b1f42a0205e3ba56332a97",
+  "development_window": {
+    "days": 1913,
+    "end": "2016-04-24",
+    "start": "2011-01-29"
+  },
+  "environment": {
+    "libraries": {
+      "cmdstanpy": "1.3.0",
+      "numpy": "2.5.4",
+      "pandas": "3.0.6",
+      "plotly": "7.1.0",
+      "prophet": "1.5.0",
+      "pyarrow": "26.0.0",
+      "scikit-learn": "1.9.1",
+      "scipy": "1.18.1",
+      "statsmodels": "0.15.0",
+      "streamlit": "1.66.1",
+      "torch": "2.15.0",
+      "xgboost": "3.4.1"
+    },
+    "machine": "AMD64",
+    "os_family": "Windows",
+    "python": "3.13.15",
+    "python_implementation": "CPython"
+  },
+  "frozen_at_utc": "2026-11-14T20:29:40Z",
+  "holdout_evaluated": false,
+  "metrics": [
+    "MAE",
+    "RMSE",
+    "MAPE",
+    "MASE",
+    "WAPE"
+  ],
+  "note": "The final holdout has not yet been evaluated. Historical development loaders transiently read reserved sales before the cutoff correction; those values were not used for training, selection or scoring. See HOLDOUT_DATA_BOUNDARY_AUDIT.md.",
+  "reserved_holdout": {
+    "days": 28,
+    "end": "2016-05-22",
+    "start": "2016-04-25"
+  },
+  "schema_version": 1,
+  "scopes": {
+    "aggregate": {
+      "candidates": [
+        {
+          "candidate": "LSTM(calendar)",
+          "development_metrics": {
+            "MAE": 185.09202877370268,
+            "RMSE": 235.450591602622,
+            "bias": -32.7927345670896
+          },
+          "model": "LSTM(calendar)",
+          "selection_group": "aggregate",
+          "settings": {
+            "batch_size": 64,
+            "cell": "lstm",
+            "dropout": 0.1,
+            "features": "calendar",
+            "grad_clip": 1.0,
+            "hidden_size": 32,
+            "huber_delta": 1.0,
+            "input_window": 56,
+            "learning_rate": 0.002,
+            "loss": "huber",
+            "max_epochs": 80,
+            "num_layers": 1,
+            "patience": 10,
+            "primary_features": "calendar",
+            "seeds": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "torch_num_threads": 1,
+            "validation_days": 56,
+            "weight_decay": 0.0
+          }
+        }
+      ],
+      "headline_candidate": "LSTM(calendar)",
+      "headline_model": "LSTM(calendar)"
+    },
+    "item_level": {
+      "candidates": [
+        {
+          "candidate": "XGBoost(pooled,lags_calendar_events_poisson,poisson)",
+          "development_metrics": {
+            "MAE": 5.085850802485275,
+            "MAE_fold_sd": 0.8897749874552268,
+            "MASE": 0.9063199821464092,
+            "RMSE": 6.298327794365136,
+            "WAPE": 2.0982324289253924,
+            "bias": 1.1299958083342343
+          },
+          "model": "XGBoost(pooled,lags_calendar_events_poisson,poisson)",
+          "selection_groups": [
+            "Erratic",
+            "Smooth"
+          ],
+          "settings": {
+            "features": {
+              "calendar": true,
+              "events": false,
+              "key": "lags_calendar",
+              "objective": "reg:squarederror",
+              "rolling": false,
+              "scope": "pooled"
+            },
+            "hyperparameters": {
+              "colsample_bytree": 0.8,
+              "learning_rate": 0.05,
+              "max_depth": 6,
+              "min_child_weight": 1.0,
+              "n_estimators": 300,
+              "n_jobs": 1,
+              "objective": "reg:squarederror",
+              "random_state": 42,
+              "reg_lambda": 1.0,
+              "subsample": 0.8,
+              "tree_method": "hist"
+            },
+            "lags": [
+              1,
+              7,
+              14,
+              28
+            ],
+            "rolling_windows": [
+              7,
+              14,
+              28
+            ],
+            "scope": "pooled"
+          }
+        },
+        {
+          "candidate": "XGBoost(pooled,lags_calendar)",
+          "development_metrics": {
+            "MAE": 1.5203347007262007,
+            "MAE_fold_sd": 0.19130908061634036,
+            "MASE": 3.0616137814513786,
+            "RMSE": 1.9688267436200544,
+            "WAPE": 1.0979340798625894,
+            "bias": -0.07583589724787035
+          },
+          "model": "XGBoost(pooled,lags_calendar)",
+          "selection_groups": [
+            "Intermittent"
+          ],
+          "settings": {
+            "features": {
+              "calendar": true,
+              "events": false,
+              "key": "lags_calendar",
+              "objective": "reg:squarederror",
+              "rolling": false,
+              "scope": "pooled"
+            },
+            "hyperparameters": {
+              "colsample_bytree": 0.8,
+              "learning_rate": 0.05,
+              "max_depth": 6,
+              "min_child_weight": 1.0,
+              "n_estimators": 300,
+              "n_jobs": 1,
+              "objective": "reg:squarederror",
+              "random_state": 42,
+              "reg_lambda": 1.0,
+              "subsample": 0.8,
+              "tree_method": "hist"
+            },
+            "lags": [
+              1,
+              7,
+              14,
+              28
+            ],
+            "rolling_windows": [
+              7,
+              14,
+              28
+            ],
+            "scope": "pooled"
+          }
+        },
+        {
+          "candidate": "TSB(alpha=0.1,beta=0.1)",
+          "development_metrics": {
+            "MAE": 1.9251748988542141,
+            "MAE_fold_sd": 0.23352215433379994,
+            "MASE": 1.8882288340406688,
+            "RMSE": 2.5118648157182015,
+            "WAPE": 1.4666184108050144,
+            "bias": -0.0713653135609319
+          },
+          "model": "TSB(alpha=0.1,beta=0.1)",
+          "selection_groups": [
+            "Lumpy"
+          ],
+          "settings": {
+            "alpha": 0.1,
+            "beta": 0.1
+          }
+        },
+        {
+          "candidate": "SeasonalNaive",
+          "development_metrics": {
+            "status": "deterministic fallback; not performance-selected"
+          },
+          "model": "SeasonalNaive",
+          "selection_groups": [
+            "NoDemand"
+          ],
+          "settings": {
+            "season_length": 7
+          }
+        }
+      ],
+      "headline_candidate": "Class-selected strategy",
+      "headline_model": "Class-selected strategy"
+    }
+  },
+  "selection_rule": "Use the pre-holdout hashed development selection manifest; choose separate full-panel candidates by aggregate and fold-local demand class.",
+  "source_code_sha256": {
+    "src/evaluation/final_holdout.py": "c5406da28a9024bc3fdabff11cda92cd07a1b12c21cf8b4655865234b8155dcf",
+    "src/evaluation/select_development_candidates.py": "4216a45629b09dda13e2037938e240d2354af030586b65f407f514058a90fdf4"
+  }
+}

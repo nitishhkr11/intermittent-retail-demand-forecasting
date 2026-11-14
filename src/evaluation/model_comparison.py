@@ -55,6 +55,7 @@ AGGREGATE_FAMILIES = (
 ITEM_FAMILIES = (
     ("SeasonalNaive", "baseline (Phase 2)"),
     ("Croston", "baseline (Phase 2)"),
+    ("SBA", "intermittent baseline (Phase 3)"),
     ("TSB", "baseline (Phase 2)"),
     ("XGBoost", "XGBoost (Phase 3)"),
 )
@@ -64,6 +65,7 @@ FAMILY_STYLE = {
     "neural (Phase 3)": {"color": "#2F6F8F", "hatch": "xx"},
     "Prophet (Phase 3)": {"color": "#B0862B", "hatch": "\\\\"},
     "XGBoost (Phase 3)": {"color": "#8B3A3A", "hatch": ".."},
+    "intermittent baseline (Phase 3)": {"color": "#2563EB", "hatch": "++"},
     "other": {"color": "#444444", "hatch": ""},
 }
 #: Phase 3 model names that are the pre-declared primary variants; every other variant is an ablation.
@@ -107,13 +109,14 @@ def aggregate_sources(config: Optional[Mapping[str, Any]] = None) -> List[Artifa
 
 
 def item_sources(config: Optional[Mapping[str, Any]] = None) -> List[ArtifactSource]:
-    """The item-level forecast files: Phase 2 baselines, XGBoost, and notebook 05's re-run of the baselines."""
+    """Item-level sources, including the separate canonical-fold SBA baseline artifact."""
     config = load_config() if config is None else config
     p2, p3 = config["phase2"], config["phase3"]
     return [
         ArtifactSource("Phase 2 item-level baselines", p2["item_level_long_results_filename"], "item"),
         ArtifactSource("XGBoost", p3["xgboost_long_results_filename"], "item"),
         ArtifactSource("Notebook 05 baselines (re-run)", p3["intermittent_long_filename"], "item"),
+        ArtifactSource("SBA (canonical five-fold run)", p3["sba_forecasts_filename"], "item"),
     ]
 
 

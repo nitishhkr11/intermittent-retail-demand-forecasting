@@ -1,0 +1,15 @@
+model,source,folds,failures,MAE,RMSE,WAPE,MASE,bias,information_set
+LSTM(calendar),expanded_neural/model_summary.csv,16,0,185.09202877370268,235.450591602622,,,-32.7927345670896,aggregate lag history; calendar/event features for calendar variants
+GRU(calendar),expanded_neural/model_summary.csv,16,0,194.76717135166632,246.5435462982971,,,-33.101460539503805,aggregate lag history; calendar/event features for calendar variants
+Prophet(multiplicative),expanded_prophet_block_conformal/model_summary.csv,16,0,221.68182263542872,277.89220476332736,,,-48.88862897111929,aggregate history; Prophet calendar/event regressors per variant
+Prophet(additive),expanded_prophet_block_conformal/model_summary.csv,16,0,243.62826404276487,301.3784255799157,,,-51.8197173072148,aggregate history; Prophet calendar/event regressors per variant
+SARIMA(legacy_fixed),expanded_seasonal/model_summary.csv,16,0,254.07404863595556,317.8559220397866,0.1159285927512177,0.972398554266783,-70.75933512582368,aggregate lags only; fold-local classical settings where marked
+SARIMA(fold_local_selected),expanded_seasonal/model_summary.csv,16,0,254.07404863595556,317.8559220397866,0.1159285927512177,0.972398554266783,-70.75933512582368,aggregate lags only; fold-local classical settings where marked
+HoltWinters(legacy_fixed),expanded_seasonal/model_summary.csv,16,0,260.39155757871856,322.8738788711296,0.1185632699334802,0.9981673661899648,-72.18135776716942,aggregate lags only; fold-local classical settings where marked
+HoltWinters(fold_local_selected),expanded_seasonal/model_summary.csv,16,0,260.7207832801011,323.09339930096485,0.1187816530025015,1.0000337558334915,-77.2574796181864,aggregate lags only; fold-local classical settings where marked
+GRU(univariate),expanded_neural/model_summary.csv,16,0,267.7681579344206,338.3516110617502,,,-91.21493880028136,aggregate lag history; calendar/event features for calendar variants
+"Prophet(additive,no-regressors)",expanded_prophet_block_conformal/model_summary.csv,16,0,283.0515518942231,343.78925999038387,,,-81.4550326959115,aggregate history; Prophet calendar/event regressors per variant
+LSTM(univariate),expanded_neural/model_summary.csv,16,0,283.55351658921046,358.4424780866973,,,-94.03626828129543,aggregate lag history; calendar/event features for calendar variants
+ARIMA(legacy_fixed),expanded_seasonal/model_summary.csv,16,0,312.9792702928841,387.4341083988803,0.1433892138133213,1.1967624724223165,-131.2025944402319,aggregate lags only; fold-local classical settings where marked
+ARIMA(fold_local_selected),expanded_seasonal/model_summary.csv,16,0,319.2526382796003,394.76210210194176,0.146344961205605,1.2209042599532605,-114.31671710197912,aggregate lags only; fold-local classical settings where marked
+SeasonalNaive(fixed_baseline),expanded_seasonal/model_summary.csv,16,0,352.91741071428567,448.1640254414066,0.1631061744276528,1.3462837672490535,-150.77455357142858,aggregate lags only; fold-local classical settings where marked

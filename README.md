@@ -4,9 +4,7 @@ A comparative classical, machine-learning and deep-learning forecasting framewor
 support, built on the Walmart M5 Forecasting - Accuracy dataset (store `CA_1`, department `FOODS_3`,
 823 items, 1,941 days, 2011-01-29 to 2016-05-22).
 
-**Status: Phases 1-3 are implemented and every development result below was produced by running the code in this
-repository. The final holdout (the last 28 days, 2016-04-25 to 2016-05-22) has NOT been evaluated.** It is reserved for one
-final evaluation of frozen candidates (see "Final holdout").
+**Status (15 November 2026):** Phases 1–3, the expanded development experiments, dashboard QA, and the one-time final holdout evaluation are complete. The holdout was scored once (2016-04-25–2016-05-22) from frozen candidates. Local tests passed; public hosting and remote GitHub Actions are not verified. See `reports/final/FINAL_HOLDOUT_RESULTS.md` and `FINAL_PROJECT_AUDIT.md`.
 
 ## What is in the repository
 
@@ -23,7 +21,7 @@ final evaluation of frozen candidates (see "Final holdout").
 | Unified comparison from saved artifacts (aggregate and item level kept apart) | `src/evaluation/model_comparison.py`, `notebooks/09` | Phase 3, complete |
 | Inventory layer: reorder point, safety stock, service-level backtest | `src/inventory/`, `notebooks/10` | Phase 3, complete |
 | Streamlit dashboard, six pages, light and dark theme | `app/` | Phase 3, complete |
-| Controlled final-holdout workflow (freeze, then run once) | `src/evaluation/final_holdout.py` | Phase 3, complete; **not run** |
+| Controlled final-holdout workflow (freeze, then run once) | `src/evaluation/final_holdout.py` | Complete; evaluated once, record and hashes saved |
 
 ## Protocol (the rules every result obeys)
 
@@ -31,9 +29,7 @@ final evaluation of frozen candidates (see "Final holdout").
   (2011-01-29 to 2016-04-24). Fold 1 forecasts 2015-12-07 to 2016-01-03; fold 5 forecasts 2016-03-28 to 2016-04-24.
 - **No leakage.** Scalers, features, class labels and hyper-parameters are fitted on a fold's training prefix only; tests
   perturb the validation tail and the forecast window and check that nothing the model sees changes.
-- **Final holdout untouched.** 2016-04-25 to 2016-05-22 is never loaded by a notebook, a model, or the dashboard.
-  Only `src/evaluation/final_holdout.py` can read it, and only after candidates are frozen and an explicit confirmation
-  phrase is typed.
+- **Final holdout evaluated once.** Frozen candidates, the one-time evaluation record, and hashed result files are saved under `artifacts/final/`. Older development loaders transiently read reserved sales before slicing; those values were not used for fitting, selection, or scoring. Current loaders enforce the cutoff at read time. This provenance limitation is documented in `reports/final/HOLDOUT_DATA_BOUNDARY_AUDIT.md`.
 - **Aggregate and item-level errors are never ranked together.** The aggregate series is in thousands of units per day;
   one item is a few units per day. They live in separate tables, tabs and conclusions.
 - **Nothing is invented.** A model without a saved forecast file is absent from every table and chart, with a message
@@ -80,6 +76,25 @@ per-class tables in notebook 09 show that the ranking changes with the demand cl
 saved forecasts and saved forecast errors reached lower cycle service on later folds than its target in all 16
 (model, target) combinations (for example 87.7% to 89.8% achieved at a 95% target). The notebook reports the
 interval and lists plausible reasons without isolating them.
+
+## Expanded seasonal development results (14 November 2026)
+
+The five-fold tables above are retained as the historical benchmark. A separate experiment used 16 disjoint quarterly
+28-day windows from 2012–2015 (all four quarters over four years). Fold-local ARIMA, SARIMA and Holt-Winters settings
+were selected on an inner chronological validation segment. Aggregate mean MAE was 254.1 for SARIMA, 260.7 for
+fold-local Holt-Winters, 319.3 for fold-local ARIMA, and 352.9 for Seasonal Naive. The full table and exact fold
+windows are in `reports/final/FINAL_RESEARCH_RESULTS.md` and `artifacts/expanded_seasonal/`.
+
+A separate 823-item, 16-fold intermittent study evaluated Seasonal Naive, Croston, SBA and TSB. Successful-cell mean
+MAE was 1.989, 2.290, 2.255 and 1.712, respectively. Croston and SBA retain 2,236 failed fits each on all-zero
+training prefixes; failures were not replaced. The 7-day inventory backtest achieved 91.17%–93.86% cycle service
+against a 95% target, so the target is not met. These figures are development evidence, not a service guarantee.
+
+Expanded development evidence now includes the complete 64/64 LSTM/GRU seasonal study, 16-fold Prophet coverage,
+full-panel XGBoost ablations (823 products; plus a fixed 183-product per-item sample), and alternative earlier-fold-only
+inventory calibration. The 95% cycle-service target remains unmet: the alternative methods achieved 86.72%–92.59%.
+Development-only aggregate and four class-specific candidates are recorded in the hashed candidate selection manifest.
+The final holdout was subsequently evaluated once after candidate freeze. The executed candidates and metrics are documented in `reports/final/FINAL_HOLDOUT_RESULTS.md`. Earlier loaders transiently read reserved sales before the cutoff correction; full details are in `reports/final/HOLDOUT_DATA_BOUNDARY_AUDIT.md`.
 
 ## Setup (Windows, PowerShell)
 
@@ -205,3 +220,8 @@ tests/                mirrors src/ and app/
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+
+## Final holdout results (single evaluation)
+
+The protected 28-day window (2016-04-25 through 2016-05-22) was evaluated once. The aggregate LSTM(calendar) result was MAE 128.087, RMSE 183.143, WAPE 0.0543 and MASE 0.492. The item-level class-selected strategy scored macro MAE 1.684, RMSE 2.188, WAPE 1.007 and MASE 1.375 over all 823 items. Item-level MAPE excludes 8,432 zero-actual rows; aggregate and item metrics are not comparable. The evaluation record, frozen manifest and result hashes are in `artifacts/final/`; complete tables and caveats are in `reports/final/FINAL_HOLDOUT_RESULTS.md`. Do not use this test period for tuning.

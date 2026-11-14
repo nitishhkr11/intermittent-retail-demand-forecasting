@@ -164,25 +164,25 @@ About & Methodology.
 State of this repository (`python -m src.evaluation.final_holdout status`): **candidates frozen: no; holdout
 evaluated: no.** `artifacts/final/` holds only its README.
 
-All development artifacts needed to freeze are present and notebook 09 has been run, so the only things that remain are
-your decisions and two commands:
+The original aggregate/item-level candidate registry has saved results, but the broader finalization requirements are not
+satisfied. The protected freeze command now refuses to create a manifest while the following development work is
+incomplete:
 
-1. Decide that no model, feature or setting will change any more. The candidates are declared in `config.yaml`
-   (`final_holdout.candidates`): Seasonal Naive, ARIMA, SARIMA, Holt-Winters, LSTM (calendar), GRU (calendar) and
-   Prophet (additive) for the aggregate series; Seasonal Naive, Croston, TSB and XGBoost (pooled) for the item level.
-2. `python -m src.evaluation.final_holdout freeze` stores the headline model of each scope (lowest mean
-   development-fold MAE) and a hash of the settings. On the present artifacts that rule would pick LSTM (calendar) for
-   the aggregate scope and TSB for the item-level scope.
-3. `python -m src.evaluation.final_holdout run --confirm EVALUATE-FINAL-HOLDOUT-ONCE` evaluates every frozen candidate
-   once. No holdout result exists in this repository and none is quoted in any document.
+- Full-panel XGBoost feature ablations across lags, rolling statistics, calendar, and known event/SNAP features.
+- Full-panel XGBoost ablations across the required feature sets.
+- A formal selection protocol and saved evidence for Smooth, Erratic, Intermittent, and Lumpy scopes.
+- Alternative inventory calibration and demand-class sensitivity evaluation.
 
-The freeze was not run here because it is the point after which models may no longer change, and the deadline for
-that decision is yours (the faculty final window is 16 to 27 November 2026).
-
+The `status` command lists these blockers and says not to freeze or evaluate the holdout. The freeze was not run, no
+candidate manifest exists, and the final holdout remains unaccessed. Once the required research is complete, update the
+prerequisite gate, re-audit candidate evidence, freeze once, then perform the authorized one-time evaluation.
 ## 6. Tests
 
 See `reports/phase3/PHASE3_TEST_RECORD.md` for the exact counts of the final run, how each group was run, and what
 was skipped or deselected and why.
+
+Current post-finalization-patch results are: 199 dashboard tests passed; 944 tests passed and 68 were deselected in
+the required non-slow suite, with one ZMQ Proactor warning. See `reports/final/FINAL_EXECUTION_LOG.md` for commands.
 
 ## 7. Limitations
 
@@ -206,3 +206,6 @@ was skipped or deselected and why.
   were identical). Every number in this report uses the saved Phase 2 values, which were restored after that test and
   were not changed. That test overwrites the Phase 2 SARIMA artifacts as a side effect; if it does so on your machine
   with different numbers, re-run notebook 09 so the comparison matches (the comparison test says so).
+
+The `src/pipeline.py` statement above is retained as a historical Phase 3 snapshot. The current worktree contains a
+development-only staged CLI pipeline. Its smoke and resume results are documented in `reports/final/FINAL_EXECUTION_LOG.md`.

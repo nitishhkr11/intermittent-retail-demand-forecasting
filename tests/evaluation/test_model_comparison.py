@@ -49,7 +49,8 @@ def cfg(tmp_path):
 def test_sources_come_from_config_and_cover_every_model_family():
     config = load_config()
     agg, items = mc.aggregate_sources(config), mc.item_sources(config)
-    assert [s.scope for s in agg] == ["aggregate"] * 6 and [s.scope for s in items] == ["item"] * 3
+    assert [s.scope for s in agg] == ["aggregate"] * 6 and [s.scope for s in items] == ["item"] * 4
+    assert any(s.filename == config["phase3"]["sba_forecasts_filename"] for s in items)
     names = {s.filename for s in agg}
     assert config["phase3"]["neural_forecasts_filename"] in names and config["phase3"]["prophet_forecasts_filename"] in names
     assert config["phase2"]["arima_forecasts_filename"] in names
@@ -62,6 +63,7 @@ def test_model_family_prefixes():
     assert mc.model_family("Prophet(additive)") == "Prophet (Phase 3)"
     assert mc.model_family("XGBoost(pooled)", "item") == "XGBoost (Phase 3)"
     assert mc.model_family("Croston(alpha=0.1)", "item") == "baseline (Phase 2)"
+    assert mc.model_family("SBA(alpha=0.1)", "item") == "intermittent baseline (Phase 3)"
     assert mc.model_family("Mystery") == "other"
 
 

@@ -223,3 +223,27 @@ These four Phase 1 placeholder pages are superseded by `app/views/`. They are no
 ## Where each file belongs
 
 Every path in both ZIPs is the path inside your project folder (`app/` next to `src/`, `notebooks/`, `tests/`, `reports/`, `artifacts/`). The patch has no wrapper directory. The complete snapshot has one wrapper folder, `intermittent-retail-demand-forecasting/`, which is the project root. `apply_riverdemand_patch.ps1` (a separate download, not inside either ZIP) copies the files for you.
+
+## Supplemental finalization inventory — 14 November 2026
+
+The tables above describe the earlier Phase 3 completion snapshot. The following later work is present in the current worktree:
+
+| File/group | Current purpose or state |
+|---|---|
+| `src/evaluation/expanded_seasonal.py` and `artifacts/expanded_seasonal/` | 16 disjoint quarterly development windows; fold-local classical selection and saved comparison |
+| `src/evaluation/expanded_intermittent.py`, `src/evaluation/sba_backtest.py`, `src/models/sba.py` | All-823-item Seasonal Naive/Croston/SBA/TSB results and canonical SBA artifact |
+| `src/evaluation/expanded_inventory.py` and `artifacts/expanded_inventory/` | Earlier-fold-only 7-day cycle-service calibration; achieved service remains below 95% |
+| `src/evaluation/expanded_prophet.py` and `artifacts/expanded_prophet_block_conformal/` | 3 Prophet variants × 16 folds, nominal coverage and exploratory block-conformal validation |
+| `src/evaluation/expanded_neural.py`, `artifacts/expanded_neural/` | 64/64 variant-fold cells complete; 320 seed fits; independent metric recalculation passed |
+| `src/evaluation/expanded_xgboost.py`, `artifacts/expanded_xgboost/` | Five pooled variants × 16 folds over 823 items; one per-item variant × 16 folds over a fixed 183-item stratified sample; 0 failures; independent audit passed |
+| `src/evaluation/expanded_inventory_calibration.py`, `artifacts/expanded_inventory_calibration_v2/` | Four earlier-fold-only 7-day calibration methods on common evaluation cells; all methods below the 95% target |
+| `src/evaluation/select_development_candidates.py`, `artifacts/final/FROZEN_CANDIDATES.json` | Development-only aggregate and four class candidate selections; final holdout has not been evaluated |
+| `src/deployment/development_data.py`, `artifacts/dashboard_data/`, `reports/final/dashboard_data_bundle_development_only.zip` | Development-only dashboard data through 2016-04-24; excludes holdout sales rows |
+| `app/`, `tests/app/`, `reports/final/dashboard_browser_qa/` | Six-page dashboard, computed-style and responsive browser QA; 48 current after screenshots |
+| `src/pipeline.py`, `tests/test_pipeline.py`, `.github/workflows/ci.yml` | Staged development-only CLI pipeline and CI definition; no GitHub Actions run has been verified |
+| `src/evaluation/final_holdout.py`, `tests/evaluation/test_final_holdout.py` | Freeze now refuses while repository-wide selection prerequisites remain incomplete; status reports the blockers |
+| `reports/final/` and `docs/` | Current research, reproducibility, deployment, audit, limitation and execution records |
+
+The final holdout remains unevaluated. Pipeline orchestration/verification, final artifact synchronization, deployment,
+remote CI and final delivery QA remain in progress. No public deployment or CI run is claimed. The browser suite now
+covers six pages, two themes and five widths; current test results are recorded in `reports/final/FINAL_EXECUTION_LOG.md`.

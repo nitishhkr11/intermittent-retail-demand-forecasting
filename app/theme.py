@@ -47,7 +47,7 @@ THEMES: Dict[str, Dict[str, Any]] = {
         "good": "#0d6b0d",
         "warning": "#8a5a00",
         "critical": "#b32d2d",
-        "info": "#1c5cab",
+        "info": "#2563EB",
         "good_bg": "#e3f2e3",
         "warning_bg": "#FFFFFF",
         "critical_bg": "#f9e1e1",

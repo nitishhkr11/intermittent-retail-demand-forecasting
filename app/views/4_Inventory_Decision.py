@@ -27,6 +27,23 @@ page_header("Inventory Decisions", "Turn a saved forecast and its saved forecast
 callout("warn", "Illustrative, not an operating policy",
         inv.ASSUMPTIONS_TEXT + " The calculation replays a past forecast origin; it does not forecast the future.")
 
+calibration_path = resolve_path(Path("artifacts/expanded_inventory/service_level_summary.csv"))
+if calibration_path.exists():
+    calibration = pd.read_csv(calibration_path)
+    below = calibration[calibration["achieved_cycle_service"] < calibration["target_cycle_service"]]
+    if not below.empty:
+        observed = ", ".join(
+            f"{row.model}: {row.achieved_cycle_service:.1%} (target {row.target_cycle_service:.1%})"
+            for row in below.itertuples(index=False)
+        )
+        callout("warn", "Expanded calibration is below the 95% target",
+                f"Observed 7-day cycle service on later development folds: {observed}. This is an empirical backtest, not an operating guarantee or fill rate.")
+        display = below[["model", "target_cycle_service", "achieved_cycle_service", "ci_low", "ci_high", "n_windows"]].copy()
+        for column in ("target_cycle_service", "achieved_cycle_service", "ci_low", "ci_high"):
+            display[column] = display[column].map(lambda value: f"{value:.1%}")
+        render_table(display.rename(columns={"model": "Model", "target_cycle_service": "Target", "achieved_cycle_service": "Achieved", "ci_low": "90% interval low", "ci_high": "90% interval high", "n_windows": "Evaluation windows"}),
+                     caption="Expanded all-item 7-day service-level validation; safety stock used earlier folds only", max_height=300)
+
 config = da.get_config()
 section = config["inventory"]
 bundle = da.load_bundle()

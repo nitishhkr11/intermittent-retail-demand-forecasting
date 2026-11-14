@@ -149,6 +149,8 @@ class XGBoostConfig:
 
     lags: Tuple[int, ...] = (1, 7, 14, 28)
     rolling_mean_windows: Tuple[int, ...] = (7, 14, 28)
+    use_rolling_features: bool = True
+    use_calendar_features: bool = True
     use_event_calendar: bool = True
     objective: str = "reg:squarederror"
     n_estimators: int = 300
@@ -182,14 +184,16 @@ class XGBoostConfig:
     @property
     def max_lookback(self) -> int:
         """History length a row needs: the largest lag or rolling window."""
-        return max(max(self.lags), max(self.rolling_mean_windows))
+        rolling = max(self.rolling_mean_windows) if self.use_rolling_features else 0
+        return max(max(self.lags), rolling)
 
     @property
     def lag_roll_names(self) -> List[str]:
-        return [f"lag_{k}" for k in self.lags] + [f"roll_mean_{w}" for w in self.rolling_mean_windows]
+        rolling = [f"roll_mean_{w}" for w in self.rolling_mean_windows] if self.use_rolling_features else []
+        return [f"lag_{k}" for k in self.lags] + rolling
 
     def numeric_feature_names(self) -> List[str]:
-        names = self.lag_roll_names + list(CALENDAR_BASE_COLUMNS)
+        names = self.lag_roll_names + (list(CALENDAR_BASE_COLUMNS) if self.use_calendar_features else [])
         if self.use_event_calendar:
             names += list(EVENT_FLAG_COLUMNS)
         return names
@@ -223,7 +227,10 @@ class XGBoostConfig:
         if "xgboost" not in config:
             raise KeyError("config has no 'xgboost' section.")
         section = config["xgboost"]
-        unknown_keys = set(section) - {"lags", "rolling_mean_windows", "use_event_calendar", "hyperparameters"}
+        unknown_keys = set(section) - {
+            "lags", "rolling_mean_windows", "use_rolling_features", "use_calendar_features",
+            "use_event_calendar", "hyperparameters",
+        }
         if unknown_keys:
             raise ValueError(f"Unknown xgboost config key(s): {sorted(unknown_keys)}.")
         params = dict(section.get("hyperparameters", {}))
@@ -237,6 +244,12 @@ class XGBoostConfig:
             kwargs["rolling_mean_windows"] = tuple(section["rolling_mean_windows"])
         if "use_event_calendar" in section:
             kwargs["use_event_calendar"] = bool(section["use_event_calendar"])
+        if "use_rolling_features" in section:
+            kwargs["use_rolling_features"] = bool(section["use_rolling_features"])
+        if "use_calendar_features" in section:
+            kwargs["use_calendar_features"] = bool(section["use_calendar_features"])
+        if kwargs.get("use_event_calendar", True) and not kwargs.get("use_calendar_features", True):
+            raise ValueError("use_event_calendar requires use_calendar_features=True.")
         return cls(**kwargs)
 
 
@@ -360,7 +373,7 @@ def lag_roll_features_for_next_step(
     h = np.asarray(history, dtype=float)
     if h.ndim != 2:
         raise ValueError(f"history must be 2-D (n_items, L), got shape {h.shape}.")
-    need = max(max(lags), max(windows))
+    need = max(max(lags), max(windows) if windows else 0)
     if h.shape[1] < need:
         raise ValueError(f"history has {h.shape[1]} columns but {need} are needed.")
     columns = [h[:, -k] for k in lags] + [h[:, -w:].mean(axis=1) for w in windows]
@@ -438,11 +451,13 @@ def build_training_frame(
             )
         keep = np.arange(len(values)) >= warmup
         n_dropped += int((~keep).sum())
-        features = pd.DataFrame(
-            lag_roll_feature_matrix(values, cfg.lags, cfg.rolling_mean_windows)[keep], columns=cfg.lag_roll_names
-        )
-        calendar = calendar_features(series.index[keep], event_calendar, cfg.use_event_calendar).reset_index(drop=True)
-        frame = pd.concat([features, calendar], axis=1)
+        windows = cfg.rolling_mean_windows if cfg.use_rolling_features else ()
+        features = pd.DataFrame(lag_roll_feature_matrix(values, cfg.lags, windows)[keep], columns=cfg.lag_roll_names)
+        if cfg.use_calendar_features:
+            calendar = calendar_features(series.index[keep], event_calendar, cfg.use_event_calendar).reset_index(drop=True)
+            frame = pd.concat([features, calendar], axis=1)
+        else:
+            frame = features
         frame.insert(0, "y", values[keep])
         frame.insert(0, "date", series.index[keep])
         frame.insert(0, "item_id", item_id)
@@ -589,8 +604,10 @@ class _XGBoostCore:
     def predict(self, horizon: int) -> Dict[str, np.ndarray]:
         self._require_fitted()
         dates = self.forecast_dates(horizon)
-        calendar = calendar_features(dates, self.event_calendar, self.cfg.use_event_calendar)
-        calendar_values = calendar[list(CALENDAR_BASE_COLUMNS) + (list(EVENT_FLAG_COLUMNS) if self.cfg.use_event_calendar else [])]
+        if self.cfg.use_calendar_features:
+            calendar_values = calendar_features(dates, self.event_calendar, self.cfg.use_event_calendar)
+        else:
+            calendar_values = pd.DataFrame(index=dates)
 
         items = self._items
         n_items = len(items)
@@ -602,7 +619,8 @@ class _XGBoostCore:
         predictions = np.empty((n_items, horizon), dtype=float)
         raw_all = np.empty((n_items, horizon), dtype=float)
         for step in range(horizon):
-            lag_roll = lag_roll_features_for_next_step(history, self.cfg.lags, self.cfg.rolling_mean_windows)
+            windows = self.cfg.rolling_mean_windows if self.cfg.use_rolling_features else ()
+            lag_roll = lag_roll_features_for_next_step(history, self.cfg.lags, windows)
             numeric = pd.DataFrame(lag_roll, columns=lr_names)
             for column in calendar_values.columns:
                 numeric[column] = np.repeat(calendar_values[column].iloc[step], n_items)

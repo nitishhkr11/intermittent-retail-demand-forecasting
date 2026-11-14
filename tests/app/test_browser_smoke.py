@@ -23,6 +23,7 @@ playwright_sync = pytest.importorskip("playwright.sync_api", reason="playwright 
 ROOT = Path(__file__).resolve().parents[2]
 PAGE_URLS = {"Overview": "", "Forecast Explorer": "Forecast_Explorer", "Model Comparison": "Model_Comparison", "Inventory Decisions": "Inventory_Decision",
              "Model Reliability": "Model_Reliability", "About & Methodology": "About_Methodology"}
+_OPEN_CONTEXTS = []
 
 
 def _free_port() -> int:
@@ -66,6 +67,17 @@ def browser():
         b.close()
 
 
+@pytest.fixture(autouse=True)
+def close_page_contexts_after_each_browser_test():
+    yield
+    while _OPEN_CONTEXTS:
+        context = _OPEN_CONTEXTS.pop()
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
 def _rgb(text: str):
     return tuple(int(v) for v in re.findall(r"\d+", text)[:3])
 
@@ -87,7 +99,25 @@ def _paint(page):
 
 
 def _open(browser, url, size=(1366, 768)):
-    page = browser.new_context(viewport={"width": size[0], "height": size[1]}).new_page()
+    context = browser.new_context(viewport={"width": size[0], "height": size[1]})
+    _OPEN_CONTEXTS.append(context)
+    page = context.new_page()
+    page._rd_browser_errors = []
+    page._rd_framework_probe_404 = []
+    page.on("pageerror", lambda exc: page._rd_browser_errors.append(str(exc)))
+    def capture_console_error(msg):
+        if msg.type != "error":
+            return
+        url = msg.location.get("url", "")
+        # Streamlit 1.66.1 resolves these two framework health probes relative
+        # to a hidden multipage route. They return 404, but do not affect page
+        # rendering, navigation, or app JavaScript. Keep them visible as a
+        # separate, narrowly scoped framework diagnostic.
+        if "404 (Not Found)" in msg.text and any(url.endswith(f"/_stcore/{name}") for name in ("health", "host-config")):
+            page._rd_framework_probe_404.append(url)
+            return
+        page._rd_browser_errors.append(f"{msg.text} @ {msg.location}")
+    page.on("console", capture_console_error)
     page.goto(url, wait_until="networkidle")
     page.wait_for_selector("h1", timeout=60000)
     page.wait_for_timeout(1500)
@@ -124,16 +154,77 @@ def test_the_toggle_switches_the_live_page_and_the_choice_survives_navigation(se
 
 def test_warning_and_information_panels_stay_white_with_semantic_accents(server, browser):
     page = _open(browser, server + "/Inventory_Decision?theme=light")
-    warning = page.locator(".rd-callout.warn").first
+    # Inventory result generation can take longer than a normal page render because
+    # it bootstraps the saved error windows. Wait for the downstream explanation.
+    page.get_by_text("What this means, in plain English").wait_for(timeout=60000)
+    warnings = page.locator(".rd-callout.warn")
+    warning = warnings.first
     info = page.locator(".rd-callout.info").first
-    assert warning.count() == 1 and info.count() >= 1
+    assert warnings.count() == 2 and info.count() >= 1, "the illustrative-assumptions and below-target calibration warnings must both be visible"
     warning_style = warning.evaluate("e => ({background:getComputedStyle(e).backgroundColor, accent:getComputedStyle(e).borderLeftColor})")
     info_style = info.evaluate("e => ({background:getComputedStyle(e).backgroundColor, accent:getComputedStyle(e).borderLeftColor})")
     assert warning_style == {"background": "rgb(255, 255, 255)", "accent": "rgb(138, 90, 0)"}
     assert info_style == {"background": "rgb(255, 255, 255)", "accent": "rgb(37, 99, 235)"}
 
 
-RESPONSIVE_SIZES = [(1440, 900), (1366, 768), (768, 1024), (390, 844)]
+def test_expanded_comparison_exposes_prophet_interval_results(server, browser):
+    page = _open(browser, server + "/Model_Comparison?theme=light")
+    page.get_by_role("tab", name="Expanded development study").click()
+    page.get_by_text("Prophet seasonal interval study", exact=True).wait_for(timeout=60000)
+    assert page.get_by_text("Block conformal intervals are deliberately wide", exact=False).count() == 1
+    assert page.locator('[data-testid="stException"]').count() == 0
+
+
+def test_expanded_comparison_exposes_complete_neural_seasonal_results(server, browser):
+    page = _open(browser, server + "/Model_Comparison?theme=light")
+    page.get_by_role("tab", name="Expanded development study").click()
+    heading = page.get_by_text("LSTM/GRU seasonal comparison", exact=True)
+    heading.wait_for(timeout=60000)
+    heading.scroll_into_view_if_needed()
+    neural_table = page.locator(".rd-table-wrap").filter(has_text="185.092")
+    assert neural_table.count() >= 1
+    assert "LSTM(calendar)" in neural_table.first.inner_text()
+    assert page.locator('[data-testid="stException"]').count() == 0
+
+
+def test_expanded_comparison_exposes_xgboost_feature_ablations(server, browser):
+    page = _open(browser, server + "/Model_Comparison?theme=light")
+    page.get_by_role("tab", name="Expanded development study").click()
+    page.get_by_text("XGBoost feature ablations", exact=True).wait_for(timeout=60000)
+    assert page.get_by_text("XGBoost(pooled,lags_calendar_events_poisson,poisson)", exact=False).count() >= 1
+    assert page.get_by_text("XGBoost(per-item,lags_calendar_events)", exact=False).count() >= 1
+    assert page.locator('[data-testid="stException"]').count() == 0
+
+
+def test_expanded_comparison_exposes_alternative_inventory_calibration(server, browser):
+    page = _open(browser, server + "/Model_Comparison?theme=light")
+    page.get_by_role("tab", name="Expanded development study").click()
+    page.get_by_text("Alternative inventory calibration methods", exact=True).wait_for(timeout=60000)
+    assert page.locator(".rd-table-wrap").filter(has_text="class_normalized").count() >= 1
+    assert page.locator(".rd-table-wrap").filter(has_text="empirical_all").count() >= 1
+    assert page.locator('[data-testid="stException"]').count() == 0
+
+
+def test_final_holdout_tab_shows_the_single_saved_evaluation(server, browser):
+    page = _open(browser, server + "/Model_Comparison?theme=light")
+    final_tab = page.get_by_role("tab", name="Development vs final holdout")
+    final_tab.click()
+    page.wait_for_function("document.querySelectorAll('[role=tab]')[3]?.getAttribute('aria-selected') === 'true'", timeout=15000)
+    main = page.get_by_test_id("stMain")
+    main.get_by_text("The final holdout was evaluated once", exact=False).wait_for(timeout=60000)
+    assert "Class-selected strategy" in main.inner_text()
+    assert page.get_by_text("run --confirm EVALUATE-FINAL-HOLDOUT-ONCE", exact=False).count() == 0
+    assert page.locator('[data-testid="stException"]').count() == 0
+
+
+def test_about_page_reports_consumed_holdout_state(server, browser):
+    page = _open(browser, server + "/About_Methodology?theme=light")
+    page.get_by_text("Final holdout evaluated once", exact=False).wait_for(timeout=60000)
+    assert page.get_by_text("No final-period score exists yet", exact=False).count() == 0
+    assert page.locator('[data-testid="stException"]').count() == 0
+
+
+RESPONSIVE_SIZES = [(1920, 1080), (1440, 900), (1366, 768), (768, 1024), (390, 844)]
 
 
 @pytest.mark.parametrize("name,slug", list(PAGE_URLS.items()))
@@ -143,8 +234,23 @@ def test_each_page_loads_in_the_browser_with_no_script_error_and_no_sideways_scr
     page = _open(browser, f"{server}/{slug}?theme={theme_name}", size)
     assert page.locator('[data-testid="stException"]').count() == 0, f"{name}: Streamlit reported an exception"
     assert page.locator("h1").first.inner_text().strip().lower().startswith(name.split(" &")[0].lower()[:8])
+    painted = _paint(page)
+    if theme_name == "light":
+        assert all(painted[k] == "rgb(255, 255, 255)" for k in ("app", "side", "main", "header", "container")), f"{name}: a light-mode surface is not pure white"
+        assert _luma(_rgb(painted["text"])) < 100
+    else:
+        assert _luma(_rgb(painted["app"])) < 70 and _luma(_rgb(painted["side"])) < 80, f"{name}: dark surfaces changed"
+    if size[0] <= 768:
+        # Streamlit opens its navigation drawer on a fresh mobile session. Close it
+        # so the captured responsive page shows the actual single-column content.
+        collapse = page.get_by_role("button", name="Collapse sidebar")
+        if collapse.count():
+            collapse.click()
+            page.wait_for_timeout(300)
     overflow = page.evaluate("() => document.documentElement.scrollWidth - document.documentElement.clientWidth")
     assert overflow <= 2, f"{name}: the page scrolls sideways by {overflow}px"
+    assert not page._rd_browser_errors, f"{name}: browser errors: {page._rd_browser_errors}"
+    assert len(page._rd_framework_probe_404) <= 2, f"{name}: unexpected Streamlit framework probe responses: {page._rd_framework_probe_404}"
     folder = os.environ.get("RIVERDEMAND_SCREENSHOT_DIR")
     if folder:
         Path(folder).mkdir(parents=True, exist_ok=True)

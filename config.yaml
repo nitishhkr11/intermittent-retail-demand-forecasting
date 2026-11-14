@@ -58,6 +58,7 @@ models:
   # Croston/TSB comparison -- literature-standard defaults (Croston 1972;
   # Teunter-Syntetos-Babai 2011), not tuned on any fold's forecast window.
   croston_alpha: 0.1   # smoothing weight, demand size and inter-demand interval
+  sba_alpha: 0.1       # Croston smoothing weight; SBA applies (1 - alpha/2) bias correction
   tsb_alpha: 0.1        # smoothing weight, occurrence probability
   tsb_beta: 0.1          # smoothing weight, demand size (occurrence periods only)
 
@@ -156,6 +157,8 @@ phase3:
   intermittent_category_rmse_plot_filename: intermittent_category_rmse_comparison.png
   intermittent_example_forecasts_plot_filename: intermittent_example_forecasts.png
   intermittent_metadata_filename: intermittent_run_metadata.json
+  # Separate, additive SBA result on the same selected items and five canonical folds.
+  sba_forecasts_filename: sba_item_level_backtest_forecasts.csv
   # Notebook 07 -- LSTM / GRU on the AGGREGATE series
   neural_checkpoint_dir: artifacts/models/lstm_gru_checkpoints      # resumable-run checkpoints (git-ignored, safe to delete)
   neural_forecasts_filename: lstm_gru_backtest_forecasts.csv        # model, fold, date, actual, predicted (seed-ensemble mean)
@@ -290,8 +293,9 @@ inventory:
 final_holdout:
   results_filename: final_holdout_results.csv
   forecasts_filename: final_holdout_forecasts.csv
-  frozen_filename: frozen_candidates.json
+  frozen_filename: FROZEN_CANDIDATES.json
   record_filename: FINAL_EVALUATION_RECORD.json
+  class_results_filename: final_holdout_class_results.csv
   metrics: [MAE, RMSE, MAPE, MASE, WAPE]
   selection_rule: >-
     Every candidate in the frozen list is evaluated once on the reserved 28 days and
@@ -300,7 +304,7 @@ final_holdout:
     decided from the development folds BEFORE the holdout is touched.
   candidates:
     aggregate: ["SeasonalNaive", "ARIMA", "SARIMA", "HoltWinters", "LSTM(calendar)", "GRU(calendar)", "Prophet(additive)"]
-    item_level: ["SeasonalNaive", "Croston", "TSB", "XGBoost(pooled)"]
+    item_level: ["SeasonalNaive", "Croston", "SBA", "TSB", "XGBoost(pooled)"]
 
 # Phase 3 Step 7 -- Streamlit dashboard (app/). Display defaults only.
 dashboard:
@@ -310,3 +314,17 @@ dashboard:
 
 logging:
   level: INFO
+
+# Expanded seasonal development study. The plan is saved before execution;
+# the final 28-day holdout is excluded by load_aggregate_development().
+expanded_seasonal:
+  horizon: 28
+  years: [2012, 2013, 2014, 2015]
+  min_train_days: 365
+  inner_validation_days: 28
+  arima_orders: [[1, 1, 0], [1, 1, 1], [2, 1, 1], [6, 1, 1]]
+  sarima_candidates:
+    - {order: [1, 1, 0], seasonal_order: [0, 0, 1, 7]}
+    - {order: [1, 1, 1], seasonal_order: [0, 0, 1, 7]}
+    - {order: [6, 1, 1], seasonal_order: [0, 0, 2, 7]}
+  holt_winters_trends: [null, add]

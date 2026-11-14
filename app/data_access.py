@@ -29,6 +29,7 @@ from src.evaluation.forecast_artifacts import (
     producer_hint,
     producer_notebook,
 )
+from src.evaluation.intermittent_experiment import load_all_item_development_sales
 from src.evaluation.model_comparison import (
     aggregate_fold_metrics,
     aggregate_sources,
@@ -50,6 +51,9 @@ METADATA_FILES = {
     "inventory": ("inventory_metadata_filename", ("inventory", "backtest")),
     "comparison": ("comparison_metadata_filename", ("comparison", "backtest")),
 }
+
+DASHBOARD_DATA_DIR = Path("artifacts/dashboard_data")
+DASHBOARD_DATA_FILES = ("aggregate_development.parquet", "selected_items_development.parquet", "all_items_development.parquet")
 
 
 @dataclass
@@ -114,6 +118,59 @@ def artifact_stamp(*paths: Path) -> Tuple:
     return tuple(out)
 
 
+def _dashboard_data_paths() -> Tuple[Path, Path, Path]:
+    root = resolve_path(DASHBOARD_DATA_DIR)
+    return root / DASHBOARD_DATA_FILES[0], root / DASHBOARD_DATA_FILES[1], root / DASHBOARD_DATA_FILES[2]
+
+
+def _development_series_and_items(config: Dict[str, Any]):
+    """Prefer sanitized development-only app data; reserved targets are absent in that mode."""
+    aggregate_path, selected_path, _ = _dashboard_data_paths()
+    if aggregate_path.is_file() and selected_path.is_file():
+        aggregate = pd.read_parquet(aggregate_path, columns=["date", "sales"]).sort_values("date")
+        aggregate["date"] = pd.to_datetime(aggregate["date"])
+        dates = pd.DatetimeIndex(aggregate["date"])
+        if dates.has_duplicates or not dates.is_monotonic_increasing:
+            raise ValueError("dashboard development aggregate dates are invalid")
+        values = aggregate["sales"].to_numpy(dtype=float)
+        if not np.isfinite(values).all() or (values < 0).any():
+            raise ValueError("dashboard development aggregate contains invalid sales")
+        holdout_days = int(config["backtest"]["holdout_days"])
+        window = DevelopmentWindow(dates[0], dates[-1], dates[-1] + pd.Timedelta(days=1),
+                                   dates[-1] + pd.Timedelta(days=holdout_days), len(dates), holdout_days)
+        series = pd.Series(values, index=dates, name="aggregate_sales")
+        selected = pd.read_parquet(selected_path, columns=["item_id", "date", "sales"])
+        selected["date"] = pd.to_datetime(selected["date"])
+        if selected.empty or selected["date"].max() > window.dev_end:
+            raise ValueError("dashboard selected-item file includes rows outside the development window")
+        item_series = {}
+        for item_id, group in selected.groupby("item_id", sort=True):
+            group = group.sort_values("date")
+            item_dates = pd.DatetimeIndex(group["date"])
+            if not item_dates.equals(dates):
+                raise ValueError(f"dashboard item {item_id} does not cover the full development calendar")
+            item_series[str(item_id)] = pd.Series(group["sales"].to_numpy(dtype=float), index=dates, name=str(item_id))
+        return series, window, item_series
+    series, window = load_aggregate_development(config)
+    return series, window, load_selected_item_series(config)
+
+
+def _overview_inputs(config: Dict[str, Any]):
+    series, window, _ = _development_series_and_items(config)
+    _, _, all_items_path = _dashboard_data_paths()
+    if all_items_path.is_file():
+        table = pd.read_parquet(all_items_path, columns=["date", "item_id", "sales"])
+        table["date"] = pd.to_datetime(table["date"])
+        if table.empty or table["date"].max() > window.dev_end:
+            raise ValueError("dashboard all-item file includes rows outside the development window")
+        wide = table.pivot(index="date", columns="item_id", values="sales").sort_index().astype(float)
+        if wide.index.max() > window.dev_end:
+            raise ValueError("dashboard all-item data reaches past the development cutoff")
+        return series, window, wide
+    wide, _ = load_all_item_development_sales(config)
+    return series, window, wide
+
+
 def _forecast_files(config: Dict[str, Any]) -> List[Path]:
     directory = forecasts_dir(config)
     return [directory / s.filename for s in aggregate_sources(config) + item_sources(config)]
@@ -144,7 +201,9 @@ def missing_artifact(filename: str, *, folder: str = "forecasts") -> Loaded:
 def load_bundle() -> Loaded:
     """Audited forecast tables for every saved model. Cached on the files' stamps."""
     config = get_config()
-    stamp = artifact_stamp(aggregate_series_path(config), *_forecast_files(config))
+    safe_paths = _dashboard_data_paths()
+    data_paths = safe_paths[:2] if all(path.is_file() for path in safe_paths[:2]) else (aggregate_series_path(config),)
+    stamp = artifact_stamp(*data_paths, *_forecast_files(config))
     return _load_bundle(stamp)
 
 
@@ -153,8 +212,7 @@ def _load_bundle(stamp: Tuple) -> Loaded:
     config = get_config()
     horizon, n_folds = int(config["backtest"]["horizon"]), int(config["backtest"]["n_folds"])
     try:
-        dev_series, window = load_aggregate_development(config)
-        item_series = load_selected_item_series(config)
+        dev_series, window, item_series = _development_series_and_items(config)
     except FileNotFoundError as exc:
         return Loaded(error=str(exc).split(" Create it")[0], command=DATA_COMMAND)
     except Exception as exc:                       # an unreadable development file is reported, not hidden
@@ -237,6 +295,9 @@ def macro_item_fold_table(item_folds: pd.DataFrame) -> pd.DataFrame:
 # ----------------------------------------------------------------------------------------------------------- overview
 def load_overview() -> Loaded:
     config = get_config()
+    safe_paths = _dashboard_data_paths()
+    if all(path.is_file() for path in safe_paths):
+        return _load_overview(artifact_stamp(*safe_paths))
     panel = resolve_path(Path(config["data"]["interim_dir"]) / config["output"]["panel_filename"])
     classification = resolve_path(Path(config["data"]["processed_dir"]) / config["output"]["classification_filename"])
     return _load_overview(artifact_stamp(aggregate_series_path(config), panel, classification))
@@ -249,30 +310,20 @@ def _load_overview(stamp: Tuple) -> Loaded:
 
     config = get_config()
     try:
-        series, window = load_aggregate_development(config)
-        wide, _ = load_all_item_development_sales(config)
+        series, window, wide = _overview_inputs(config)
     except FileNotFoundError as exc:
         return Loaded(error=str(exc).split(" Create it")[0], command=DATA_COMMAND)
     except Exception as exc:
         return Loaded(error=f"The development data could not be read: {exc}", command=DATA_COMMAND)
     classes = pd.DataFrame([{"item_id": c, **classify_series(wide[c])} for c in wide.columns])
-    classification_path = resolve_path(Path(config["data"]["processed_dir"]) / config["output"]["classification_filename"])
-    phase1 = pd.read_parquet(classification_path) if classification_path.exists() else None
-    panel_rows = None
-    try:
-        import pyarrow.parquet as pq
-
-        panel_rows = int(pq.ParquetFile(resolve_path(Path(config["data"]["interim_dir"]) / config["output"]["panel_filename"])).metadata.num_rows)
-    except Exception:
-        panel_rows = None
     n_items, n_days = wide.shape[1], wide.shape[0]
     return Loaded({
         "series": series, "window": window,
         "n_items": n_items, "n_days": n_days, "dev_item_days": int(n_items * n_days),
-        "panel_item_days": panel_rows,
+        "panel_item_days": int(n_items * n_days),
         "zero_share": float((wide.to_numpy() == 0).mean()),
         "dev_classes": classes["demand_class"].value_counts().rename_axis("demand_class").reset_index(name="items"),
-        "phase1_classes": None if phase1 is None else phase1["demand_class"].value_counts().rename_axis("demand_class").reset_index(name="items"),
+        "phase1_classes": None,
         "total_units": float(series.sum()),
     })
 

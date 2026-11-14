@@ -31,7 +31,7 @@ AGG_MODELS = {
     "Prophet(additive)", "Prophet(multiplicative)", "Prophet(additive,no-regressors)",
 }
 ITEM_MODELS = {
-    "SeasonalNaive", "Croston(alpha=0.1)", "TSB(alpha=0.1,beta=0.1)",
+    "SeasonalNaive", "Croston(alpha=0.1)", "SBA(alpha=0.1)", "TSB(alpha=0.1,beta=0.1)",
     "XGBoost(pooled)", "XGBoost(per-item)", "XGBoost(pooled,no-events)", "XGBoost(pooled,poisson)",
 }
 
@@ -80,7 +80,7 @@ def test_notebook_never_ranks_aggregate_and_item_level_models_together():
     nb = nbformat.read(NOTEBOOK_PATH, as_version=4)
     combined = (_markdown(nb) + "\n" + _text(nb)).lower()
     assert "never ranked" in combined or "not comparable" in combined or "never compared" in combined
-    assert "aggregate series: 11 models compared; item level: 7 models compared" in combined
+    assert "aggregate series: 11 models compared; item level: 8 models compared" in combined
 
 
 def test_notebook_reports_missing_artifacts_explicitly_and_substitutes_nothing():
@@ -88,7 +88,7 @@ def test_notebook_reports_missing_artifacts_explicitly_and_substitutes_nothing()
     text = _text(nb)
     assert "Unavailable artifacts: 0" in text
     assert "nothing is substituted" in (_markdown(nb) + text.lower()) or "absent from the comparison" in (_markdown(nb) + text.lower())
-    assert "Failed folds in the saved tables: 0 of 55" in text and "Failed item-model folds in the saved tables: 0 of 700" in text
+    assert "Failed folds in the saved tables: 0 of 55" in text and "Failed item-model folds in the saved tables: 0 of 800" in text
 
 
 def test_notebook_claims_no_significance_and_no_universal_winner_and_never_uses_the_holdout():
@@ -201,7 +201,7 @@ def test_item_level_results_are_in_a_separate_scale_and_file():
     item = pd.read_csv(_need(PHASE3["comparison_item_class_filename"]))
     summary = pd.read_csv(_need("comparison_item_level_model_summary.csv"))
     agg = pd.read_csv(_need(PHASE3["comparison_aggregate_summary_filename"]))
-    assert set(summary["model"]) == ITEM_MODELS and len(summary) == 7
+    assert set(summary["model"]) == ITEM_MODELS and len(summary) == 8
     assert summary["MAE_mean"].max() < 20 < agg["MAE_mean"].min(), "item-level MAE (units per item per day) must not share a scale with aggregate MAE"
     assert set(item["demand_class"]) <= {"Smooth", "Erratic", "Intermittent", "Lumpy"}
     assert item["n_items"].sum() == 20 * len(ITEM_MODELS) or item.groupby("model")["n_items"].sum().eq(20).all()
@@ -210,7 +210,7 @@ def test_item_level_results_are_in_a_separate_scale_and_file():
 def test_item_level_macro_average_gives_every_item_equal_weight():
     folds = pd.read_csv(_need(PHASE3["comparison_item_fold_filename"]))
     summary = pd.read_csv(_need("comparison_item_level_model_summary.csv")).set_index("model")
-    assert len(folds) == 700 and folds["success"].all()
+    assert len(folds) == 800 and folds["success"].all()
     per_item = folds.groupby(["model", "item_id"])["MAE"].mean()
     macro = per_item.groupby("model").mean()
     np.testing.assert_allclose(summary.loc[macro.index, "MAE_mean"], macro, rtol=1e-9)
