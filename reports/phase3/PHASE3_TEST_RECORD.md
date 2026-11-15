@@ -109,8 +109,7 @@ The browser tests need Playwright's Chromium (`python -m pip install playwright`
 without it they skip with that command. Tests that need `torch`, `prophet`, `streamlit` or a saved artifact skip themselves with the
 command that provides it, so a minimal environment gives skips, not failures.
 
-Because the notebook-04 and notebook-06 execution tests rewrite saved Phase 2 / Step 1 artifacts, make a Git commit (or a
-copy of `artifacts\`) before running the fast suite, as `MERGE_AND_RUN_WINDOWS.md` advises. If SARIMA is re-estimated
+Because the notebook-04 and notebook-06 execution tests rewrite saved Phase 2 / Step 1 artifacts, make a Git commit (or a copy of `artifacts\`) before running the fast suite. If SARIMA is re-estimated
 differently on your machine, the comparison test will skip and tell you to re-run notebook 09.
 
 ## 5. Checks beyond pytest
@@ -154,7 +153,7 @@ rewrite for pandas 2.0 compatibility) and comments in `requirements-phase3.txt`.
   254 entries inside one folder named `intermittent-retail-demand-forecasting/`. Neither contains `.git`, `.venv`, `__pycache__`, `.pyc`,
   `.pytest_cache`, raw M5 CSV files (only `data/raw/.gitkeep` from your own snapshot), the resume checkpoints, `.env`, key files or
   secrets. The text files were scanned for key-like strings and for sandbox or Windows user paths: the only hit is the unchanged
-  Phase 2 notebook 04, which already contained a sandbox path in a saved output (full ZIP only; see `IMPLEMENTATION_MANIFEST.md`).
+  Phase 2 notebook 04, which already contained a sandbox path in a saved output (full ZIP only).
   Every entry of both ZIPs has the same SHA-256 as the file in the working tree.
 - **Clean extraction of the complete ZIP**, tests run from the extracted folder: fast suite **915 passed, 1 skipped, 19 deselected**
   (6 min 28 s); slow suite (`-m slow`, notebook 07 deselected) **18 passed** (2 min 30 s). The one skip is the one explained in section 3.
