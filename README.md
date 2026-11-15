@@ -8,6 +8,8 @@
 
 [![Python](https://img.shields.io/badge/Python-3.x-1F6FEB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-0F766E?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20App-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnt.streamlit.app/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting)
 [![PyTorch](https://img.shields.io/badge/Deep_Learning-PyTorch-9A3412?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-64748B?style=flat-square)](LICENSE)
 
@@ -23,7 +25,7 @@ RiverDemand is an end-to-end forecasting and inventory decision-support project 
 
 The study uses the **Walmart M5 Forecasting – Accuracy** data for store `CA_1`, department `FOODS_3`: **823 items across 1,941 daily observations**, from **29 January 2011 to 22 May 2016**.
 
-> **Project status — 15 November 2026:** The research phases, expanded development experiments, dashboard QA and one-time final-holdout evaluation are complete. The protected 28-day holdout was evaluated once after candidate freeze. The dashboard is designed to run locally; a public deployment has not been verified.
+> **Project status — 16 November 2026:** The research phases, expanded development experiments, dashboard QA and one-time final-holdout evaluation are complete. The protected 28-day holdout was evaluated once after candidate freeze. The dashboard is deployed on Streamlit Community Cloud: [open the live RiverDemand app](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnt.streamlit.app/). The hosted application reads saved artifacts and does not train models or access the protected final holdout.
 
 ---
 
@@ -42,6 +44,7 @@ The study uses the **Walmart M5 Forecasting – Accuracy** data for store `CA_1`
 | Evaluation | Expanding-window and disjoint chronological backtests; a separately controlled final holdout |
 | Decision-support layer | Reorder point, safety stock and cycle-service backtesting |
 | Application | Six-page Streamlit dashboard with light and dark themes |
+| Public application | [RiverDemand on Streamlit Community Cloud](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnt.streamlit.app/) |
 
 ## Contents
 
@@ -52,6 +55,7 @@ The study uses the **Walmart M5 Forecasting – Accuracy** data for store `CA_1`
 - [Results](#results)
 - [Inventory decision-support layer](#inventory-decision-support-layer)
 - [Streamlit dashboard](#streamlit-dashboard)
+- [Live application](#live-application)
 - [Getting started](#getting-started)
 - [Repository layout](#repository-layout)
 - [Reproducibility and project records](#reproducibility-and-project-records)
@@ -410,6 +414,16 @@ It contains six pages:
 
 The dashboard reads saved artifacts; it does not train models. It does not forecast beyond the development cutoff of 24 April 2016. If an expected artifact is missing, the app identifies the file and the command used to generate it rather than substituting another model's output. Each page also provides provenance details for the artifacts it uses. A dark theme is available from the sidebar and can also be opened directly at `http://localhost:8501/?theme=dark`.
 
+## Live application
+
+**[Launch the RiverDemand dashboard](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnt.streamlit.app/)**
+
+The public application is hosted on **Streamlit Community Cloud** and is connected to the `main` branch of this GitHub repository. The deployment serves the saved development artifacts packaged with the repository; it does not run the model-training notebooks or retrain forecasting models when a visitor opens the app.
+
+The hosted dashboard provides the same six pages described above: Overview, Forecast Explorer, Model Comparison, Inventory Decisions, Model Reliability, and About & Methodology. It presents the development-period forecasts and diagnostics while keeping the protected final-holdout results separate from dashboard use.
+
+For source code, experiment records and project documentation, visit the [GitHub repository](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting).
+
 ## Getting started
 
 ### 1. Create an environment
@@ -483,11 +497,12 @@ The recorded local test snapshot for 15 November 2026 was **217 tests passed in 
 
 ### Windows note for Prophet
 
-Prophet launches a bundled Stan executable. On some Windows setups, a project path containing spaces can prevent Stan from starting. If notebook 08 fails for this reason, use a virtual environment in a path without spaces (for example, `C:\venvs\riverdemand`). Saved Prophet results can still be inspected without rerunning the model. 
+Prophet launches a bundled Stan executable. On some Windows setups, a project path containing spaces can prevent Stan from starting. If notebook 08 fails for this reason, use a virtual environment in a path without spaces (for example, `C:\venvs\riverdemand`). Saved Prophet results can still be inspected without rerunning the model.
+
 ## Repository layout
 
 ```text
-app/                    Streamlit application, six views, components and theme
+app/                    Streamlit application, six views, components, theme and deployment artifact bootstrap
 artifacts/              Generated forecasts, metrics, models, inventory and final records
 config.yaml             Shared project and model configuration
 data/                   Raw, interim and processed data directories
