@@ -17,8 +17,22 @@ for _p in (str(ROOT), str(APP_DIR)):
         sys.path.insert(0, _p)
 
 import streamlit as st  # noqa: E402
+from artifact_bootstrap import (
+    BUNDLE_RELATIVE_PATH,
+    restore_packaged_artifacts,
+)  # noqa: E402
 
 st.set_page_config(page_title="RiverDemand | Retail demand forecasting", page_icon="📈", layout="wide", initial_sidebar_state="expanded")
+if (ROOT / BUNDLE_RELATIVE_PATH).is_file():
+    try:
+        restore_packaged_artifacts(ROOT)
+    except Exception as exc:
+        st.error(
+            "The saved dashboard artifacts could not be prepared. "
+            "Check the packaged development data bundle."
+        )
+        st.exception(exc)
+        st.stop()
 
 import data_access as da  # noqa: E402
 import theme  # noqa: E402

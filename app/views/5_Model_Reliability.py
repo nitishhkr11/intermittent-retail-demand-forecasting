@@ -43,7 +43,10 @@ else:
     checks["result"] = np.where(checks["passed"], "✔ passed", "✖ FAILED")
     render_table(checks[["check", "result", "detail"]].rename(columns={"check": "Check", "result": "Result", "detail": "What was verified"}),
                  caption=f"Series checks on the {validation.value['window'].n_development_days:,}-day development series", max_height=None)
-    records.append({"role": "Data validation", **da.file_record(da.aggregate_series_path(config))})
+    records.append({
+    "role": "Data validation",
+    **da.file_record(validation.value["source_path"])
+})
 
 # ------------------------------------------------------------------------------------------------ fit and convergence
 st.markdown("## Fit and convergence")
@@ -137,10 +140,39 @@ if pro_cov is not None and len(pro_cov) and {"lower", "upper"} <= set(pro_cov.co
 
 # ------------------------------------------------------------------------------------------------ leakage and limitations
 st.markdown("## Leakage guards and known limitations")
-latest = max(pd.to_datetime(t["date"]).max() for t in (b.aggregate, b.item) if t is not None)
+date_tables = [
+    table
+    for table in (b.aggregate, b.item)
+    if table is not None and not table.empty and "date" in table.columns
+]
+
+latest_dates = [
+    pd.to_datetime(table["date"], errors="coerce").max()
+    for table in date_tables
+]
+
+latest_dates = [date for date in latest_dates if pd.notna(date)]
+
+if latest_dates:
+    latest = max(latest_dates)
+    latest_guard_result = (
+        "✔ holds" if latest <= b.window.dev_end else "✖ VIOLATED"
+    )
+    latest_guard_evidence = (
+        f"Latest date in any saved table: {latest.date()}; "
+        f"development ends {b.window.dev_end.date()}"
+    )
+else:
+    latest_guard_result = "ℹ unavailable"
+    latest_guard_evidence = (
+        "No non-empty saved forecast table with valid dates was available."
+    )
 guard_rows = [
-    {"Guard": "No saved forecast date is after the last development day", "Result": ("✔ holds" if latest <= b.window.dev_end else "✖ VIOLATED"), "Evidence": f"latest date in any saved table: {latest.date()}; development ends {b.window.dev_end.date()}"},
-    {"Guard": "Forecast tables pass the walk-forward audit", "Result": ("✔ holds" if (b.audit["status"] != "audit failed").all() else "✖ VIOLATED"),
+{
+    "Guard": "No saved forecast date is after the last development day",
+    "Result": latest_guard_result,
+    "Evidence": latest_guard_evidence,
+},    {"Guard": "Forecast tables pass the walk-forward audit", "Result": ("✔ holds" if (b.audit["status"] != "audit failed").all() else "✖ VIOLATED"),
      "Evidence": f"{int((b.audit['status'] == 'ok').sum())} of {len(b.audit)} files audited and accepted; missing files are listed on the Overview page"},
     {"Guard": "Final 28 days not evaluated", "Result": ("✔ holds" if not da.holdout_state()["evaluated"] else "ℹ evaluated once"), "Evidence": "artifacts/final holds the record if it was run"},
 ]

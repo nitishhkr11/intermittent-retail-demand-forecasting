@@ -399,16 +399,50 @@ def residual_acf(table: pd.DataFrame, model: str, fold: int, max_lag: int = 14) 
 
 
 def data_validation_summary() -> Loaded:
-    """Re-run the series checks on the saved development series (cheap) so the page shows what was actually verified."""
+    """Validate the saved development series used by the dashboard."""
     from src.data import series_validator as sv
 
     config = get_config()
-    path = aggregate_series_path(config)
-    if not path.exists():
-        return Loaded(error=f"'{repo_path(path)}' was not found.", command="python -m src.analysis.demand_classification")
-    series, window = load_aggregate_development(config)
-    frame = pd.DataFrame({"date": series.index, "sales": series.to_numpy()})
-    results = [sv.check_daily_frequency(frame), sv.check_no_duplicate_dates(frame), sv.check_no_missing_dates(frame),
-               sv.check_continuous_range(frame), sv.check_no_negative_sales(frame)]
-    rows = [{"check": r.name, "passed": bool(r.passed), "detail": r.message} for r in results]
-    return Loaded({"checks": pd.DataFrame(rows), "window": window})
+    dashboard_aggregate_path, dashboard_selected_path, _ = _dashboard_data_paths()
+
+    if dashboard_aggregate_path.is_file() and dashboard_selected_path.is_file():
+        series, window, _ = _development_series_and_items(config)
+        source_path = dashboard_aggregate_path
+    else:
+        source_path = aggregate_series_path(config)
+
+        if not source_path.is_file():
+            return Loaded(
+                error=f"'{repo_path(source_path)}' was not found.",
+                command="Restore the dashboard development data bundle."
+            )
+
+        series, window = load_aggregate_development(config)
+
+    frame = pd.DataFrame({
+        "date": series.index,
+        "sales": series.to_numpy()
+    })
+
+    results = [
+        sv.check_daily_frequency(frame),
+        sv.check_no_duplicate_dates(frame),
+        sv.check_no_missing_dates(frame),
+        sv.check_continuous_range(frame),
+        sv.check_no_negative_sales(frame),
+    ]
+
+    rows = [
+        {
+            "check": result.name,
+            "passed": bool(result.passed),
+            "detail": result.message,
+        }
+        for result in results
+    ]
+
+    return Loaded({
+        "checks": pd.DataFrame(rows),
+        "window": window,
+        "source_path": source_path,
+    })

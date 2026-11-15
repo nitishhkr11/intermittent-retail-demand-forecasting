@@ -176,10 +176,19 @@ def acf_chart(info: Dict[str, Any], *, title: str) -> go.Figure:
     fig.add_trace(go.Bar(x=info["lags"], y=info["acf"], name="ACF of forecast errors", marker=dict(color=colors[0], line=dict(color=t["surface"], width=1)),
                          hovertemplate="lag %{x}: %{y:.2f}<extra></extra>"))
     band = info["band"]
-    for sign in (1, -1):
-        fig.add_hline(y=sign * band, line=dict(color=t["muted"], width=1.5, dash="dash"),
-                      annotation_text="approx. 95% band (no autocorrelation)" if sign == 1 else None,
-                      annotation_font=dict(color=t["text_secondary"], size=11), annotation_position="top right")
+
+    fig.add_hline(
+        y=band,
+        line=dict(color=t["muted"], width=1.5, dash="dash"),
+        annotation_text="approx. 95% band (no autocorrelation)",
+        annotation_font=dict(color=t["text_secondary"], size=11),
+        annotation_position="top right",
+    )
+
+    fig.add_hline(
+        y=-band,
+        line=dict(color=t["muted"], width=1.5, dash="dash"),
+    )
     fig.update_xaxes(title_text="Lag (days)", dtick=1)
     fig.update_yaxes(title_text="Autocorrelation", range=[-1, 1])
     return fig
