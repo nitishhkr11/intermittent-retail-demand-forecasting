@@ -483,8 +483,7 @@ The recorded local test snapshot for 15 November 2026 was **217 tests passed in 
 
 ### Windows note for Prophet
 
-Prophet launches a bundled Stan executable. On some Windows setups, a project path containing spaces can prevent Stan from starting. If notebook 08 fails for this reason, use a virtual environment in a path without spaces (for example, `C:\venvs\riverdemand`). Saved Prophet results can still be inspected without rerunning the model. See [`MERGE_AND_RUN_WINDOWS.md`](MERGE_AND_RUN_WINDOWS.md) for the project's Windows notes.
-
+Prophet launches a bundled Stan executable. On some Windows setups, a project path containing spaces can prevent Stan from starting. If notebook 08 fails for this reason, use a virtual environment in a path without spaces (for example, `C:\venvs\riverdemand`). Saved Prophet results can still be inspected without rerunning the model. 
 ## Repository layout
 
 ```text
