@@ -4,7 +4,7 @@ A comparative classical, machine-learning and deep-learning forecasting framewor
 support, built on the Walmart M5 Forecasting - Accuracy dataset (store `CA_1`, department `FOODS_3`,
 823 items, 1,941 days, 2011-01-29 to 2016-05-22).
 
-**Status (15 November 2026):** Phases 1–3, expanded development experiments, dashboard QA and the one-time final holdout evaluation are complete. The holdout was scored once (2016-04-25–2016-05-22) from frozen candidates. Latest local checks: 217 dashboard tests passed; the non-slow suite passed 944 tests (15 skipped, 86 slow tests deselected). GitHub Actions run [43656567846](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting/actions/runs/43656567846) passed on commit `5a1ed87`; public hosting is not verified. See `reports/final/FINAL_HOLDOUT_RESULTS.md` and `reports/final/FINAL_PROJECT_AUDIT.md`.
+**Status (15 November 2026):** Phases 1–3, expanded development experiments, dashboard QA and the one-time final holdout evaluation are complete. The holdout was scored once (2016-04-25–2016-05-22) from frozen candidates. Latest local checks: 217 dashboard tests passed; the non-slow suite passed 944 tests (15 skipped, 86 slow tests deselected). GitHub Actions run [43658775929](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting/actions/runs/43658775929) passed on commit `d136c2c`; public hosting is not verified. See `reports/final/FINAL_HOLDOUT_RESULTS.md` and `reports/final/FINAL_PROJECT_AUDIT.md`.
 
 ## What is in the repository
 

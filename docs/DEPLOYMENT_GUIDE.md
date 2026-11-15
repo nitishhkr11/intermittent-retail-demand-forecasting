@@ -16,7 +16,7 @@ Select `app/app.py` as the Community Cloud entry point. The `app/requirements.tx
 
 ## Current deployment status
 
-The project has no authenticated Community Cloud session or verified deploy permission. The reviewed Git branch was pushed successfully, and GitHub Actions run 43656567846 passed on commit 5a1ed87; the GitHub CLI is not installed. A genuine public deployment has not been created. Complete GitHub/Streamlit account authorization and repository admin access, then deploy the reviewed branch through the provider UI. Do not put credentials in the repository or chat.
+The project has no authenticated Community Cloud session or verified deploy permission. The reviewed Git branch was pushed successfully, and GitHub Actions run 43658775929 passed on commit d136c2c; the GitHub CLI is not installed. A genuine public deployment has not been created. Complete GitHub/Streamlit account authorization and repository admin access, then deploy the reviewed branch through the provider UI. Do not put credentials in the repository or chat.
 
 
 Final package status (15 November 2026): the final-evaluation bundle is rebuilt after the one-time holdout run. It includes summary metrics/record, excludes row-level final forecasts, and does not constitute a live deployment.

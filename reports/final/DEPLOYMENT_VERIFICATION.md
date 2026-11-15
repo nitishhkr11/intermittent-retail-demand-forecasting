@@ -2,7 +2,7 @@
 
 ## Status
 
-**Not deployed.** No Streamlit Community Cloud login, GitHub OAuth authorization, or deployment permission was available in this execution. `gh auth status` could not run because GitHub CLI is not installed. The reviewed branch was pushed through the configured Git remote; GitHub Actions run [43656567846](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting/actions/runs/43656567846) passed on commit `5a1ed87`. This does not provide Streamlit hosting authorization or a public URL.
+**Not deployed.** No Streamlit Community Cloud login, GitHub OAuth authorization, or deployment permission was available in this execution. `gh auth status` could not run because GitHub CLI is not installed. The reviewed branch was pushed through the configured Git remote; GitHub Actions run [43658775929](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting/actions/runs/43658775929) passed on commit `d136c2c`. This does not provide Streamlit hosting authorization or a public URL.
 
 Streamlit's current instructions require GitHub connection and repository admin permission to deploy. The remaining external action is to sign in to Streamlit Community Cloud with the owning GitHub account and authorize repository access. After that, deploy `app/app.py` from the reviewed branch with `app/requirements.txt` and the verified data bundle.
 
@@ -43,4 +43,4 @@ Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_eva
 
 ## Acceptance follow-up — 15 November 2026
 
-The package was rebuilt after adding compact alternative inventory summaries. Current archive: 8,466,148 bytes, SHA-256 `a738029e374d9f0df9820072aec6e458d39be9885a3f4e716060b34fb788c706`; all 113 manifest-listed files pass hash verification. Raw M5 inputs, local absolute paths and row-level final-holdout forecasts are absent. Local tests passed (217 app tests; 944 non-slow tests, 15 skipped and 86 deselected), and pipeline resume skipped all 14 verified stages. GitHub Actions run 43656567846 passed all jobs on commit 5a1ed87. No provider build, public URL or anonymous browser session has been verified. GitHub CLI is unavailable; the configured Git remote accepted the reviewed branch push.
+The package was rebuilt after adding compact alternative inventory summaries. Current archive: 8,466,148 bytes, SHA-256 `a738029e374d9f0df9820072aec6e458d39be9885a3f4e716060b34fb788c706`; all 113 manifest-listed files pass hash verification. Raw M5 inputs, local absolute paths and row-level final-holdout forecasts are absent. Local tests passed (217 app tests; 944 non-slow tests, 15 skipped and 86 deselected), and pipeline resume skipped all 14 verified stages. GitHub Actions run 43658775929 passed all jobs on commit d136c2c. No provider build, public URL or anonymous browser session has been verified. GitHub CLI is unavailable; the configured Git remote accepted the reviewed branch push.
