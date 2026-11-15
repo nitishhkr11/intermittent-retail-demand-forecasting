@@ -204,6 +204,31 @@ def test_features_without_full_history_are_nan_not_imputed():
         assert not np.isnan(features[need:, col]).any()
 
 
+def test_predeclared_ablation_configs_expose_only_their_named_features():
+    lags = XGBoostConfig(use_rolling_features=False, use_calendar_features=False, use_event_calendar=False)
+    rolling = XGBoostConfig(use_rolling_features=True, use_calendar_features=False, use_event_calendar=False)
+    calendar = XGBoostConfig(use_rolling_features=False, use_calendar_features=True, use_event_calendar=False)
+    events = XGBoostConfig(use_rolling_features=True, use_calendar_features=True, use_event_calendar=True)
+    assert lags.numeric_feature_names() == ["lag_1", "lag_7", "lag_14", "lag_28"]
+    assert rolling.numeric_feature_names() == lags.numeric_feature_names() + ["roll_mean_7", "roll_mean_14", "roll_mean_28"]
+    assert calendar.numeric_feature_names() == lags.numeric_feature_names() + list(CALENDAR_BASE_COLUMNS)
+    assert events.numeric_feature_names() == rolling.numeric_feature_names() + list(CALENDAR_BASE_COLUMNS) + list(EVENT_FLAG_COLUMNS)
+    assert lags.max_lookback == rolling.max_lookback == calendar.max_lookback == events.max_lookback == 28
+
+
+def test_training_frame_ablation_keeps_labels_inside_the_supplied_training_prefix():
+    series = _series(_pattern(80, BLOCK_A), name="A")
+    cal = _event_calendar(series.index)
+    config = XGBoostConfig(use_rolling_features=False, use_calendar_features=False, use_event_calendar=False)
+    frame, _ = build_training_frame({"A": series}, config, event_calendar=None)
+    assert frame["date"].min() == series.index[28]
+    assert frame["date"].max() == series.index[-1]
+    assert set(frame.columns) == {"item_id", "date", "y", "lag_1", "lag_7", "lag_14", "lag_28"}
+    # Calendar/event indicators are deterministic known inputs, never target columns.
+    full = build_training_frame({"A": series}, XGBoostConfig(use_event_calendar=True), event_calendar=cal)[0]
+    assert "sales" not in full.columns and "event_national" in full.columns
+
+
 def test_no_target_leakage_changing_a_days_sales_never_changes_that_rows_features():
     y = _pattern(80, BLOCK_A)
     base = lag_roll_feature_matrix(y, LAGS, WINDOWS)

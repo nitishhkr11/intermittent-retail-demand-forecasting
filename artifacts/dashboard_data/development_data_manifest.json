@@ -1,0 +1,19 @@
+{
+  "aggregate_sha256": "76345ab60d744aca8aa6b2bc0552c3d134e64fbd95192fae016b4853ea9d5335",
+  "all_item_days": 1574399,
+  "all_items_sha256": "587e3825923d4087ea35097d24cc5558561e15cae2a9b6f5de8adcd3d6e3138b",
+  "development_days": 1913,
+  "development_end": "2016-04-24",
+  "development_start": "2011-01-29",
+  "files": [
+    "aggregate_development.parquet",
+    "all_items_development.parquet",
+    "selected_items_development.parquet"
+  ],
+  "holdout_dates_included": false,
+  "holdout_target_values_read": false,
+  "schema_version": 1,
+  "scope": "development only",
+  "selected_item_days": 38260,
+  "selected_items_sha256": "ddd1fcb24b36a9d1ca4c410e26087107f321d39500462f0629e753a850ca99a3"
+}

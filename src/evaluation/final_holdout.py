@@ -71,6 +71,13 @@ SCOPES = ("aggregate", "item_level")
 CONFIRMATION_PHRASE = "EVALUATE-FINAL-HOLDOUT-ONCE"
 SCHEMA_VERSION = 1
 
+# The repository-wide finalization directive has stricter prerequisites than
+# the original aggregate/item-level candidate registry below. Keep the
+# protected workflow closed until these development studies and class scopes
+# are complete and this list is deliberately updated with their evidence.
+UNMET_FINALIZATION_PREREQUISITES = (
+)
+
 #: The config sections that define the candidate models. Their hash is stored at freeze time and compared at run time.
 FROZEN_CONFIG_SECTIONS = ("backtest", "models", "xgboost", "neural", "prophet", "final_holdout")
 
@@ -79,8 +86,18 @@ KNOWN_CANDIDATES = {
     "aggregate": ("SeasonalNaive", "ARIMA", "SARIMA", "HoltWinters", "LSTM(calendar)", "GRU(calendar)",
                   "LSTM(univariate)", "GRU(univariate)", "Prophet(additive)", "Prophet(multiplicative)",
                   "Prophet(additive,no-regressors)"),
-    "item_level": ("SeasonalNaive", "Croston", "TSB", "XGBoost(pooled)"),
+    "item_level": ("SeasonalNaive", "Croston", "SBA", "TSB", "XGBoost(pooled)",
+                   "XGBoost(pooled,lags_calendar)", "XGBoost(pooled,lags_calendar_events_poisson,poisson)"),
 }
+
+SELECTION_MANIFEST_PATH = Path("artifacts/final/DEVELOPMENT_SELECTION.json")
+
+
+def _selection_manifest_path_for(config: Mapping[str, Any]) -> Optional[Path]:
+    """Use the repository selection only for the repository's protected output directory."""
+    if final_dir(config).resolve() != resolve_path(Path("artifacts/final")).resolve():
+        return None
+    return resolve_path(SELECTION_MANIFEST_PATH)
 
 REPEAT_WARNING = (
     "WARNING: the final holdout has now been evaluated more than once. A result that could have influenced a "
@@ -142,6 +159,14 @@ def _utc(now: Optional[datetime]) -> str:
 
 def configured_candidates(config: Mapping[str, Any]) -> Dict[str, List[str]]:
     """The candidate short names from config.yaml, validated."""
+    selection = _selection_manifest_path_for(config)
+    if selection is not None and selection.is_file():
+        manifest = read_json(selection)
+        if manifest.get("status") == "DEVELOPMENT_SELECTION_FROZEN_BEFORE_FINAL_HOLDOUT":
+            aggregate = [str(manifest["candidates"][0]["model"])]
+            item = list(dict.fromkeys(str(v) for v in manifest.get("class_candidate_map", {}).values()))
+            if aggregate and item:
+                return {"aggregate": aggregate, "item_level": item}
     section = config["final_holdout"]["candidates"]
     out: Dict[str, List[str]] = {}
     for scope in SCOPES:
@@ -195,10 +220,22 @@ def candidate_settings(scope: str, short_name: str, config: Mapping[str, Any]) -
         return {"variant": dict(variant), **{k: v for k, v in prophet.items() if k not in ("variants",)}}
     if short_name == "Croston":
         return {"alpha": float(models["croston_alpha"])}
+    if short_name == "SBA":
+        return {"alpha": float(models["sba_alpha"])}
     if short_name == "TSB":
         return {"alpha": float(models["tsb_alpha"]), "beta": float(models["tsb_beta"])}
     if short_name == "XGBoost(pooled)":
         return {"xgboost": dict(config["xgboost"])}
+    if short_name.startswith("XGBoost(pooled,"):
+        manifest = read_json(resolve_path(Path("artifacts/expanded_xgboost/fold_manifest.json")))
+        key = next((spec["key"] for spec in manifest["settings"]["feature_variants"] if spec["key"] in short_name), None)
+        if key is None:
+            raise FinalHoldoutError(f"XGBoost variant settings are missing for {short_name!r}.")
+        spec = next(spec for spec in manifest["settings"]["feature_variants"] if spec["key"] == key)
+        params = dict(manifest["settings"]["xgboost_hyperparameters"])
+        params["objective"] = spec["objective"]
+        return {"features": dict(spec), "hyperparameters": params,
+                "lags": manifest["settings"]["lags"], "rolling_windows": manifest["settings"]["rolling_windows"]}
     raise FinalHoldoutError(f"No settings are defined for candidate {short_name!r} ({scope}).")
 
 
@@ -217,6 +254,7 @@ def default_factories(config: Mapping[str, Any], calendar: Optional[pd.DataFrame
     from src.models.croston import CrostonForecaster
     from src.models.holt_winters import HoltWintersForecaster
     from src.models.sarima import SARIMAForecaster
+    from src.models.sba import SBAForecaster
     from src.models.tsb import TSBForecaster
 
     models = config["models"]
@@ -239,10 +277,16 @@ def default_factories(config: Mapping[str, Any], calendar: Optional[pd.DataFrame
 
         return build
 
-    def pooled_xgboost():
+    def pooled_xgboost(spec: Optional[Mapping[str, Any]] = None, name: Optional[str] = None):
+        from dataclasses import replace
         from src.models.xgboost_model import PooledXGBoostForecaster, XGBoostConfig
 
-        return PooledXGBoostForecaster(XGBoostConfig.from_config(config), calendar)
+        cfg = XGBoostConfig.from_config(config)
+        if spec is not None:
+            cfg = replace(cfg, use_rolling_features=bool(spec["rolling"]),
+                          use_calendar_features=bool(spec["calendar"]),
+                          use_event_calendar=bool(spec["events"]), objective=str(spec["objective"]))
+        return PooledXGBoostForecaster(cfg, calendar, name=name)
 
     aggregate: Dict[str, Factory] = {
         "SeasonalNaive": seasonal_naive,
@@ -257,12 +301,25 @@ def default_factories(config: Mapping[str, Any], calendar: Optional[pd.DataFrame
             aggregate[f"{cell.upper()}({features})"] = neural(cell, features)
     for variant in config["prophet"]["variants"]:
         aggregate[variant["name"]] = prophet(variant["name"])
+    xgb_manifest_path = resolve_path(Path("artifacts/expanded_xgboost/fold_manifest.json"))
+    xgb_specs = {}
+    if xgb_manifest_path.is_file():
+        xgb_manifest = read_json(xgb_manifest_path)
+        xgb_specs = {str(spec["key"]): spec for spec in xgb_manifest["settings"]["feature_variants"]}
     item_level: Dict[str, Factory] = {
         "SeasonalNaive": seasonal_naive,
         "Croston": lambda: CrostonForecaster(alpha=float(models["croston_alpha"])),
+        "SBA": lambda: SBAForecaster(alpha=float(models["sba_alpha"])),
         "TSB": lambda: TSBForecaster(alpha=float(models["tsb_alpha"]), beta=float(models["tsb_beta"])),
-        "XGBoost(pooled)": pooled_xgboost,
+        "XGBoost(pooled)": lambda: pooled_xgboost(),
     }
+    tsb_name = f"TSB(alpha={models['tsb_alpha']},beta={models['tsb_beta']})"
+    item_level[tsb_name] = item_level["TSB"]
+    for key in ("lags_calendar", "lags_calendar_events_poisson"):
+        spec = xgb_specs.get(key)
+        if spec is not None:
+            model_name = "XGBoost(pooled,lags_calendar_events_poisson,poisson)" if key.endswith("poisson") else "XGBoost(pooled,lags_calendar)"
+            item_level[model_name] = lambda spec=spec, model_name=model_name: pooled_xgboost(spec, model_name)
     return {"aggregate": aggregate, "item_level": item_level}
 
 
@@ -351,6 +408,74 @@ def _not_ready_message(missing: Sequence[str], audit: pd.DataFrame) -> str:
     return "\n".join(lines)
 
 
+def _validated_selection_manifest(config: Mapping[str, Any]) -> Dict[str, Any]:
+    path = resolve_path(SELECTION_MANIFEST_PATH)
+    if not path.is_file():
+        raise NotReadyToFreeze(f"Development candidate selection manifest is missing: {_display(path)}")
+    manifest = read_json(path)
+    if manifest.get("status") != "DEVELOPMENT_SELECTION_FROZEN_BEFORE_FINAL_HOLDOUT":
+        raise NotReadyToFreeze("Development candidate selection manifest is not in its frozen pre-holdout state.")
+    if manifest.get("config_sha256") != file_sha256(resolve_path(Path("config.yaml"))):
+        raise NotReadyToFreeze("config.yaml changed after the development candidate selection manifest was created.")
+    for rel, expected in manifest.get("artifact_sha256", {}).items():
+        artifact = resolve_path(Path(rel))
+        if not artifact.is_file() or file_sha256(artifact) != expected:
+            raise NotReadyToFreeze(f"Development selection evidence hash mismatch: {rel}")
+    for rel, expected in manifest.get("selection_source_code_sha256", {}).items():
+        source = resolve_path(Path(rel))
+        if not source.is_file() or file_sha256(source) != expected:
+            raise NotReadyToFreeze(f"Development selection code hash mismatch: {rel}")
+    if not {"Smooth", "Erratic", "Intermittent", "Lumpy"}.issubset(manifest.get("class_candidate_map", {})):
+        raise NotReadyToFreeze("Development selection manifest does not include all four required demand classes.")
+    if manifest.get("holdout_status", "").find("not evaluated") < 0:
+        raise NotReadyToFreeze("Selection manifest does not certify that the final holdout remains unevaluated.")
+    return manifest
+
+
+def _freeze_selected_candidates(config: Mapping[str, Any], selection: Mapping[str, Any], now: Optional[datetime]) -> Dict[str, Any]:
+    if results_path(config).exists() or record_path(config).exists():
+        raise FinalHoldoutError("The final holdout has already been evaluated; candidates cannot be re-frozen.")
+    if frozen_path(config).exists():
+        raise FinalHoldoutError(f"'{_display(frozen_path(config))}' already exists. Candidates are frozen once.")
+    aggregate = selection["candidates"][0]
+    unique_item = {}
+    for cls, model in selection["class_candidate_map"].items():
+        record = next(c for c in selection["candidates"] if c["selection_group"] == cls)
+        unique_item.setdefault(model, record)
+    aggregate_rows = [{"candidate": aggregate["model"], "model": aggregate["model"],
+                       "development_metrics": aggregate["development_metrics"], "settings": aggregate["settings"],
+                       "selection_group": "aggregate"}]
+    item_rows = [{"candidate": model, "model": model, "development_metrics": record["development_metrics"],
+                  "settings": record["settings"], "selection_groups": [c for c, m in selection["class_candidate_map"].items() if m == model]}
+                 for model, record in unique_item.items()]
+    dev_series, dev_window = load_aggregate_development(config)
+    scopes_record = {
+        "aggregate": {"headline_candidate": aggregate["model"], "headline_model": aggregate["model"], "candidates": aggregate_rows},
+        "item_level": {"headline_candidate": "Class-selected strategy", "headline_model": "Class-selected strategy", "candidates": item_rows},
+    }
+    record = {
+        "schema_version": SCHEMA_VERSION, "frozen_at_utc": _utc(now), "holdout_evaluated": False,
+        "config_sections": list(FROZEN_CONFIG_SECTIONS),
+        "config_sha256": config_section_hash(config, FROZEN_CONFIG_SECTIONS),
+        "development_window": {"start": str(dev_window.dev_start.date()), "end": str(dev_window.dev_end.date()),
+                               "days": int(dev_window.n_development_days)},
+        "reserved_holdout": {"start": str(dev_window.holdout_start.date()), "end": str(dev_window.holdout_end.date()),
+                             "days": int(dev_window.n_holdout_days)},
+        "selection_rule": "Use the pre-holdout hashed development selection manifest; choose separate full-panel candidates by aggregate and fold-local demand class.",
+        "metrics": list(config["final_holdout"]["metrics"]), "scopes": scopes_record,
+        "class_candidate_map": dict(selection["class_candidate_map"]),
+        "development_selection_manifest": _display(resolve_path(SELECTION_MANIFEST_PATH)),
+        "development_selection_sha256": file_sha256(resolve_path(SELECTION_MANIFEST_PATH)),
+        "development_artifact_sha256": dict(selection["artifact_sha256"]),
+        "source_code_sha256": {"src/evaluation/final_holdout.py": file_sha256(resolve_path(Path("src/evaluation/final_holdout.py"))),
+                                "src/evaluation/select_development_candidates.py": file_sha256(resolve_path(Path("src/evaluation/select_development_candidates.py")))},
+        "environment": environment_snapshot(),
+        "note": "The final holdout has not yet been evaluated. Historical development loaders transiently read reserved sales before the cutoff correction; those values were not used for training, selection or scoring. See HOLDOUT_DATA_BOUNDARY_AUDIT.md.",
+    }
+    write_json(frozen_path(config), record)
+    return record
+
+
 # ----------------------------------------------------------------------------------------------------- freeze
 
 def freeze(
@@ -364,6 +489,18 @@ def freeze(
     config = load_config() if config is None else config
     if results_path(config).exists() or record_path(config).exists():
         raise FinalHoldoutError("The final holdout has already been evaluated; the candidates can no longer be re-frozen.")
+    if UNMET_FINALIZATION_PREREQUISITES:
+        details = "\n".join(f"  - {item}" for item in UNMET_FINALIZATION_PREREQUISITES)
+        raise NotReadyToFreeze(
+            "Cannot freeze candidates because required development studies are incomplete:\n"
+            f"{details}\nNo candidate manifest was written and no holdout evaluation was run."
+        )
+    selection_path = _selection_manifest_path_for(config)
+    if selection_path is not None and selection_path.is_file():
+        selection = _validated_selection_manifest(config)
+        if overwrite and frozen_path(config).exists():
+            raise FinalHoldoutError("A frozen candidate manifest cannot be overwritten by the selection freeze path.")
+        return _freeze_selected_candidates(config, selection, now)
     target = frozen_path(config)
     if target.exists() and not overwrite:
         raise FinalHoldoutError(
@@ -468,30 +605,42 @@ def status(config: Optional[Mapping[str, Any]] = None, *, evidence: Optional[Dev
 
     missing: List[str] = []
     if not frozen:
-        try:
-            evidence = load_development_evidence(config) if evidence is None else evidence
-            candidates = configured_candidates(config)
-            for scope in SCOPES:
-                summary = evidence.summaries.get(scope)
-                available = [] if summary is None else list(summary["model"])
-                for short in candidates[scope]:
-                    if resolve_model_name(short, available) is None:
-                        missing.append(f"development results for {scope} candidate {short}")
-            bad = evidence.audit[evidence.audit["status"] != "ok"] if len(evidence.audit) else evidence.audit
-            missing += [f"{r.artifact} [{r.status}] - {r.detail}" for r in bad.itertuples(index=False)]
-        except (FileNotFoundError, FinalHoldoutError, ValueError) as exc:
-            missing.append(f"development evidence could not be loaded: {exc}")
+        selection_path = _selection_manifest_path_for(config)
+        if selection_path is not None and selection_path.is_file():
+            try:
+                _validated_selection_manifest(config)
+            except (FileNotFoundError, FinalHoldoutError, ValueError) as exc:
+                missing.append(f"development candidate selection is not valid: {exc}")
+        else:
+            try:
+                evidence = load_development_evidence(config) if evidence is None else evidence
+                candidates = configured_candidates(config)
+                for scope in SCOPES:
+                    summary = evidence.summaries.get(scope)
+                    available = [] if summary is None else list(summary["model"])
+                    for short in candidates[scope]:
+                        if resolve_model_name(short, available) is None:
+                            missing.append(f"development results for {scope} candidate {short}")
+                bad = evidence.audit[evidence.audit["status"] != "ok"] if len(evidence.audit) else evidence.audit
+                missing += [f"{r.artifact} [{r.status}] - {r.detail}" for r in bad.itertuples(index=False)]
+            except (FileNotFoundError, FinalHoldoutError, ValueError) as exc:
+                missing.append(f"development evidence could not be loaded: {exc}")
+        missing += [f"finalization prerequisite incomplete: {item}" for item in UNMET_FINALIZATION_PREREQUISITES]
 
     steps: List[str] = []
     if evaluated:
         steps.append("The holdout is evaluated. Report the numbers together with the evaluation count in the record file.")
     elif not frozen:
-        if missing:
+        directive_blocked = bool(UNMET_FINALIZATION_PREREQUISITES)
+        if directive_blocked:
+            steps.append("Complete and audit every listed development prerequisite. Do not freeze or evaluate the holdout yet.")
+        elif missing:
             steps.append("Create every missing development artifact (commands above), then review notebook 09 before freezing.")
         else:
             steps.append("All development artifacts are present. Review notebook 09, decide that no model will change, then freeze.")
-        steps.append("python -m src.evaluation.final_holdout freeze")
-        steps.append(f"python -m src.evaluation.final_holdout run --confirm {CONFIRMATION_PHRASE}")
+        if not directive_blocked:
+            steps.append("python -m src.evaluation.final_holdout freeze")
+            steps.append(f"python -m src.evaluation.final_holdout run --confirm {CONFIRMATION_PHRASE}")
     elif not matches:
         steps.append("config.yaml changed after the freeze. Restore it, or re-freeze with --overwrite and review the new freeze.")
     else:
@@ -516,37 +665,56 @@ class HoldoutInputs:
     calendar: Optional[pd.DataFrame]          # calendar facts known in advance (events, SNAP); contains no sales
     read_actuals: Callable[[], HoldoutActuals]
     horizon: int = 28
+    item_classes: Dict[str, str] = field(default_factory=dict)  # computed from development histories only
 
 
 def load_holdout_inputs(config: Optional[Mapping[str, Any]] = None) -> HoldoutInputs:
     """Real inputs: development series now, holdout sales only when `read_actuals()` is called."""
     from src.models.xgboost_model import load_event_calendar
+    from src.evaluation.intermittent_experiment import load_all_item_development_sales
+    from src.analysis.demand_classification import classify_series
 
     config = load_config() if config is None else config
     horizon = int(config["backtest"]["horizon"])
     holdout_days = int(config["backtest"]["holdout_days"])
     series, _ = load_aggregate_development(config)
-    items = load_selected_item_series(config)
+    item_wide, item_window = load_all_item_development_sales(config)
+    if item_window.dev_end != series.index.max():
+        raise FinalHoldoutError("Aggregate and item development windows do not end on the same date.")
+    items = {str(item): item_wide[item].astype(float).rename(str(item)) for item in item_wide.columns}
+    item_classes = {item: classify_series(history)["demand_class"] for item, history in items.items()}
     panel_path = resolve_path(Path(config["data"]["interim_dir"]) / config["output"]["panel_filename"])
     calendar = load_event_calendar(panel_path)           # calendar columns only; `sales` is never loaded here
 
     def read_actuals() -> HoldoutActuals:
-        table = _read_aggregate_table(aggregate_series_path(config))
-        tail = table.iloc[-holdout_days:]
-        aggregate = pd.Series(tail["sales"].to_numpy(dtype=float), index=pd.DatetimeIndex(tail["date"]), name="aggregate_sales")
-        daily = pd.read_parquet(
-            resolve_path(Path(config["data"]["processed_dir"]) / config["output"]["selected_items_daily_sales_filename"])
-        )
+        holdout_start = series.index.max() + pd.Timedelta(days=1)
+        holdout_end = holdout_start + pd.Timedelta(days=holdout_days - 1)
+        table_path = aggregate_series_path(config)
+        table = pd.read_parquet(table_path, columns=["date", "sales"],
+                                filters=[("date", ">=", holdout_start), ("date", "<=", holdout_end)])
+        table["date"] = pd.to_datetime(table["date"])
+        table = table.sort_values("date")
+        if len(table) != holdout_days:
+            raise FinalHoldoutError(f"Expected {holdout_days} aggregate holdout days, found {len(table)}.")
+        aggregate = pd.Series(table["sales"].to_numpy(dtype=float), index=pd.DatetimeIndex(table["date"]), name="aggregate_sales")
+        panel = pd.read_parquet(panel_path, columns=["item_id", "date", "sales"],
+                                filters=[("date", ">=", holdout_start), ("date", "<=", holdout_end)])
+        panel["date"] = pd.to_datetime(panel["date"])
+        panel["item_id"] = panel["item_id"].astype(str)
         item_actuals: Dict[str, pd.Series] = {}
-        for item_id, group in daily.groupby("item_id"):
+        for item_id, group in panel.groupby("item_id"):
             group = group.sort_values("date")
-            part = group.iloc[-holdout_days:]
+            part = group
+            if len(part) != holdout_days:
+                raise FinalHoldoutError(f"Expected {holdout_days} holdout days for item {item_id}, found {len(part)}.")
             item_actuals[str(item_id)] = pd.Series(
                 part["sales"].to_numpy(dtype=float), index=pd.DatetimeIndex(part["date"]), name=str(item_id)
             )
+        if set(item_actuals) != set(items):
+            raise FinalHoldoutError("Holdout item IDs do not match the 823-item development panel.")
         return HoldoutActuals(aggregate, item_actuals)
 
-    return HoldoutInputs(series, items, calendar, read_actuals, horizon)
+    return HoldoutInputs(series, items, calendar, read_actuals, horizon, item_classes)
 
 
 # ----------------------------------------------------------------------------------------------------- run
@@ -624,6 +792,21 @@ def _check_refusals(config: Mapping[str, Any], confirm: Optional[str], override_
             "config.yaml (model, backtest or final_holdout sections) has changed since the candidates were frozen. "
             "Restore it, or re-freeze with --overwrite and review the new freeze before evaluating."
         )
+    if frozen.get("holdout_evaluated") is not False:
+        raise FinalHoldoutError("The frozen record does not certify an unevaluated holdout.")
+    for rel, expected in frozen.get("source_code_sha256", {}).items():
+        source = resolve_path(Path(rel))
+        if not source.is_file() or file_sha256(source) != expected:
+            raise FinalHoldoutError(f"Final-holdout source changed after freeze: {rel}. Re-freeze before evaluation.")
+    selection_path = resolve_path(SELECTION_MANIFEST_PATH)
+    expected_selection = frozen.get("development_selection_sha256")
+    if expected_selection and (not selection_path.is_file() or file_sha256(selection_path) != expected_selection):
+        raise FinalHoldoutError("Development selection manifest changed after the protected freeze.")
+    if expected_selection:
+        for rel, expected in frozen.get("development_artifact_sha256", {}).items():
+            artifact = resolve_path(Path(rel))
+            if not artifact.is_file() or file_sha256(artifact) != expected:
+                raise FinalHoldoutError(f"Development selection evidence changed after freeze: {rel}.")
     if (results_path(config).exists() or record_path(config).exists()) and not override_existing:
         raise FinalHoldoutError(
             "The final holdout has already been evaluated, and a second look at it is not an unseen estimate any "
@@ -634,7 +817,8 @@ def _check_refusals(config: Mapping[str, Any], confirm: Optional[str], override_
 
 def _archive_existing(config: Mapping[str, Any], evaluation_count: int) -> List[str]:
     archived = []
-    for path in (results_path(config), forecasts_path(config), record_path(config)):
+    class_path = final_dir(config) / config["final_holdout"].get("class_results_filename", "final_holdout_class_results.csv")
+    for path in (results_path(config), forecasts_path(config), class_path, record_path(config)):
         if path.exists():
             target = path.with_name(f"{path.stem}.superseded-{evaluation_count}{path.suffix}")
             path.replace(target)
@@ -674,7 +858,20 @@ def evaluate_frozen_candidates(
                 for item_id, (values, ok, error) in per_item.items():
                     dates = _forecast_dates(inputs.item_histories[item_id], horizon)
                     produced.append({"scope": scope, "model": full, "item_id": item_id, "dates": dates,
-                                     "predicted": values, "success": ok, "error": error})
+                                     "predicted": values, "success": ok, "error": error,
+                                     "fold_local_class": inputs.item_classes.get(item_id)})
+
+    class_map = frozen.get("class_candidate_map", {})
+    if class_map:
+        if set(inputs.item_histories) != set(inputs.item_classes):
+            raise FinalHoldoutError("A class-selected final strategy requires a development-only class for every item.")
+        by_model_item = {(p["model"], p["item_id"]): p for p in produced if p["scope"] == "item_level"}
+        for item_id, cls in inputs.item_classes.items():
+            selected_model = class_map.get(cls)
+            source = by_model_item.get((selected_model, item_id))
+            if source is None:
+                raise FinalHoldoutError(f"No frozen forecast exists for selected class candidate {selected_model!r} and {item_id}.")
+            produced.append({**source, "model": "Class-selected strategy", "source_candidate_model": selected_model})
 
     actuals = inputs.read_actuals()                           # <- the only moment holdout sales are read
 
@@ -691,7 +888,9 @@ def evaluate_frozen_candidates(
         for day, actual, predicted in zip(part["dates"], source.to_numpy(dtype=float), part["predicted"]):
             rows.append({"scope": part["scope"], "model": part["model"], "item_id": part["item_id"], "fold": 1,
                          "date": day, "actual": float(actual), "predicted": float(predicted),
-                         "success": part["success"], "error": part["error"]})
+                         "success": part["success"], "error": part["error"],
+                         "fold_local_class": part.get("fold_local_class"),
+                         "source_candidate_model": part.get("source_candidate_model")})
     forecast_table = pd.DataFrame(rows)
 
     lag = int(config["comparison"]["mase_seasonal_lag"])
@@ -751,6 +950,24 @@ def run(
     factories = default_factories(config, inputs.calendar) if factories is None else factories
 
     forecast_table, results = evaluate_frozen_candidates(frozen, config, inputs, factories)
+    class_results = pd.DataFrame()
+    class_rows = forecast_table[(forecast_table["scope"] == "item_level") & forecast_table["fold_local_class"].notna()]
+    if not class_rows.empty:
+        class_scales = pd.DataFrame(
+            [{"item_id": item, "fold": 1, "mase_scale": seasonal_naive_scale(series.to_numpy(dtype=float),
+                                                                               int(config["comparison"]["mase_seasonal_lag"]))}
+             for item, series in inputs.item_histories.items()]
+        )
+        per_item_class = _score(class_rows, class_scales, ["item_id", "model", "fold", "fold_local_class"])
+        class_records = []
+        for (model, cls), group in per_item_class.groupby(["model", "fold_local_class"], sort=False):
+            ok = bool(group["success"].astype(bool).all())
+            rec = {"model": model, "fold_local_class": cls, "success": ok, "n_items": int(group["item_id"].nunique()),
+                   "n_days_scored": int(group["n"].sum())}
+            for metric in ("MAE", "RMSE", "MAPE", "WAPE", "MASE", "bias"):
+                rec[metric] = float(group[metric].mean()) if ok and group[metric].notna().any() else float("nan")
+            class_records.append(rec)
+        class_results = pd.DataFrame(class_records)
 
     previous_count = 0
     record_file = record_path(config)
@@ -767,6 +984,9 @@ def run(
     out_forecasts["date"] = pd.to_datetime(out_forecasts["date"]).dt.strftime("%Y-%m-%d")
     out_forecasts.drop(columns=["fold"]).to_csv(forecasts_path(config), index=False, lineterminator="\n")
     results.to_csv(results_path(config), index=False, lineterminator="\n")
+    class_results_path = _final_path(config, "class_results_filename") if "class_results_filename" in config["final_holdout"] else final_dir(config) / "final_holdout_class_results.csv"
+    if not class_results.empty:
+        class_results.to_csv(class_results_path, index=False, lineterminator="\n")
     metadata = build_run_metadata(
         "final_holdout", config, FROZEN_CONFIG_SECTIONS,
         {
@@ -774,6 +994,8 @@ def run(
             "override_used": bool(previous_count),
             "archived_previous_files": archived,
             "frozen_file_sha256": file_sha256(frozen_path(config)),
+            "development_selection_sha256": frozen.get("development_selection_sha256"),
+            "selection_artifact_sha256": dict(frozen.get("development_artifact_sha256", {})),
             "frozen_at_utc": frozen["frozen_at_utc"],
             "holdout_window": frozen["reserved_holdout"],
             "headline": {scope: frozen["scopes"][scope]["headline_model"] for scope in SCOPES},
@@ -782,6 +1004,9 @@ def run(
         },
     )
     metadata["evaluation_count"] = count
+    metadata["final_holdout_forecasts_sha256"] = file_sha256(forecasts_path(config))
+    metadata["final_holdout_results_sha256"] = file_sha256(results_path(config))
+    metadata["final_holdout_class_results_sha256"] = file_sha256(class_results_path) if class_results_path.exists() else None
     metadata["warning"] = REPEAT_WARNING if count > 1 else None
     write_json(record_file, metadata)
     if count > 1:

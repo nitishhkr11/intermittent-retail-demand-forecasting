@@ -1,0 +1,473 @@
+{
+  "artifact_sha256": {
+    "artifacts/expanded_intermittent/fold_class_summary.csv": "b4255417b8c431d0354f547e0f8ce2d932435ded6f99a99c530ac8a85295cd1b",
+    "artifacts/expanded_intermittent/fold_metrics.csv": "eeaf135e397156beb57791cc17059eeaa1695020eb10bf17b10a433f8a3bf507",
+    "artifacts/expanded_inventory_calibration_v2/calibration_model_class_summary.csv": "dd686832ffcbde5a0e5b43245354ce0178138c88f65581a4134c448c3b159d40",
+    "artifacts/expanded_inventory_calibration_v2/calibration_model_summary.csv": "1296efb5a5954b8a5075bc1469960fbbe2be1aabf32db3908f1498772c81a571",
+    "artifacts/expanded_neural/forecasts.csv": "af7d19ed733b547f8ac7c568ee58adec3d029e57af31a7a79cd5b290e0efedb1",
+    "artifacts/expanded_neural/model_summary.csv": "8371671f96c72156750dc0cf178ee44e6be3749354808d88f7c104c6c4c2d0b7",
+    "artifacts/expanded_prophet_block_conformal/model_summary.csv": "59af8e6a4bf6b08f05349a6238cd1c34f7e54e4821d83e9042f5a6127075ba7d",
+    "artifacts/expanded_seasonal/fold_manifest.json": "7679e3b637006b5b5b150627b8127fd87caa21ac36268d481bf679ff755c4132",
+    "artifacts/expanded_seasonal/model_summary.csv": "3b1c05533624d66e7c8e5b33603e300ac7a24a5fd7c67845753c8218aa57e063",
+    "artifacts/expanded_xgboost/fold_manifest.json": "c854722e138a6eb4314aacd7117d1b6dc3abb27bdfb22b260d8331b2cbfa75d8",
+    "artifacts/expanded_xgboost/independent_audit.json": "406c9748c9eaae0455ff5db1726faee4cb61f01359ba148c1a13aa4df084a470",
+    "artifacts/expanded_xgboost/item_fold_metrics.csv": "8e77633143ea50512b0407c60b5aa8ae7936e5223a1edfa4231625dfa99322d3",
+    "config.yaml": "6fcd13a95bf50d99098ab87d21d32dc86fb9af716209ddb1d9095dadffb49fdf"
+  },
+  "candidates": [
+    {
+      "candidate_id": "aggregate_lstm_calendar",
+      "development_folds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "development_metrics": {
+        "MAE": 185.09202877370268,
+        "RMSE": 235.450591602622,
+        "bias": -32.7927345670896
+      },
+      "horizon_days": 28,
+      "information_set": "aggregate history plus calendar/event regressors; richer than lag-only classical models",
+      "model": "LSTM(calendar)",
+      "reliability": {
+        "folds_failed": 0,
+        "folds_scored": 16,
+        "seed_members_per_fold": 5
+      },
+      "selection_criteria": {
+        "eligibility": "16/16 common folds and zero failed fits",
+        "primary": "MAE",
+        "secondary": [
+          "RMSE",
+          "WAPE",
+          "MASE",
+          "abs_bias"
+        ]
+      },
+      "selection_group": "aggregate",
+      "selection_rationale": "lowest mean MAE among complete aggregate candidates across the shared 2012\u20132015 quarterly windows; descriptive only",
+      "settings": {
+        "batch_size": 64,
+        "cell": "lstm",
+        "dropout": 0.1,
+        "features": "calendar",
+        "grad_clip": 1.0,
+        "hidden_size": 32,
+        "huber_delta": 1.0,
+        "input_window": 56,
+        "learning_rate": 0.002,
+        "loss": "huber",
+        "max_epochs": 80,
+        "num_layers": 1,
+        "patience": 10,
+        "primary_features": "calendar",
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "torch_num_threads": 1,
+        "validation_days": 56,
+        "weight_decay": 0.0
+      }
+    },
+    {
+      "candidate_id": "smooth_xgboost_pooled_lags_calendar_events_poisson_poisson",
+      "development_folds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "development_metrics": {
+        "MAE": 2.8579362289894132,
+        "MAE_fold_sd": 0.24090219536630625,
+        "MASE": 0.7728824999091334,
+        "RMSE": 3.5657546032246246,
+        "WAPE": 1.3323234499666514,
+        "bias": 0.23599632154955785
+      },
+      "horizon_days": 28,
+      "information_set": "item sales history; XGBoost candidates additionally use calendar/event flags where specified",
+      "mean_items_per_fold": 94.6875,
+      "minimum_fold_success_rate": 1.0,
+      "model": "XGBoost(pooled,lags_calendar_events_poisson,poisson)",
+      "selection_criteria": {
+        "fold_stability": "fold MAE SD reported; lower MAE fold counts retained in class comparison CSV",
+        "primary": "MAE",
+        "secondary": [
+          "RMSE",
+          "WAPE",
+          "MASE",
+          "abs_bias"
+        ]
+      },
+      "selection_group": "Smooth",
+      "selection_rationale": "eligible under 16-fold/95% reliability rule and lowest mean class-specific MAE; item-level macros are not compared with aggregate errors",
+      "settings": {
+        "features": {
+          "calendar": true,
+          "events": false,
+          "key": "lags_calendar",
+          "objective": "reg:squarederror",
+          "rolling": false,
+          "scope": "pooled"
+        },
+        "hyperparameters": {
+          "colsample_bytree": 0.8,
+          "learning_rate": 0.05,
+          "max_depth": 6,
+          "min_child_weight": 1.0,
+          "n_estimators": 300,
+          "n_jobs": 1,
+          "objective": "reg:squarederror",
+          "random_state": 42,
+          "reg_lambda": 1.0,
+          "subsample": 0.8,
+          "tree_method": "hist"
+        },
+        "lags": [
+          1,
+          7,
+          14,
+          28
+        ],
+        "rolling_windows": [
+          7,
+          14,
+          28
+        ],
+        "scope": "pooled"
+      }
+    },
+    {
+      "candidate_id": "erratic_xgboost_pooled_lags_calendar_events_poisson_poisson",
+      "development_folds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "development_metrics": {
+        "MAE": 5.085850802485275,
+        "MAE_fold_sd": 0.8897749874552268,
+        "MASE": 0.9063199821464092,
+        "RMSE": 6.298327794365136,
+        "WAPE": 2.0982324289253924,
+        "bias": 1.1299958083342343
+      },
+      "horizon_days": 28,
+      "information_set": "item sales history; XGBoost candidates additionally use calendar/event flags where specified",
+      "mean_items_per_fold": 36.75,
+      "minimum_fold_success_rate": 1.0,
+      "model": "XGBoost(pooled,lags_calendar_events_poisson,poisson)",
+      "selection_criteria": {
+        "fold_stability": "fold MAE SD reported; lower MAE fold counts retained in class comparison CSV",
+        "primary": "MAE",
+        "secondary": [
+          "RMSE",
+          "WAPE",
+          "MASE",
+          "abs_bias"
+        ]
+      },
+      "selection_group": "Erratic",
+      "selection_rationale": "eligible under 16-fold/95% reliability rule and lowest mean class-specific MAE; item-level macros are not compared with aggregate errors",
+      "settings": {
+        "features": {
+          "calendar": true,
+          "events": false,
+          "key": "lags_calendar",
+          "objective": "reg:squarederror",
+          "rolling": false,
+          "scope": "pooled"
+        },
+        "hyperparameters": {
+          "colsample_bytree": 0.8,
+          "learning_rate": 0.05,
+          "max_depth": 6,
+          "min_child_weight": 1.0,
+          "n_estimators": 300,
+          "n_jobs": 1,
+          "objective": "reg:squarederror",
+          "random_state": 42,
+          "reg_lambda": 1.0,
+          "subsample": 0.8,
+          "tree_method": "hist"
+        },
+        "lags": [
+          1,
+          7,
+          14,
+          28
+        ],
+        "rolling_windows": [
+          7,
+          14,
+          28
+        ],
+        "scope": "pooled"
+      }
+    },
+    {
+      "candidate_id": "intermittent_xgboost_pooled_lags_calendar",
+      "development_folds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "development_metrics": {
+        "MAE": 1.5203347007262007,
+        "MAE_fold_sd": 0.19130908061634036,
+        "MASE": 3.0616137814513786,
+        "RMSE": 1.9688267436200544,
+        "WAPE": 1.0979340798625894,
+        "bias": -0.07583589724787035
+      },
+      "horizon_days": 28,
+      "information_set": "item sales history; XGBoost candidates additionally use calendar/event flags where specified",
+      "mean_items_per_fold": 370.0625,
+      "minimum_fold_success_rate": 1.0,
+      "model": "XGBoost(pooled,lags_calendar)",
+      "selection_criteria": {
+        "fold_stability": "fold MAE SD reported; lower MAE fold counts retained in class comparison CSV",
+        "primary": "MAE",
+        "secondary": [
+          "RMSE",
+          "WAPE",
+          "MASE",
+          "abs_bias"
+        ]
+      },
+      "selection_group": "Intermittent",
+      "selection_rationale": "eligible under 16-fold/95% reliability rule and lowest mean class-specific MAE; item-level macros are not compared with aggregate errors",
+      "settings": {
+        "features": {
+          "calendar": true,
+          "events": false,
+          "key": "lags_calendar",
+          "objective": "reg:squarederror",
+          "rolling": false,
+          "scope": "pooled"
+        },
+        "hyperparameters": {
+          "colsample_bytree": 0.8,
+          "learning_rate": 0.05,
+          "max_depth": 6,
+          "min_child_weight": 1.0,
+          "n_estimators": 300,
+          "n_jobs": 1,
+          "objective": "reg:squarederror",
+          "random_state": 42,
+          "reg_lambda": 1.0,
+          "subsample": 0.8,
+          "tree_method": "hist"
+        },
+        "lags": [
+          1,
+          7,
+          14,
+          28
+        ],
+        "rolling_windows": [
+          7,
+          14,
+          28
+        ],
+        "scope": "pooled"
+      }
+    },
+    {
+      "candidate_id": "lumpy_tsb_alpha_0_1_beta_0_1",
+      "development_folds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "development_metrics": {
+        "MAE": 1.9251748988542141,
+        "MAE_fold_sd": 0.23352215433379994,
+        "MASE": 1.8882288340406688,
+        "RMSE": 2.5118648157182015,
+        "WAPE": 1.4666184108050144,
+        "bias": -0.0713653135609319
+      },
+      "horizon_days": 28,
+      "information_set": "item sales history; XGBoost candidates additionally use calendar/event flags where specified",
+      "mean_items_per_fold": 181.4375,
+      "minimum_fold_success_rate": 1.0,
+      "model": "TSB(alpha=0.1,beta=0.1)",
+      "selection_criteria": {
+        "fold_stability": "fold MAE SD reported; lower MAE fold counts retained in class comparison CSV",
+        "primary": "MAE",
+        "secondary": [
+          "RMSE",
+          "WAPE",
+          "MASE",
+          "abs_bias"
+        ]
+      },
+      "selection_group": "Lumpy",
+      "selection_rationale": "eligible under 16-fold/95% reliability rule and lowest mean class-specific MAE; item-level macros are not compared with aggregate errors",
+      "settings": {
+        "alpha": 0.1,
+        "beta": 0.1
+      }
+    },
+    {
+      "candidate_id": "no_demand_seasonalnaive",
+      "development_folds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "development_metrics": {
+        "status": "deterministic fallback; not performance-selected"
+      },
+      "horizon_days": 28,
+      "information_set": "development sales history only",
+      "model": "SeasonalNaive",
+      "selection_criteria": {
+        "fallback": "no positive development demand",
+        "primary": "not applicable"
+      },
+      "selection_group": "NoDemand",
+      "selection_rationale": "NoDemand items receive the seasonal-naive zero-demand fallback; this is not ranked as a fifth performance-selected demand class.",
+      "settings": {
+        "season_length": 7
+      }
+    }
+  ],
+  "class_candidate_map": {
+    "Erratic": "XGBoost(pooled,lags_calendar_events_poisson,poisson)",
+    "Intermittent": "XGBoost(pooled,lags_calendar)",
+    "Lumpy": "TSB(alpha=0.1,beta=0.1)",
+    "NoDemand": "SeasonalNaive",
+    "Smooth": "XGBoost(pooled,lags_calendar_events_poisson,poisson)"
+  },
+  "config_sha256": "6fcd13a95bf50d99098ab87d21d32dc86fb9af716209ddb1d9095dadffb49fdf",
+  "dashboard_calibration": {
+    "selected_method": "empirical_all",
+    "selection_rationale": "simple per-model empirical calibration has more historical cells and near-tied development service; no method reaches 95%, and class-normalized slight gain does not establish robust superiority",
+    "target_cycle_service": 0.95
+  },
+  "dataset_sha256": {
+    "aggregate": "38201b6aab057073fce1a68ff8ca7c9d8e234769cb75b553be5dce0b9a04a3ba",
+    "item_panel": "d3e717963dae5802c31b3ee2ac4242053c8acab9a3a231df186fb8cf7ffa730b"
+  },
+  "frozen_at_utc": "2026-11-14T19:49:51Z",
+  "git_sha": "6ef0824f7d6c62c1ea2af92923a5553c12c29a9e",
+  "holdout_status": "not evaluated; prior loader transient-read caveat documented in reports/final/HOLDOUT_DATA_BOUNDARY_AUDIT.md",
+  "horizon_days": 28,
+  "schema_version": 1,
+  "selection_rules": {
+    "aggregate_eligibility": "16 common quarterly folds, zero fit failures",
+    "class_eligibility": "all 16 folds; at least 5 class items per fold; at least 95% successful item-fold cells in every fold",
+    "limitations": "descriptive fold comparisons only; information sets differ; no statistical significance claimed",
+    "primary": "MAE",
+    "secondary": [
+      "RMSE",
+      "WAPE",
+      "MASE",
+      "abs_bias"
+    ],
+    "selection": "lowest mean fold-level macro MAE among eligible models, then RMSE, WAPE, MASE; bias and fold SD disclosed"
+  },
+  "selection_source_code_sha256": {
+    "src/evaluation/expanded_intermittent.py": "ac87395de343460905392b7219b9c4773da098d339aa5c0c2fba838716e78fa7",
+    "src/evaluation/expanded_inventory_calibration.py": "f1462c809cfdb9ccf676c67e0860d2ea899b07f86fa5ac99566d42ec1b47a93a",
+    "src/evaluation/expanded_neural.py": "80f3f4eb5038f50c607cc4ae57a7a339efd405210b6aee152ae632b10b4ebed5",
+    "src/evaluation/expanded_prophet.py": "5c04dcb2a638c3d0f6ea12334e319ae714ec9c9808dd98a87abdc73d0588155b",
+    "src/evaluation/expanded_seasonal.py": "1aa59048acbd7a667605a2a9da8a2837470430fdf674c967b1b1d3a9bddd1dcb",
+    "src/evaluation/expanded_xgboost.py": "65e026016d43bead9b53656af61df3ac67614ba95c7ec2295cafa2fa668c1240",
+    "src/evaluation/select_development_candidates.py": "4216a45629b09dda13e2037938e240d2354af030586b65f407f514058a90fdf4",
+    "src/inventory/reorder.py": "75efeffb59c7bbc51d3500e67fecbe0b5860723c96f1b781daea12b78731b55e",
+    "src/models/lstm_gru.py": "766225a3f3df89fae5970c8a37e167b344ba6b20f0c4b40b6017f62c70fb6d73",
+    "src/models/xgboost_model.py": "1e3ce8f1fcfb7ed5081943e087fd5b85dad767f078fc3a450cd8477860695540"
+  },
+  "status": "DEVELOPMENT_SELECTION_FROZEN_BEFORE_FINAL_HOLDOUT",
+  "training_window": {
+    "end": "2016-04-24",
+    "start": "2011-01-29"
+  },
+  "working_tree_dirty_at_selection": true
+}

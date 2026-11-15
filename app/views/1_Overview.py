@@ -36,8 +36,7 @@ render_kpis([
     {"label": "Products", "value": f"{v['n_items']:,}", "note": "distinct items in the department"},
     {"label": "Development window", "value": f"{v['n_days']:,} days", "note": f"{w.dev_start.date()} to {w.dev_end.date()}"},
     {"label": "Item-day observations", "value": f"{v['dev_item_days']:,}",
-     "note": (f"in the development window; the full panel has {v['panel_item_days']:,}, of which {v['panel_item_days'] - v['dev_item_days']:,} "
-              f"are in the reserved final {w.n_holdout_days} days" if v["panel_item_days"] else "in the development window")},
+     "note": f"development window only; the reserved final {w.n_holdout_days} days are excluded"},
     {"label": "Zero-sales item-days", "value": f"{v['zero_share']:.1%}", "note": "share of item-days with no units sold (development window)"},
     {"label": "Units sold, all items", "value": f"{v['total_units']:,.0f}", "note": "development window total"},
 ])
@@ -95,7 +94,9 @@ callout("info", "Development results only",
         "Every number here comes from walk-forward backtests inside the development window. The reserved final 28 days have "
         + ("been evaluated once; see artifacts/final." if fh["evaluated"] else "not been evaluated, so no final-holdout result exists yet."))
 
-records = [{"role": "Aggregate series", "file": da.repo_path(da.aggregate_series_path(config)), **{k: da.file_record(da.aggregate_series_path(config))[k] for k in ("exists", "modified_utc", "sha256")}}]
-panel = resolve_path(Path(config["data"]["interim_dir"]) / config["output"]["panel_filename"])
-records.append({"role": "Item-day panel (counts, zero share, classes)", **da.file_record(panel)})
-provenance_panel(records, "Counts and class labels are computed from the development window only (the date filter is applied before aggregation).")
+data_root = resolve_path(Path("artifacts/dashboard_data"))
+records = [
+    {"role": "Development aggregate", **da.file_record(data_root / "aggregate_development.parquet")},
+    {"role": "Development item panel", **da.file_record(data_root / "all_items_development.parquet")},
+]
+provenance_panel(records, "These dashboard data files end on the development cutoff; they do not contain reserved-period target values.")

@@ -447,9 +447,10 @@ def load_all_item_development_sales(
         raise FileNotFoundError(
             f"Missing '{path.name}'. Create it from the raw M5 files with: python -m src.data.preprocessor"
         )
-    panel = pd.read_parquet(path, columns=["item_id", "date", "sales"])
-    # Same splitter the aggregate loader uses, applied to the panel's own calendar.
-    calendar = pd.DataFrame({"date": pd.to_datetime(panel["date"].drop_duplicates()).sort_values()})
+    # Derive the split from date metadata only, then push the development cutoff
+    # into the parquet scan so reserved sales labels never enter this loader.
+    dates = pd.read_parquet(path, columns=["date"])
+    calendar = pd.DataFrame({"date": pd.to_datetime(dates["date"].drop_duplicates()).sort_values()})
     expected_days = (calendar["date"].iloc[-1] - calendar["date"].iloc[0]).days + 1
     if len(calendar) != expected_days:
         raise ValueError(
@@ -465,7 +466,14 @@ def load_all_item_development_sales(
         n_development_days=split.dev_length,
         n_holdout_days=split.test_length,
     )
-    panel = panel[panel["date"] <= window.dev_end].copy()
+    panel = pd.read_parquet(
+        path,
+        columns=["item_id", "date", "sales"],
+        filters=[("date", "<=", window.dev_end)],
+    )
+    panel["date"] = pd.to_datetime(panel["date"])
+    if panel.empty or panel["date"].max() != window.dev_end:
+        raise ValueError("The parquet development read did not return the exact pre-holdout date range.")
     panel["item_id"] = panel["item_id"].astype(str)
     wide = panel.pivot(index="date", columns="item_id", values="sales").sort_index().astype(float)
     if wide.shape[0] != window.n_development_days:

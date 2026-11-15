@@ -86,10 +86,56 @@ def load_aggregate_development(
     """
     config = load_config() if config is None else config
     holdout_days = int(config["backtest"]["holdout_days"])
-    table = _read_aggregate_table(Path(path) if path is not None else aggregate_series_path(config))
-    split = split_final_holdout(table, holdout_days=holdout_days, date_col="date")
+    source = Path(path) if path is not None else aggregate_series_path(config)
+    if not source.exists():
+        raise FileNotFoundError(
+            f"Aggregate series file '{source.name}' not found. Create it with: "
+            "python -m src.analysis.demand_classification"
+        )
 
-    development = split.development
+    try:
+        import pyarrow.parquet as parquet
+
+        schema_columns = set(parquet.read_schema(source).names)
+        missing_columns = {"date", "sales"} - schema_columns
+        if missing_columns:
+            raise ValueError(f"'{source.name}' is missing column(s): {sorted(missing_columns)}.")
+    except ImportError:
+        # pandas will raise a clear engine error if no parquet implementation is installed.
+        pass
+
+    # Determine the reserved window from date metadata alone. Apply the sales
+    # cutoff in the parquet scan so development work never loads holdout labels.
+    dates = pd.read_parquet(source, columns=["date"])
+    if "date" not in dates:
+        raise ValueError(f"'{source.name}' is missing required column 'date'.")
+    dates["date"] = pd.to_datetime(dates["date"]).astype("datetime64[ns]")
+    dates = dates.sort_values("date").reset_index(drop=True)
+    if dates["date"].duplicated().any():
+        raise ValueError("The aggregate series has duplicated dates.")
+    expected = pd.date_range(dates["date"].iloc[0], dates["date"].iloc[-1], freq="D")
+    if len(expected) != len(dates):
+        raise ValueError(
+            f"The aggregate series is not a continuous daily series: {len(dates)} rows for {len(expected)} calendar days."
+        )
+    split = split_final_holdout(dates, holdout_days=holdout_days, date_col="date")
+    cutoff = split.dev_end
+    development = pd.read_parquet(
+        source,
+        columns=["date", "sales"],
+        filters=[("date", "<=", cutoff)],
+    )
+    missing = {"date", "sales"} - set(development.columns)
+    if missing:
+        raise ValueError(f"'{source.name}' is missing column(s): {sorted(missing)}.")
+    development["date"] = pd.to_datetime(development["date"]).astype("datetime64[ns]")
+    development = development.sort_values("date").reset_index(drop=True)
+    if len(development) != split.dev_length or development["date"].max() != cutoff:
+        raise ValueError("The parquet development read did not return the exact pre-holdout date range.")
+    if development["sales"].isna().any():
+        raise ValueError("The development aggregate series contains missing sales values.")
+    if (development["sales"] < 0).any():
+        raise ValueError("The development aggregate series contains negative sales values.")
     series = pd.Series(
         development["sales"].to_numpy(dtype=float),
         index=pd.DatetimeIndex(development["date"], name="date"),

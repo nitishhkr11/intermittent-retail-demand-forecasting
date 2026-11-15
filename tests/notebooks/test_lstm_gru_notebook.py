@@ -16,7 +16,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.data.aggregate_series import load_aggregate_development_series
 from src.evaluation.backtesting import generate_rolling_origins
 from src.evaluation.forecast_artifacts import audit_forecast_table, forecasts_dir, metrics_by_group, read_forecast_table
 from src.utils.config import load_config
@@ -117,8 +116,8 @@ def forecasts():
 
 
 @pytest.fixture(scope="module")
-def dev_series():
-    return load_aggregate_development_series(CONFIG)
+def dev_series(aggregate_development_reference):
+    return aggregate_development_reference
 
 
 def test_forecast_table_passes_the_full_audit(forecasts, dev_series):

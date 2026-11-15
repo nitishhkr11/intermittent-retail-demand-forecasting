@@ -2,10 +2,10 @@
 # these values are the starting point (light) that the toggle overrides.
 [theme]
 base = "light"
-primaryColor = "#1c5cab"
-backgroundColor = "#f5f4f0"
-secondaryBackgroundColor = "#fcfcfb"
-textColor = "#0b0b0b"
+primaryColor = "#2563EB"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F8FAFC"
+textColor = "#111827"
 font = "sans serif"
 
 [server]

@@ -20,6 +20,7 @@ from components.tables import render_table  # noqa: E402
 
 config = da.get_config()
 bt = config["backtest"]
+holdout_state = da.holdout_state()
 page_header("About & Methodology", "The research question, the data, the models, how they were tested and what the results can and cannot support.")
 
 st.markdown("## Research question")
@@ -29,7 +30,7 @@ st.markdown("How well can daily demand for intermittent retail items be forecast
 
 st.markdown("## Data")
 st.markdown(f"Walmart **M5** daily unit sales for store **{config['scope']['store_id']}**, department **{config['scope']['dept_id']}**: 823 items, 1,941 days "
-            "in the raw file (2011-01-29 to 2016-05-22; the last 28 of them are reserved and never used here), 1,597,443 item-day rows. Calendar events and SNAP days come from the M5 calendar. The raw M5 files are not part of the repository; "
+            "in the raw file (2011-01-29 to 2016-05-22; the final 28 days were excluded from development and scored once by the protected evaluator), 1,597,443 item-day rows. Calendar events and SNAP days come from the M5 calendar. The raw M5 files are not part of the repository; "
             "the pipeline builds the processed tables from them.")
 
 st.markdown("## Demand classes")
@@ -54,7 +55,7 @@ render_table(pd.DataFrame([
 st.markdown("## Evaluation protocol")
 st.markdown(
     f"- **Walk-forward (rolling origin):** {bt['n_folds']} folds, each forecasting {bt['horizon']} days after an expanding training window. No random splitting.\n"
-    f"- **Development window:** the first 1,913 days. **Final holdout:** the last {bt['holdout_days']} days (2016-04-25 to 2016-05-22), reserved for one final evaluation of frozen candidates.\n"
+    f"- **Development window:** the first 1,913 days. **Final holdout:** the last {bt['holdout_days']} days (2016-04-25 to 2016-05-22), evaluated once after candidate freeze.\n"
     "- **Leakage controls:** models are refitted per fold on that fold's training prefix only; scalers, validation tails and demand classes for model selection are computed inside the training window; calendar facts known in advance are the only future inputs.\n"
     "- **Aggregate and item-level results are separate experiments** and are never ranked together."
 )
@@ -74,8 +75,8 @@ st.markdown("Protection interval = lead time + review period. Safety stock = the
             "Reorder point = expected demand over the interval + safety stock. The target is a **cycle service level**, not a fill rate, and no cost model is used, so no savings are claimed.")
 
 st.markdown("## Limitations")
-st.markdown("One store and department; five folds; recorded sales understate demand when stock runs out; Phase 1 demand labels use the full history; "
-            "heavy models depend on optional libraries; Prophet needs a working Stan toolchain; all reported numbers are development results.")
+st.markdown("One store and department; five historical comparison folds plus separate expanded seasonal folds; recorded sales understate demand when stock runs out; "
+            "Phase 1 demand labels use the full history; heavy models depend on optional libraries; Prophet needs a working Stan toolchain. Final-holdout scores are shown separately and must not be used for tuning.")
 
 st.markdown("## How to reproduce")
 st.markdown("From the project root in PowerShell, with the project's virtual environment active:")
@@ -97,8 +98,11 @@ render_table(pd.DataFrame([
     {"What": "Saved forecasts", "Where": config["phase3"]["forecasts_dir"] + "/"},
     {"What": "Saved metrics, diagnostics, run metadata", "Where": config["phase3"]["metrics_dir"] + "/"},
     {"What": "Inventory demonstration outputs", "Where": config["phase3"]["inventory_dir"] + "/"},
-    {"What": "Final-holdout records (empty until the one-time run)", "Where": config["phase3"]["final_dir"] + "/"},
+    {"What": "Frozen candidate, one-time holdout results and record", "Where": config["phase3"]["final_dir"] + "/"},
     {"What": "Figures and reports", "Where": "reports/"},
 ]), caption="Artifact folders (repository-relative)", max_height=None)
-callout("info", "Final holdout", "The last 28 days are evaluated once, by `python -m src.evaluation.final_holdout`, after the candidates are frozen. "
-        "Until then no final result exists, and none is shown anywhere in this app.")
+if holdout_state["evaluated"]:
+    callout("info", "Final holdout evaluated once", "The reserved 28-day results appear on Model Comparison. Demand-class labels use development history only.")
+else:
+    callout("info", "Final holdout", "The last 28 days are evaluated once, by `python -m src.evaluation.final_holdout`, after the candidates are frozen. "
+            "No final-period score exists yet.")

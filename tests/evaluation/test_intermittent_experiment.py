@@ -57,6 +57,33 @@ def test_demand_pattern_summary_matches_hand_computation():
     assert summary["leading_zero_days"] == 2 and summary["trailing_zero_days"] == 0
 
 
+def test_all_item_development_loader_filters_sales_in_parquet(tmp_path, monkeypatch):
+    dates = pd.date_range("2020-01-01", periods=100, freq="D")
+    rows = []
+    for item in ("ITEM_A", "ITEM_B"):
+        for i, date in enumerate(dates):
+            rows.append({"item_id": item, "date": date, "sales": 1e12 if i >= 72 else float(i % 4)})
+    path = tmp_path / "panel.parquet"
+    pd.DataFrame(rows).to_parquet(path)
+    monkeypatch.setattr(ix, "panel_path", lambda config=None: path)
+    original = pd.read_parquet
+    sales_reads = []
+
+    def recording_read(*args, **kwargs):
+        result = original(*args, **kwargs)
+        columns = kwargs.get("columns")
+        if columns and "sales" in columns:
+            sales_reads.append((kwargs.get("filters"), result["sales"].tolist()))
+        return result
+
+    monkeypatch.setattr(pd, "read_parquet", recording_read)
+    wide, window = ix.load_all_item_development_sales({"backtest": {"holdout_days": 28}})
+    assert len(sales_reads) == 1
+    assert sales_reads[0][0] == [("date", "<=", window.dev_end)]
+    assert 1e12 not in sales_reads[0][1]
+    assert wide.shape == (72, 2) and wide.max().max() < 1e6
+
+
 def test_leading_and_trailing_zero_days():
     summary = ix.demand_pattern_summary(_series([0, 0, 0, 5, 0, 1, 0, 0]))
     assert summary["leading_zero_days"] == 3 and summary["trailing_zero_days"] == 2

@@ -66,7 +66,8 @@ def html_table(
         body.append(f'<tr class="{"best" if idx == best_row else ""}">{"".join(cells)}</tr>')
     cap = f"<caption>{html.escape(caption)}</caption>" if caption else ""
     style = f' style="max-height:{max_height}px"' if max_height else ""
-    return f'<div class="rd-table-wrap"{style}><table class="rd-table">{cap}<thead><tr>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>'
+    label = html.escape(caption or "Scrollable data table", quote=True)
+    return f'<div class="rd-table-wrap" role="region" tabindex="0" aria-label="{label}"{style}><table class="rd-table">{cap}<thead><tr>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>'
 
 
 def render_table(

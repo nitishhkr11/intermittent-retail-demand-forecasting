@@ -1,0 +1,116 @@
+{
+  "code_sha256": "5c04dcb2a638c3d0f6ea12334e319ae714ec9c9808dd98a87abdc73d0588155b",
+  "component": "expanded_prophet_seasonal_backtest",
+  "development_series_sha256": "38201b6aab057073fce1a68ff8ca7c9d8e234769cb75b553be5dce0b9a04a3ba",
+  "failed_fits": 0,
+  "fold_manifest_sha256": "24575c7c1c1131a5c7fd630c735965f063b52eafc82a53dc103c3de0b0719b11",
+  "folds": 16,
+  "generated_at_utc": "2026-11-14T12:54:59Z",
+  "holdout_accessed": false,
+  "horizon_days": 28,
+  "information_set": "historical sales; published calendar regressors where configured",
+  "interval_calibration": {
+    "adjustments": [
+      {
+        "calibration_folds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "model": "Prophet(additive)",
+        "offset_units": 749.1975433214507,
+        "validation_folds": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      },
+      {
+        "calibration_folds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "model": "Prophet(multiplicative)",
+        "offset_units": 724.833306890268,
+        "validation_folds": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      },
+      {
+        "calibration_folds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "model": "Prophet(additive,no-regressors)",
+        "offset_units": 930.2902651076124,
+        "validation_folds": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      }
+    ],
+    "calibration_folds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "method": "two-sided block split-conformal additive expansion using each calibration fold's maximum nonconformity score",
+    "target_coverage": 0.8,
+    "validation_folds": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ]
+  },
+  "settings_sha256": "635a5792e23e9224e794a5cf660731216adc25bec85ee4522f5d9f9169fafbde",
+  "variants": [
+    "Prophet(additive)",
+    "Prophet(multiplicative)",
+    "Prophet(additive,no-regressors)"
+  ]
+}

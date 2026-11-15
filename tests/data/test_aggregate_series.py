@@ -52,6 +52,29 @@ def test_holdout_values_never_reach_the_returned_series(tmp_path):
     assert changed.max() < 1e6
 
 
+def test_development_sales_are_filtered_inside_the_parquet_read(tmp_path, monkeypatch):
+    path, table = _write(tmp_path, n_days=100)
+    sentinel = 1e12
+    table.loc[table.index[-28:], "sales"] = sentinel
+    table.to_parquet(path)
+    original = pd.read_parquet
+    calls = []
+
+    def recording_read(*args, **kwargs):
+        result = original(*args, **kwargs)
+        columns = kwargs.get("columns")
+        if columns and "sales" in columns:
+            calls.append((kwargs.get("filters"), result["sales"].tolist()))
+        return result
+
+    monkeypatch.setattr(pd, "read_parquet", recording_read)
+    series, window = load_aggregate_development(CONFIG, path=path)
+    assert len(calls) == 1
+    assert calls[0][0] == [("date", "<=", window.dev_end)]
+    assert sentinel not in calls[0][1]
+    assert sentinel not in series.to_numpy()
+
+
 def test_series_shortcut_returns_only_the_series(tmp_path):
     path, _ = _write(tmp_path, n_days=60)
     series = load_aggregate_development_series(CONFIG, path=path)

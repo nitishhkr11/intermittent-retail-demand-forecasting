@@ -35,9 +35,10 @@ def kpi_card_html(label: str, value: str, note: str = "") -> str:
 
 
 def render_kpis(items: Sequence[Dict[str, str]]) -> None:
-    """A responsive row of KPI cards. Each item: label, value, optional note."""
+    """A responsive KPI grid. Each item: label, value, optional note."""
     cards = "".join(kpi_card_html(i["label"], i["value"], i.get("note", "")) for i in items)
-    st.markdown(f'<div class="rd-kpis">{cards}</div>', unsafe_allow_html=True)
+    count_class = f" count-{len(items)}" if len(items) in (4, 6) else ""
+    st.markdown(f'<div class="rd-kpis{count_class}">{cards}</div>', unsafe_allow_html=True)
 
 
 def callout(kind: str, title: str, body: str = "", *, html_body: bool = False) -> None:

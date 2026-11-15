@@ -33,7 +33,7 @@ torch>=2.5,<3          # developed and tested with 2.15.0 (the lower bound is no
 prophet>=1.1.6,<2      # developed and tested with 1.5.0 (the lower bound is not tested; pulls in cmdstanpy, holidays)
 
 # Dashboard
-streamlit>=1.46,<2     # tested with 1.49.1 (Python 3.11) and 1.66.1 (Python 3.13); versions below 1.49 were not tested
+streamlit==1.66.1      # pinned to the version used for the six-page Chromium regression matrix
 plotly>=5.24,<8        # tested with 5.24.1 (Python 3.11) and 7.1.0 (Python 3.13)
 
 # Notebook execution used by the tests (already installed with `jupyter` above, listed for clarity)

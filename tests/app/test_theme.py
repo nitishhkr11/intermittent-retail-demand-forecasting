@@ -49,6 +49,33 @@ def test_both_themes_define_the_same_tokens_and_differ():
     assert theme.THEMES["light"]["color_scheme"] == "light" and theme.THEMES["dark"]["color_scheme"] == "dark"
 
 
+def test_light_theme_uses_the_requested_pure_white_palette():
+    light = theme.THEMES["light"]
+    assert {
+        "bg": light["bg"], "surface": light["surface"], "surface_alt": light["surface_alt"],
+        "table_header": light["table_header"], "text": light["text"], "text_secondary": light["text_secondary"],
+        "muted": light["muted"], "accent": light["accent"], "border": light["border"], "grid": light["grid"],
+    } == {
+        "bg": "#FFFFFF", "surface": "#FFFFFF", "surface_alt": "#F8FAFC", "table_header": "#F1F5F9",
+        "text": "#111827", "text_secondary": "#475569", "muted": "#64748B", "accent": "#2563EB",
+        "border": "#E5E7EB", "grid": "#E5E7EB",
+    }
+    assert light["warning_bg"] == light["info_bg"] == "#FFFFFF"
+    assert light["table_cell_y"] == "0.55rem"
+    assert theme.THEMES["dark"]["warning_bg"] != "#FFFFFF"
+    assert theme.THEMES["dark"]["table_cell_y"] == "0.4rem"
+    dark = theme.THEMES["dark"]
+    assert (dark["bg"], dark["surface"], dark["surface_alt"], dark["table_header"], dark["text"]) == (
+        "#111110", "#1a1a19", "#262624", "#262624", "#f0efec",
+    )
+    assert (dark["body_font"], dark["body_line"], dark["table_font"], dark["sidebar_font"], dark["section_gap"]) == (
+        "1rem", "1.5", "0.86rem", "0.86rem", "1.6rem",
+    )
+    assert (light["body_font"], light["body_line"], light["table_font"], light["sidebar_font"]) == (
+        "1.03rem", "1.62", "0.90rem", "0.90rem",
+    )
+
+
 @pytest.mark.parametrize("value,expected", [("dark", "dark"), ("LIGHT", "light"), (" Dark ", "dark"), ("purple", "light"), (None, "light"), ("", "light")])
 def test_normalise_theme(value, expected):
     assert theme.normalise_theme(value) == expected
@@ -60,8 +87,12 @@ def test_stylesheet_themes_every_surface_the_brief_names(name):
     t = theme.THEMES[name]
     assert t["bg"] in css and t["surface"] in css
     for needle in ("stSidebar", "stSelectbox", "stNumberInput", "stSlider", "stCheckbox", "stTooltipContent", ".rd-card", ".rd-table", "[role=\"listbox\"]",
-                   "stTabs", "stExpander", "stDownloadButton", "color-scheme"):
+                   "stTabs", "stExpander", "stDownloadButton", "color-scheme", "--rd-table-header", "overflow: auto", "max-width: 1280px",
+                   "stMainBlockContainer", "stHeader", "background-color: var(--rd-bg) !important",
+                   "@media (max-width: 1000px)", "@media (max-width: 600px)"):
         assert needle in css, f"stylesheet has no rule for {needle}"
+    for warm in ("#f5f4f0", "#f4f1e8", "#fbefd2", "#fcfcfb", "#eceae4"):
+        assert warm not in css.lower(), f"residual warm surface colour {warm}"
 
 
 def test_stylesheets_differ_between_themes():

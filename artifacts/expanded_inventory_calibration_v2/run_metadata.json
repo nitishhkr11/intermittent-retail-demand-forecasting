@@ -1,0 +1,19 @@
+{
+  "class_normalization": "historical cumulative errors divided by item-fold mean actual demand, pooled only within the historical/current fold-local class, then rescaled by target item's last completed fold mean demand",
+  "component": "alternative_temporally_valid_inventory_calibration",
+  "evaluation": "same later fold, item, and overlapping 7-day windows for each method; calibration uses strictly earlier folds",
+  "generated_at_utc": "2026-11-14T19:10:57Z",
+  "holdout_evaluated": false,
+  "methods": [
+    "empirical_all",
+    "recent_two_folds",
+    "recency_weighted",
+    "class_normalized"
+  ],
+  "minimum_prior_folds": 2,
+  "recency_weight": "2^(-fold_age/2)",
+  "source_sha256": "4385fac85b7fa9b4bb0fb5f2ee864197b483e216ba415a9dcda40073347fd1dc",
+  "target": 0.95,
+  "uncertainty": "cluster bootstrap by item-fold cell; overlapping windows remain within cells",
+  "window_days": 7
+}

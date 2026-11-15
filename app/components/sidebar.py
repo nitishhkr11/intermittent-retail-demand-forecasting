@@ -48,5 +48,7 @@ def render_sidebar(overview_scope: str, holdout: dict) -> None:
             st.markdown(badge("info", "Evaluated (see record)"), unsafe_allow_html=True)
         else:
             st.markdown(badge("ok", "Not evaluated"), unsafe_allow_html=True)
-        st.markdown('<div class="rd-scope" style="margin-top:0.4rem">All numbers in this app are development results. '
-                    "The last 28 days stay unseen until the one-time final evaluation.</div>", unsafe_allow_html=True)
+        scope_note = ("Forecast comparisons use development folds. The final holdout was evaluated once; see Model Comparison for its results."
+                      if holdout.get("evaluated") else
+                      "All displayed scores are development results. The final 28 days remain reserved for one evaluation.")
+        st.markdown(f'<div class="rd-scope" style="margin-top:0.4rem">{esc(scope_note)}</div>', unsafe_allow_html=True)

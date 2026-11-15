@@ -1,7 +1,7 @@
 """The six dashboard pages, run end to end with Streamlit's AppTest against the real saved artifacts.
 
 What is checked: every page runs in both themes, the light/dark toggle really switches the stylesheet and survives navigation, every
-control can be operated, what is plotted is what was saved (nothing is invented), and the reserved final holdout never shows up as data.
+control can be operated, what is plotted is what was saved (nothing is invented), and final-holdout metrics stay separate from development charts.
 """
 
 from __future__ import annotations
@@ -53,7 +53,7 @@ def test_entry_script_runs_and_applies_the_selected_theme(name):
     assert theme.THEMES[other]["bg"] not in css
     assert at.sidebar.toggle(key="rd_theme_toggle").value == (name == "dark")
     side = " ".join(texts(at, sidebar=True))
-    assert "Not evaluated" in side and "River" in side and "Dark mode" in side
+    assert "evaluated once" in side and "River" in side and "Dark mode" in side
 
 
 def test_the_registered_pages_are_exactly_the_six_required():
@@ -119,10 +119,20 @@ def test_every_page_renders_without_error(name, path):
 
 @pytest.mark.parametrize("path", PAGE_PATHS)
 def test_every_page_states_what_it_is_not_claiming(path):
-    """Each page is explicit that it shows development results; none talks about the holdout as if it had been evaluated."""
+    """Pages disclose the consumed holdout; only Model Comparison presents its saved final metrics."""
     body = " ".join(texts(open_page("light", path))).lower()
-    for phrase in ("final holdout result", "holdout mae", "holdout score", "test-set score", "holdout was evaluated"):
-        assert phrase not in body, f"{path} mentions '{phrase}'"
+    if path == "views/3_Model_Comparison.py":
+        assert "final holdout was evaluated once" in body
+        assert "class-selected strategy" in body
+        assert "one-time final holdout results" in body
+    else:
+        if path == "views/6_About_Methodology.py":
+            assert "final holdout evaluated once" in body
+            forbidden = ("holdout mae", "128.087", "1.684")
+        else:
+            forbidden = ("holdout mae", "holdout score", "128.087", "1.684")
+        for phrase in forbidden:
+            assert phrase not in body, f"{path} presents final metrics outside the comparison page: {phrase}"
 
 
 def _controls(at):
@@ -309,12 +319,12 @@ def test_forecast_explorer_never_offers_a_window_that_ends_after_the_development
             assert date.fromisoformat(d) <= date.fromisoformat("2016-04-24"), label
 
 
-def test_sidebar_reports_the_holdout_state_from_file_existence_only():
+def test_sidebar_reports_the_consumed_holdout_state_from_file_existence_only():
     state = da.holdout_state()
     assert set(state) == {"frozen", "evaluated"}
-    assert state["evaluated"] is False, "this repository snapshot must not contain a final holdout evaluation"
+    assert state["frozen"] is True and state["evaluated"] is True
     side = " ".join(texts(start_app("light"), sidebar=True))
-    assert ("Not evaluated" in side) is (not state["evaluated"])
+    assert "final holdout was evaluated once" in side.lower()
 
 
 def test_app_source_never_touches_the_holdout_reader_or_trains_models():

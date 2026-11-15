@@ -27,6 +27,70 @@ page_header("Inventory Decisions", "Turn a saved forecast and its saved forecast
 callout("warn", "Illustrative, not an operating policy",
         inv.ASSUMPTIONS_TEXT + " The calculation replays a past forecast origin; it does not forecast the future.")
 
+calibration_path = resolve_path(Path("artifacts/expanded_inventory/service_level_summary.csv"))
+if calibration_path.exists():
+    calibration = pd.read_csv(calibration_path)
+    below = calibration[calibration["achieved_cycle_service"] < calibration["target_cycle_service"]]
+    if not below.empty:
+        observed = ", ".join(
+            f"{row.model}: {row.achieved_cycle_service:.1%} (target {row.target_cycle_service:.1%})"
+            for row in below.itertuples(index=False)
+        )
+        callout("warn", "Expanded calibration is below the 95% target",
+                f"Observed 7-day cycle service on later development folds: {observed}. This is an empirical backtest, not an operating guarantee or fill rate.")
+        display = below[["model", "target_cycle_service", "achieved_cycle_service", "ci_low", "ci_high", "n_windows"]].copy()
+        for column in ("target_cycle_service", "achieved_cycle_service", "ci_low", "ci_high"):
+            display[column] = display[column].map(lambda value: f"{value:.1%}")
+        render_table(display.rename(columns={"model": "Model", "target_cycle_service": "Target", "achieved_cycle_service": "Achieved", "ci_low": "90% interval low", "ci_high": "90% interval high", "n_windows": "Evaluation windows"}),
+                     caption="Expanded all-item 7-day service-level validation; safety stock used earlier folds only", max_height=300)
+
+alternative_root = resolve_path(Path("artifacts/expanded_inventory_calibration_v2"))
+method_summary_path = alternative_root / "calibration_method_summary.csv"
+if method_summary_path.exists():
+    st.markdown("## Alternative 7-day calibration validation")
+    method_summary = pd.read_csv(method_summary_path)
+    method_names = {
+        "empirical_all": "All earlier folds · empirical quantile",
+        "recent_two_folds": "Most recent two folds",
+        "recency_weighted": "Recency weighted · 2-fold half-life",
+        "class_normalized": "Same-class normalized errors",
+    }
+    display = method_summary[[
+        "method", "target_cycle_service", "achieved_cycle_service", "ci_low", "ci_high",
+        "n_products", "n_evaluation_folds", "evaluation_windows", "calibration_samples_mean",
+        "calibration_samples_min", "calibration_samples_max", "mean_safety_stock",
+        "mean_reorder_point", "n_failed_test_cells", "n_not_evaluable_cells",
+    ]].rename(columns={
+        "method": "Calibration rule", "target_cycle_service": "Target", "achieved_cycle_service": "Achieved",
+        "ci_low": "90% interval low", "ci_high": "90% interval high", "n_products": "Products",
+        "n_evaluation_folds": "Evaluation folds", "evaluation_windows": "Evaluation windows",
+        "calibration_samples_mean": "Mean calibration samples", "calibration_samples_min": "Min samples",
+        "calibration_samples_max": "Max samples", "mean_safety_stock": "Mean safety stock",
+        "mean_reorder_point": "Mean reorder point", "n_failed_test_cells": "Failed test cells",
+        "n_not_evaluable_cells": "Not evaluable cells",
+    })
+    display["Calibration rule"] = display["Calibration rule"].map(method_names).fillna(display["Calibration rule"])
+    percent = {col: (lambda value: f"{value:.2%}") for col in ("Target", "Achieved", "90% interval low", "90% interval high")}
+    render_table(display, caption="Same later-fold 7-day windows; each ordering origin uses earlier completed folds only", formats=percent,
+                 download_name="inventory_alternative_method_summary.csv", max_height=360)
+    st.caption("Safety stock and reorder point are equal-weight means across successful item/model/fold cells. Calibration samples vary by method and fold. Failed forecasts and insufficient-history cells remain unevaluated, not imputed.")
+    callout("warn", "No calibration rule reached 95% cycle service",
+            "Same-class normalization had the highest point estimate (92.59%) versus 92.47% for the simpler all-history rule; their cluster-bootstrap intervals overlap, so the small difference does not establish a reliable gain. The 95% level remains a target, not an achieved guarantee.")
+    fold_path = alternative_root / "calibration_fold_summary.csv"
+    if fold_path.exists():
+        with st.expander("Alternative calibration by evaluation fold"):
+            folds = pd.read_csv(fold_path)
+            folds["method"] = folds["method"].map(method_names).fillna(folds["method"])
+            render_table(folds, caption="Pooled service uses all eligible seven-day windows within each fold", max_height=440,
+                         download_name="inventory_alternative_fold_summary.csv")
+    class_path = alternative_root / "calibration_class_operating_summary.csv"
+    if class_path.exists():
+        with st.expander("Alternative calibration by model and fold-local demand class"):
+            classes = pd.read_csv(class_path)
+            classes["method"] = classes["method"].map(method_names).fillna(classes["method"])
+            render_table(classes, caption="Class labels are computed from the training prefix before each forecast fold", max_height=440,
+                         download_name="inventory_alternative_class_summary.csv")
+
 config = da.get_config()
 section = config["inventory"]
 bundle = da.load_bundle()

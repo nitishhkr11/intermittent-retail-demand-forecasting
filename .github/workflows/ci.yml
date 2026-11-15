@@ -1,0 +1,47 @@
+name: RiverDemand CI
+
+on:
+  push:
+    branches: [main, master, "finalization/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-phase3.txt
+      - name: Install project dependencies
+        run: python -m pip install -r requirements-phase3.txt
+      - name: Install browser for dashboard tests
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Restore verified dashboard and development summaries
+        run: |
+          python -c "from zipfile import ZipFile; ZipFile('reports/final/dashboard_data_bundle_final_evaluation.zip').extractall('.')"
+          python -c "from zipfile import ZipFile; ZipFile('reports/final/expanded_xgboost_forecasts_ci.zip').extractall('.')"
+      - name: Prepare test report directory
+        run: mkdir -p reports/ci
+      - name: Dashboard tests
+        run: python -m pytest tests/app -q --junitxml=reports/ci/dashboard-tests.xml
+      - name: Artifact and final-holdout guard tests
+        run: python -m pytest tests/deployment tests/evaluation/test_final_holdout.py tests/test_pipeline.py -q --junitxml=reports/ci/artifact-guard-tests.xml
+      - name: Non-slow test suite
+        run: python -m pytest -q -m "not slow" --junitxml=reports/ci/non-slow-tests.xml
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riverdemand-test-reports
+          path: reports/ci/*.xml
+          if-no-files-found: warn

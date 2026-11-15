@@ -1,0 +1,4 @@
+model,validation_folds,coverage_80_calibrated_mean,simultaneous_coverage_80_calibrated,interval_width_calibrated_mean,offset_units
+Prophet(additive),8,0.9955357142857143,0.875,2083.0206442226954,749.1975433214507
+Prophet(multiplicative),8,1.0,1.0,2007.298941158193,724.833306890268
+"Prophet(additive,no-regressors)",8,1.0,1.0,2576.1761055294246,930.2902651076124

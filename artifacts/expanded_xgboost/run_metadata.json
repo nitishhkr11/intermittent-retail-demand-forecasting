@@ -1,0 +1,71 @@
+{
+  "calendar_sha256": "f2d097d6f3bb735f8b26d5bfbd9d86217f84627e912d95bbaed31aac2390050a",
+  "component": "expanded_xgboost_feature_ablation",
+  "development_panel_sha256": "d3e717963dae5802c31b3ee2ac4242053c8acab9a3a231df186fb8cf7ffa730b",
+  "failed_item_fold_rows": 0,
+  "fit_checkpointed": true,
+  "folds": 16,
+  "generated_at_utc": "2026-11-14T18:54:54Z",
+  "holdout_sales_used": false,
+  "horizon_days": 28,
+  "manifest_sha256": "b74051a8140a50130ec547d02392ae1affbd2b38619fe4671007d84782767ea5",
+  "per_item_item_fold_fits_planned": 2928,
+  "per_item_sample_products": 183,
+  "pooled_variant_folds_planned": 80,
+  "products": 823,
+  "source_code_sha256": {
+    "data_loader": "5eee7315abd45254a6308a9f5be854c57a554e99f72a8d309eade8d76edf8949",
+    "experiment": "65e026016d43bead9b53656af61df3ac67614ba95c7ec2295cafa2fa668c1240",
+    "model": "1e3ce8f1fcfb7ed5081943e087fd5b85dad767f078fc3a450cd8477860695540"
+  },
+  "variants": [
+    {
+      "calendar": false,
+      "events": false,
+      "key": "lags_only",
+      "objective": "reg:squarederror",
+      "rolling": false,
+      "scope": "pooled"
+    },
+    {
+      "calendar": false,
+      "events": false,
+      "key": "lags_rolling",
+      "objective": "reg:squarederror",
+      "rolling": true,
+      "scope": "pooled"
+    },
+    {
+      "calendar": true,
+      "events": false,
+      "key": "lags_calendar",
+      "objective": "reg:squarederror",
+      "rolling": false,
+      "scope": "pooled"
+    },
+    {
+      "calendar": true,
+      "events": true,
+      "key": "lags_calendar_events",
+      "objective": "reg:squarederror",
+      "rolling": true,
+      "scope": "pooled"
+    },
+    {
+      "calendar": true,
+      "events": true,
+      "key": "lags_calendar_events_poisson",
+      "objective": "count:poisson",
+      "rolling": true,
+      "scope": "pooled"
+    },
+    {
+      "calendar": true,
+      "events": true,
+      "key": "per_item_lags_calendar_events",
+      "objective": "reg:squarederror",
+      "rolling": true,
+      "scope": "per_item"
+    }
+  ]
+}

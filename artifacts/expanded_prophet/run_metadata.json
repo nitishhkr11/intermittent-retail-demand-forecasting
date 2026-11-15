@@ -1,0 +1,116 @@
+{
+  "code_sha256": "273ad7ef4140195907fc6bb3ec60c0f0f7769056b29ea5364858c7e00a1b4f26",
+  "component": "expanded_prophet_seasonal_backtest",
+  "development_series_sha256": "38201b6aab057073fce1a68ff8ca7c9d8e234769cb75b553be5dce0b9a04a3ba",
+  "failed_fits": 0,
+  "fold_manifest_sha256": "24575c7c1c1131a5c7fd630c735965f063b52eafc82a53dc103c3de0b0719b11",
+  "folds": 16,
+  "generated_at_utc": "2026-11-14T12:53:34Z",
+  "holdout_accessed": false,
+  "horizon_days": 28,
+  "information_set": "historical sales; published calendar regressors where configured",
+  "interval_calibration": {
+    "adjustments": [
+      {
+        "calibration_folds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "model": "Prophet(additive)",
+        "offset_units": 214.15445634399066,
+        "validation_folds": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      },
+      {
+        "calibration_folds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "model": "Prophet(multiplicative)",
+        "offset_units": 185.93421620661456,
+        "validation_folds": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      },
+      {
+        "calibration_folds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "model": "Prophet(additive,no-regressors)",
+        "offset_units": 242.95516636560933,
+        "validation_folds": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      }
+    ],
+    "calibration_folds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "method": "two-sided split-conformal additive interval expansion",
+    "target_coverage": 0.8,
+    "validation_folds": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ]
+  },
+  "settings_sha256": "635a5792e23e9224e794a5cf660731216adc25bec85ee4522f5d9f9169fafbde",
+  "variants": [
+    "Prophet(additive)",
+    "Prophet(multiplicative)",
+    "Prophet(additive,no-regressors)"
+  ]
+}

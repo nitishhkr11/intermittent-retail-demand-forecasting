@@ -1,0 +1,21 @@
+{
+  "classification": "recomputed independently from each training prefix",
+  "component": "expanded_intermittent_all_items",
+  "development_panel_sha256": "d3e717963dae5802c31b3ee2ac4242053c8acab9a3a231df186fb8cf7ffa730b",
+  "failed_model_item_folds": 4472,
+  "fold_manifest_sha256": "24575c7c1c1131a5c7fd630c735965f063b52eafc82a53dc103c3de0b0719b11",
+  "forecast_zero_behavior": "zero forecast share and all-zero forecast flags saved per item/fold/model",
+  "generated_at_utc": "2026-11-13T19:01:13Z",
+  "holdout_accessed": false,
+  "horizon_days": 28,
+  "manifest_sha256": "d89952d80a88897d711e8cb190901ef5957eb8518797c55addc7444d2b2b9c67",
+  "metric_rows": 52672,
+  "models": [
+    "SeasonalNaive",
+    "Croston(alpha=0.1)",
+    "SBA(alpha=0.1)",
+    "TSB(alpha=0.1,beta=0.1)"
+  ],
+  "n_folds": 16,
+  "n_items": 823
+}

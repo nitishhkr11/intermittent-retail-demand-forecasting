@@ -15,7 +15,6 @@ import pytest
 from src.evaluation.forecast_artifacts import (
     audit_forecast_table,
     forecasts_dir,
-    load_selected_item_series,
     metrics_by_group,
     metrics_dir,
     read_forecast_table,
@@ -84,8 +83,8 @@ def saved_forecasts():
     return read_forecast_table(LONG, kind="item")
 
 
-def test_saved_forecast_table_passes_the_full_audit(saved_forecasts):
-    series = load_selected_item_series(CONFIG)
+def test_saved_forecast_table_passes_the_full_audit(saved_forecasts, selected_items_development_reference):
+    series = selected_items_development_reference
     index = next(iter(series.values())).index
     checks = audit_forecast_table(saved_forecasts, kind="item", item_series=series, dev_dates=index)
     failed = [(c.name, c.detail) for c in checks if not c.passed]

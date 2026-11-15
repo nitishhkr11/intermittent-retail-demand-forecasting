@@ -16,3 +16,7 @@ This folder holds the **final-holdout** records, and nothing else. The reserved 
 Run the evaluation once, after the development results are final. Changing models afterwards because of what the
 holdout showed turns it into a validation set and the number into an optimistic one; if a repeat is unavoidable,
 `--override-existing` archives the old files and records the repeat.
+
+The current freeze workflow also checks the broader research prerequisites documented in
+`reports/final/MODEL_SELECTION_AND_FREEZE_REPORT.md`. It refuses to write a frozen manifest while those studies remain
+incomplete; see `python -m src.evaluation.final_holdout status` for the live blocker list.

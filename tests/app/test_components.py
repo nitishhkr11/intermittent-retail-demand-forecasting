@@ -50,6 +50,7 @@ def test_table_formats_numbers_booleans_and_custom_formats():
 def test_table_has_scoped_header_cells_for_screen_readers():
     out = tables.html_table(pd.DataFrame({"a": [1]}))
     assert '<th scope="col"' in out and "<thead>" in out and "<tbody>" in out
+    assert 'role="region" tabindex="0"' in out and 'aria-label="Scrollable data table"' in out
 
 
 def test_empty_table_does_not_crash():

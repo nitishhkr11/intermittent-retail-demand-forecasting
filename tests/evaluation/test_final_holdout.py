@@ -131,7 +131,9 @@ def make_factories(events: Events, arima_name="ARIMA(6, 1, 1)", fail_arima=False
 
 
 @pytest.fixture
-def frozen_world(tmp_path):
+def frozen_world(tmp_path, monkeypatch):
+    # These tests exercise the freeze/run mechanics using an isolated output path.
+    monkeypatch.setattr(fh, "UNMET_FINALIZATION_PREREQUISITES", ())
     config = make_config(tmp_path)
     record = fh.freeze(config, evidence=make_evidence())
     return config, record
@@ -141,7 +143,8 @@ def frozen_world(tmp_path):
 def test_the_configured_candidates_are_valid():
     candidates = fh.configured_candidates(CONFIG)
     assert set(candidates) == {"aggregate", "item_level"}
-    assert "XGBoost(pooled)" in candidates["item_level"] and "Prophet(additive)" in candidates["aggregate"]
+    assert candidates["aggregate"] == ["LSTM(calendar)"]
+    assert "XGBoost(pooled,lags_calendar_events_poisson,poisson)" in candidates["item_level"]
 
 
 @pytest.mark.parametrize(
@@ -172,6 +175,7 @@ def test_settings_are_json_serialisable_for_every_known_candidate():
         for name in names:
             json.dumps(fh.candidate_settings(scope, name, CONFIG))
     assert fh.candidate_settings("item_level", "TSB", CONFIG) == {"alpha": 0.1, "beta": 0.1}
+    assert fh.candidate_settings("item_level", "SBA", CONFIG) == {"alpha": 0.1}
     assert fh.candidate_settings("aggregate", "ARIMA", CONFIG) == {"order": [6, 1, 1]}
     with pytest.raises(fh.FinalHoldoutError):
         fh.candidate_settings("aggregate", "NHiTS", CONFIG)
@@ -183,6 +187,7 @@ def test_default_factories_build_the_models_the_candidates_name():
     assert factories["aggregate"]["SARIMA"]().name == "SARIMA(6, 1, 1)x(0, 0, 2, 7)"
     assert factories["aggregate"]["HoltWinters"]().name == "HoltWinters(trend=add)"
     assert factories["item_level"]["Croston"]().name == "Croston(alpha=0.1)"
+    assert factories["item_level"]["SBA"]().name == "SBA(alpha=0.1)"
     assert factories["item_level"]["TSB"]().name == "TSB(alpha=0.1,beta=0.1)"
     for scope in fh.SCOPES:
         assert factories[scope]["SeasonalNaive"]().name == "SeasonalNaive"
@@ -270,7 +275,8 @@ def test_freeze_does_not_overwrite_without_the_flag_and_not_after_evaluation(fro
         fh.freeze(config, evidence=make_evidence(), overwrite=True)
 
 
-def test_freeze_refuses_when_a_candidate_has_no_development_result(tmp_path):
+def test_freeze_refuses_when_a_candidate_has_no_development_result(tmp_path, monkeypatch):
+    monkeypatch.setattr(fh, "UNMET_FINALIZATION_PREREQUISITES", ())
     config = make_config(tmp_path)
     audit = pd.DataFrame([{"artifact": "arima_backtest_forecasts.csv", "scope": "aggregate", "status": "missing", "rows": 0,
                            "models": "", "failed_checks": 0,
@@ -290,7 +296,24 @@ def test_status_before_freezing_lists_what_is_missing_and_what_to_do(tmp_path):
     assert not result.frozen and not result.evaluated
     assert any("ARIMA" in m for m in result.missing)
     text = result.to_text()
-    assert "freeze" in text and fh.CONFIRMATION_PHRASE in text and "holdout evaluated        : no" in text
+    assert "holdout evaluated        : no" in text
+    assert fh.CONFIRMATION_PHRASE in text
+    assert any("ARIMA" in missing for missing in result.missing)
+
+
+def test_repository_research_selection_and_final_state_are_consistent():
+    result = fh.status(CONFIG)
+    assert result.missing == []
+    if fh.record_path(CONFIG).exists():
+        record = fh.read_json(fh.record_path(CONFIG))
+        assert result.evaluated and result.evaluation_count == 1
+        assert record["evaluation_count"] == 1
+        assert result.next_steps[0].startswith("The holdout is evaluated")
+    else:
+        assert not result.evaluated
+        assert any(step == "python -m src.evaluation.final_holdout freeze" for step in result.next_steps)
+        assert any(step == f"python -m src.evaluation.final_holdout run --confirm {fh.CONFIRMATION_PHRASE}"
+                   for step in result.next_steps)
 
 
 def test_status_after_freezing_detects_config_drift(frozen_world):
@@ -505,6 +528,8 @@ def test_real_inputs_expose_no_holdout_sales_before_read_actuals():
     inputs = fh.load_holdout_inputs(CONFIG)
     _, window = load_aggregate_development(CONFIG)
     assert inputs.aggregate_history.index.max() == window.dev_end
+    assert len(inputs.item_histories) == 823
+    assert set(inputs.item_classes) == set(inputs.item_histories)
     assert all(s.index.max() == window.dev_end for s in inputs.item_histories.values())
     assert inputs.calendar is not None and "sales" not in inputs.calendar.columns
     assert callable(inputs.read_actuals)          # NOT called: the real holdout is never read by the test suite
@@ -523,7 +548,17 @@ def test_only_the_final_holdout_module_can_read_holdout_actuals():
 
 
 def test_no_final_results_exist_in_this_repository():
-    """The real holdout has not been evaluated: no results or record file ships with the project."""
+    """Before evaluation outputs are absent; after the authorized run, its record must prove one evaluation."""
     directory = PROJECT_ROOT / CONFIG["phase3"]["final_dir"]
-    for key in ("results_filename", "forecasts_filename", "record_filename"):
-        assert not (directory / CONFIG["final_holdout"][key]).exists()
+    results = directory / CONFIG["final_holdout"]["results_filename"]
+    forecasts = directory / CONFIG["final_holdout"]["forecasts_filename"]
+    record = directory / CONFIG["final_holdout"]["record_filename"]
+    if record.exists():
+        metadata = json.loads(record.read_text(encoding="utf-8"))
+        assert metadata["evaluation_count"] == 1
+        assert metadata["details"]["holdout_window"] == {"start": "2016-04-25", "end": "2016-05-22", "days": 28}
+        assert results.exists() and forecasts.exists()
+        assert metadata["final_holdout_results_sha256"] == fh.file_sha256(results)
+        assert metadata["final_holdout_forecasts_sha256"] == fh.file_sha256(forecasts)
+    else:
+        assert not results.exists() and not forecasts.exists()

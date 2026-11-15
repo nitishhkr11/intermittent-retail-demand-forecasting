@@ -1,0 +1,30 @@
+{
+  "complete_common_folds_used_for_summary": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "completed_variant_fold_cells_at_export": 47,
+  "fold_set_is_complete": false,
+  "holdout_accessed": false,
+  "models": [
+    "LSTM(calendar)",
+    "GRU(calendar)",
+    "LSTM(univariate)",
+    "GRU(univariate)"
+  ],
+  "planned_folds": 16,
+  "planned_variant_fold_cells": 64,
+  "seed_count": 5,
+  "selection_use_allowed": false,
+  "status": "partial_pilot_not_full_seasonal_evaluation",
+  "training_data": "development prefixes only"
+}

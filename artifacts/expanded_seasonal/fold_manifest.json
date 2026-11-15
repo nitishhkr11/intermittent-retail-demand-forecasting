@@ -1,0 +1,342 @@
+{
+  "code_sha256": "1aa59048acbd7a667605a2a9da8a2837470430fdf674c967b1b1d3a9bddd1dcb",
+  "config_sha256": "9f173407c7869f93e011337a9517a119e795d2f0e38e577496f04f6d5f110f3f",
+  "created_at_utc": "2026-11-13T18:43:36Z",
+  "data_scope": "aggregate CA_1 / FOODS_3; development prefix only",
+  "development_series_sha256": "38201b6aab057073fce1a68ff8ca7c9d8e234769cb75b553be5dce0b9a04a3ba",
+  "development_window": {
+    "end": "2016-04-24",
+    "n_days": 1913,
+    "start": "2011-01-29"
+  },
+  "folds": [
+    {
+      "fold": 1,
+      "forecast_end": "2012-02-25",
+      "forecast_start": "2012-01-29",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 1,
+      "test_end_pos": 393,
+      "test_start_pos": 365,
+      "train_end": "2012-01-28",
+      "train_start": "2011-01-29",
+      "training_days": 365,
+      "year": 2012
+    },
+    {
+      "fold": 2,
+      "forecast_end": "2012-04-28",
+      "forecast_start": "2012-04-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 2,
+      "test_end_pos": 456,
+      "test_start_pos": 428,
+      "train_end": "2012-03-31",
+      "train_start": "2011-01-29",
+      "training_days": 428,
+      "year": 2012
+    },
+    {
+      "fold": 3,
+      "forecast_end": "2012-07-28",
+      "forecast_start": "2012-07-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 3,
+      "test_end_pos": 547,
+      "test_start_pos": 519,
+      "train_end": "2012-06-30",
+      "train_start": "2011-01-29",
+      "training_days": 519,
+      "year": 2012
+    },
+    {
+      "fold": 4,
+      "forecast_end": "2012-10-28",
+      "forecast_start": "2012-10-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 4,
+      "test_end_pos": 639,
+      "test_start_pos": 611,
+      "train_end": "2012-09-30",
+      "train_start": "2011-01-29",
+      "training_days": 611,
+      "year": 2012
+    },
+    {
+      "fold": 5,
+      "forecast_end": "2013-01-28",
+      "forecast_start": "2013-01-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 1,
+      "test_end_pos": 731,
+      "test_start_pos": 703,
+      "train_end": "2012-12-31",
+      "train_start": "2011-01-29",
+      "training_days": 703,
+      "year": 2013
+    },
+    {
+      "fold": 6,
+      "forecast_end": "2013-04-28",
+      "forecast_start": "2013-04-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 2,
+      "test_end_pos": 821,
+      "test_start_pos": 793,
+      "train_end": "2013-03-31",
+      "train_start": "2011-01-29",
+      "training_days": 793,
+      "year": 2013
+    },
+    {
+      "fold": 7,
+      "forecast_end": "2013-07-28",
+      "forecast_start": "2013-07-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 3,
+      "test_end_pos": 912,
+      "test_start_pos": 884,
+      "train_end": "2013-06-30",
+      "train_start": "2011-01-29",
+      "training_days": 884,
+      "year": 2013
+    },
+    {
+      "fold": 8,
+      "forecast_end": "2013-10-28",
+      "forecast_start": "2013-10-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 4,
+      "test_end_pos": 1004,
+      "test_start_pos": 976,
+      "train_end": "2013-09-30",
+      "train_start": "2011-01-29",
+      "training_days": 976,
+      "year": 2013
+    },
+    {
+      "fold": 9,
+      "forecast_end": "2014-01-28",
+      "forecast_start": "2014-01-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 1,
+      "test_end_pos": 1096,
+      "test_start_pos": 1068,
+      "train_end": "2013-12-31",
+      "train_start": "2011-01-29",
+      "training_days": 1068,
+      "year": 2014
+    },
+    {
+      "fold": 10,
+      "forecast_end": "2014-04-28",
+      "forecast_start": "2014-04-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 2,
+      "test_end_pos": 1186,
+      "test_start_pos": 1158,
+      "train_end": "2014-03-31",
+      "train_start": "2011-01-29",
+      "training_days": 1158,
+      "year": 2014
+    },
+    {
+      "fold": 11,
+      "forecast_end": "2014-07-28",
+      "forecast_start": "2014-07-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 3,
+      "test_end_pos": 1277,
+      "test_start_pos": 1249,
+      "train_end": "2014-06-30",
+      "train_start": "2011-01-29",
+      "training_days": 1249,
+      "year": 2014
+    },
+    {
+      "fold": 12,
+      "forecast_end": "2014-10-28",
+      "forecast_start": "2014-10-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 4,
+      "test_end_pos": 1369,
+      "test_start_pos": 1341,
+      "train_end": "2014-09-30",
+      "train_start": "2011-01-29",
+      "training_days": 1341,
+      "year": 2014
+    },
+    {
+      "fold": 13,
+      "forecast_end": "2015-01-28",
+      "forecast_start": "2015-01-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 1,
+      "test_end_pos": 1461,
+      "test_start_pos": 1433,
+      "train_end": "2014-12-31",
+      "train_start": "2011-01-29",
+      "training_days": 1433,
+      "year": 2015
+    },
+    {
+      "fold": 14,
+      "forecast_end": "2015-04-28",
+      "forecast_start": "2015-04-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 2,
+      "test_end_pos": 1551,
+      "test_start_pos": 1523,
+      "train_end": "2015-03-31",
+      "train_start": "2011-01-29",
+      "training_days": 1523,
+      "year": 2015
+    },
+    {
+      "fold": 15,
+      "forecast_end": "2015-07-28",
+      "forecast_start": "2015-07-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 3,
+      "test_end_pos": 1642,
+      "test_start_pos": 1614,
+      "train_end": "2015-06-30",
+      "train_start": "2011-01-29",
+      "training_days": 1614,
+      "year": 2015
+    },
+    {
+      "fold": 16,
+      "forecast_end": "2015-10-28",
+      "forecast_start": "2015-10-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 4,
+      "test_end_pos": 1734,
+      "test_start_pos": 1706,
+      "train_end": "2015-09-30",
+      "train_start": "2011-01-29",
+      "training_days": 1706,
+      "year": 2015
+    }
+  ],
+  "manifest_sha256": "24575c7c1c1131a5c7fd630c735965f063b52eafc82a53dc103c3de0b0719b11",
+  "schema_version": 1,
+  "settings": {
+    "arima_orders": [
+      [
+        1,
+        1,
+        0
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        2,
+        1,
+        1
+      ],
+      [
+        6,
+        1,
+        1
+      ]
+    ],
+    "holt_winters_trends": [
+      null,
+      "add"
+    ],
+    "horizon": 28,
+    "inner_validation_days": 28,
+    "legacy": {
+      "arima_order": [
+        6,
+        1,
+        1
+      ],
+      "croston_alpha": 0.1,
+      "holt_winters_seasonal_periods": 7,
+      "sarima_order": [
+        6,
+        1,
+        1
+      ],
+      "sarima_seasonal_order": [
+        0,
+        0,
+        2,
+        7
+      ],
+      "sba_alpha": 0.1,
+      "tsb_alpha": 0.1,
+      "tsb_beta": 0.1
+    },
+    "min_train_days": 365,
+    "sarima_candidates": [
+      {
+        "order": [
+          1,
+          1,
+          0
+        ],
+        "seasonal_order": [
+          0,
+          0,
+          1,
+          7
+        ]
+      },
+      {
+        "order": [
+          1,
+          1,
+          1
+        ],
+        "seasonal_order": [
+          0,
+          0,
+          1,
+          7
+        ]
+      },
+      {
+        "order": [
+          6,
+          1,
+          1
+        ],
+        "seasonal_order": [
+          0,
+          0,
+          2,
+          7
+        ]
+      }
+    ],
+    "season_length": 7,
+    "years": [
+      2012,
+      2013,
+      2014,
+      2015
+    ]
+  }
+}
