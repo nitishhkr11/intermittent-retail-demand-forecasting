@@ -7,7 +7,7 @@ Start the app from the repository root with `streamlit run app/app.py`. The app 
 1. **Overview** — catalog and development-window summary, with the holdout status.
 2. **Forecast Explorer** — saved historical backtest forecasts for supported models and products. These are retrospective forecasts, not live predictions.
 3. **Model Comparison** — aggregate and item-level comparisons kept on separate scales. The expanded-study tab reports the 16-fold classical and 823-item baseline experiments, fold-local classes, fit failures and inventory calibration.
-4. **Inventory Decisions** — an illustrative single-item reorder point using a saved forecast and historical forecast errors. Lead time, review period and target service are user inputs; the expanded earlier-fold cycle-service calibration remains below its 95% target (92.47% for the all-history method; 92.59% for class-normalized). This is cycle service, not fill rate.
+4. **Inventory Decisions** — an illustrative single-item reorder point using a saved forecast and historical forecast errors. Lead time, review period and target service are user inputs. The page also compares four earlier-fold calibration rules across 823 products; the best point estimate is 92.59% against a 95% cycle-service target, with no rule reaching target. Fold, class and method summaries can be downloaded. This is cycle service, not fill rate.
 5. **Model Reliability** — residual diagnostics, including remaining autocorrelation.
 6. **About & Methodology** — data scope, evaluation protocol, limitations and holdout state.
 

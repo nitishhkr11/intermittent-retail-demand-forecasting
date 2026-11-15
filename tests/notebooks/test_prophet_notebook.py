@@ -15,7 +15,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.data.aggregate_series import load_aggregate_development_series
 from src.evaluation.forecast_artifacts import (
     audit_forecast_table,
     forecasts_dir,
@@ -88,8 +87,8 @@ def saved_forecasts():
     return read_forecast_table(FORECASTS, kind="aggregate")
 
 
-def test_saved_forecast_table_passes_the_full_audit(saved_forecasts):
-    dev_series = load_aggregate_development_series(CONFIG)
+def test_saved_forecast_table_passes_the_full_audit(saved_forecasts, aggregate_development_reference):
+    dev_series = aggregate_development_reference
     checks = audit_forecast_table(saved_forecasts, kind="aggregate", dev_series=dev_series)
     failed = [c for c in checks if not c.passed]
     assert failed == [], f"audit failures: {[(c.name, c.detail) for c in failed]}"

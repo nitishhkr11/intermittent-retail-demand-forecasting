@@ -39,3 +39,8 @@ The final-evaluation bundle was rebuilt after the one-time holdout run. It packa
 
 
 Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 8,458,777 bytes, SHA-256 `9c1d3fd5eff3a24eeb42375e25bf1297d79a2380bca680f824fb54d65ab114f7`; 112 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.
+
+
+## Acceptance follow-up — 15 November 2026
+
+The package was rebuilt after adding compact alternative inventory summaries. Current archive: 8,466,148 bytes, SHA-256 `a738029e374d9f0df9820072aec6e458d39be9885a3f4e716060b34fb788c706`; all 113 manifest-listed files pass hash verification. Raw M5 inputs, local absolute paths and row-level final-holdout forecasts are absent. Local tests passed (217 app tests; 944 non-slow tests, 15 skipped and 86 deselected), and pipeline resume skipped all 14 verified stages. This verifies the local package only. No provider build, public URL, anonymous browser session or remote Actions success has been verified. GitHub CLI is unavailable; read-only access to the Git remote succeeded.

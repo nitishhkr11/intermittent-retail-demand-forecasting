@@ -124,6 +124,17 @@ def _open(browser, url, size=(1366, 768)):
     return page
 
 
+def _select_tab(page, name: str) -> None:
+    """Wait for Streamlit's client-side tab selection before checking its content."""
+    page.get_by_role("tab", name=name).click()
+    page.wait_for_function(
+        "label => Array.from(document.querySelectorAll('[role=tab]')).some("
+        "tab => tab.innerText.trim() === label && tab.getAttribute('aria-selected') === 'true')",
+        arg=name,
+        timeout=15000,
+    )
+
+
 @pytest.mark.parametrize("size", [(1440, 900), (1366, 768)])
 def test_dark_and_light_paint_differently_in_the_browser(server, browser, size):
     light = _paint(_open(browser, server + "/?theme=light", size))
@@ -160,16 +171,31 @@ def test_warning_and_information_panels_stay_white_with_semantic_accents(server,
     warnings = page.locator(".rd-callout.warn")
     warning = warnings.first
     info = page.locator(".rd-callout.info").first
-    assert warnings.count() == 2 and info.count() >= 1, "the illustrative-assumptions and below-target calibration warnings must both be visible"
+    assert warnings.count() == 3 and info.count() >= 1, "the illustrative-assumptions, expanded calibration, and alternative calibration warnings must be visible"
     warning_style = warning.evaluate("e => ({background:getComputedStyle(e).backgroundColor, accent:getComputedStyle(e).borderLeftColor})")
     info_style = info.evaluate("e => ({background:getComputedStyle(e).backgroundColor, accent:getComputedStyle(e).borderLeftColor})")
     assert warning_style == {"background": "rgb(255, 255, 255)", "accent": "rgb(138, 90, 0)"}
     assert info_style == {"background": "rgb(255, 255, 255)", "accent": "rgb(37, 99, 235)"}
 
 
+def test_inventory_page_shows_verified_alternative_calibration_and_downloads(server, browser):
+    page = _open(browser, server + "/Inventory_Decision?theme=light")
+    page.get_by_text("Alternative 7-day calibration validation", exact=True).wait_for(timeout=60000)
+    summary = page.locator(".rd-table-wrap").filter(has_text="Same-class normalized errors").first
+    assert "92.59%" in summary.inner_text()
+    assert "92.47%" in summary.inner_text()
+    assert "86.72%" in summary.inner_text()
+    assert "823" in summary.inner_text() and "930,248" in summary.inner_text()
+    assert page.get_by_text("No calibration rule reached 95% cycle service", exact=False).count() >= 1
+    with page.expect_download(timeout=15000) as download_info:
+        page.get_by_role("button", name="Download this table (CSV)").first.click()
+    assert download_info.value.suggested_filename == "inventory_alternative_method_summary.csv"
+    assert page.locator('[data-testid="stException"]').count() == 0
+
+
 def test_expanded_comparison_exposes_prophet_interval_results(server, browser):
     page = _open(browser, server + "/Model_Comparison?theme=light")
-    page.get_by_role("tab", name="Expanded development study").click()
+    _select_tab(page, "Expanded development study")
     page.get_by_text("Prophet seasonal interval study", exact=True).wait_for(timeout=60000)
     assert page.get_by_text("Block conformal intervals are deliberately wide", exact=False).count() == 1
     assert page.locator('[data-testid="stException"]').count() == 0
@@ -177,7 +203,7 @@ def test_expanded_comparison_exposes_prophet_interval_results(server, browser):
 
 def test_expanded_comparison_exposes_complete_neural_seasonal_results(server, browser):
     page = _open(browser, server + "/Model_Comparison?theme=light")
-    page.get_by_role("tab", name="Expanded development study").click()
+    _select_tab(page, "Expanded development study")
     heading = page.get_by_text("LSTM/GRU seasonal comparison", exact=True)
     heading.wait_for(timeout=60000)
     heading.scroll_into_view_if_needed()
@@ -189,7 +215,7 @@ def test_expanded_comparison_exposes_complete_neural_seasonal_results(server, br
 
 def test_expanded_comparison_exposes_xgboost_feature_ablations(server, browser):
     page = _open(browser, server + "/Model_Comparison?theme=light")
-    page.get_by_role("tab", name="Expanded development study").click()
+    _select_tab(page, "Expanded development study")
     page.get_by_text("XGBoost feature ablations", exact=True).wait_for(timeout=60000)
     assert page.get_by_text("XGBoost(pooled,lags_calendar_events_poisson,poisson)", exact=False).count() >= 1
     assert page.get_by_text("XGBoost(per-item,lags_calendar_events)", exact=False).count() >= 1
@@ -198,7 +224,7 @@ def test_expanded_comparison_exposes_xgboost_feature_ablations(server, browser):
 
 def test_expanded_comparison_exposes_alternative_inventory_calibration(server, browser):
     page = _open(browser, server + "/Model_Comparison?theme=light")
-    page.get_by_role("tab", name="Expanded development study").click()
+    _select_tab(page, "Expanded development study")
     page.get_by_text("Alternative inventory calibration methods", exact=True).wait_for(timeout=60000)
     assert page.locator(".rd-table-wrap").filter(has_text="class_normalized").count() >= 1
     assert page.locator(".rd-table-wrap").filter(has_text="empirical_all").count() >= 1
@@ -207,9 +233,7 @@ def test_expanded_comparison_exposes_alternative_inventory_calibration(server, b
 
 def test_final_holdout_tab_shows_the_single_saved_evaluation(server, browser):
     page = _open(browser, server + "/Model_Comparison?theme=light")
-    final_tab = page.get_by_role("tab", name="Development vs final holdout")
-    final_tab.click()
-    page.wait_for_function("document.querySelectorAll('[role=tab]')[3]?.getAttribute('aria-selected') === 'true'", timeout=15000)
+    _select_tab(page, "Development vs final holdout")
     main = page.get_by_test_id("stMain")
     main.get_by_text("The final holdout was evaluated once", exact=False).wait_for(timeout=60000)
     assert "Class-selected strategy" in main.inner_text()

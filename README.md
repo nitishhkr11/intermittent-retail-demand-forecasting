@@ -4,7 +4,7 @@ A comparative classical, machine-learning and deep-learning forecasting framewor
 support, built on the Walmart M5 Forecasting - Accuracy dataset (store `CA_1`, department `FOODS_3`,
 823 items, 1,941 days, 2011-01-29 to 2016-05-22).
 
-**Status (15 November 2026):** Phases 1–3, the expanded development experiments, dashboard QA, and the one-time final holdout evaluation are complete. The holdout was scored once (2016-04-25–2016-05-22) from frozen candidates. Local tests passed; public hosting and remote GitHub Actions are not verified. See `reports/final/FINAL_HOLDOUT_RESULTS.md` and `FINAL_PROJECT_AUDIT.md`.
+**Status (15 November 2026):** Phases 1–3, expanded development experiments, dashboard QA and the one-time final holdout evaluation are complete. The holdout was scored once (2016-04-25–2016-05-22) from frozen candidates. Latest local checks: 217 dashboard tests passed; the non-slow suite passed 944 tests (15 skipped, 86 slow tests deselected). Public hosting and remote GitHub Actions are not verified. See `reports/final/FINAL_HOLDOUT_RESULTS.md` and `reports/final/FINAL_PROJECT_AUDIT.md`.
 
 ## What is in the repository
 
@@ -92,7 +92,7 @@ against a 95% target, so the target is not met. These figures are development ev
 
 Expanded development evidence now includes the complete 64/64 LSTM/GRU seasonal study, 16-fold Prophet coverage,
 full-panel XGBoost ablations (823 products; plus a fixed 183-product per-item sample), and alternative earlier-fold-only
-inventory calibration. The 95% cycle-service target remains unmet: the alternative methods achieved 86.72%–92.59%.
+inventory calibration. The 95% cycle-service target remains unmet: the four earlier-fold calibration rules achieved 86.72%–92.59% over the same 930,248 later-fold seven-day windows. Same-class normalization was 92.59% versus 92.47% for all-history empirical calibration; their 90% cluster-bootstrap intervals overlap, so the simpler all-history rule remains the default. See `reports/final/FINAL_RESEARCH_RESULTS.md` for calibration counts, fold/class summaries and limitations.
 Development-only aggregate and four class-specific candidates are recorded in the hashed candidate selection manifest.
 The final holdout was subsequently evaluated once after candidate freeze. The executed candidates and metrics are documented in `reports/final/FINAL_HOLDOUT_RESULTS.md`. Earlier loaders transiently read reserved sales before the cutoff correction; full details are in `reports/final/HOLDOUT_DATA_BOUNDARY_AUDIT.md`.
 

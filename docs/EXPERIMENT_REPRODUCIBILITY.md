@@ -60,4 +60,4 @@ The deployment-only sales extracts are described by `artifacts/dashboard_data/de
 
 ## Final test execution record
 
-On 15 November 2026, `python -m pytest tests/app -q` passed 214 browser/UI tests and `python -m pytest -q -m "not slow"` passed 958 tests, deselecting 83 slow tests, with zero failures and one Windows ZMQ Proactor warning. Browser screenshots cover six pages, light/dark modes, and 1920/1440/1366/768/390 px. No GitHub Actions run or public deployment is claimed.
+Acceptance pass on 15 November 2026: `.venv\Scripts\python.exe -m pytest tests/app -q` passed 217 browser/UI tests in 556.52 seconds; `.venv\Scripts\python.exe -m pytest -q -m "not slow"` passed 944 tests, skipped 15, and deselected 86 slow tests in 198.65 seconds. No failures were reported. The browser suite exercises six pages, light/dark modes, and 1920/1440/1366/768/390 px. `python -m src.pipeline development --resume` validated inputs and skipped all 14 already verified stages without rewriting outputs. Public deployment and a remote GitHub Actions result are not verified.

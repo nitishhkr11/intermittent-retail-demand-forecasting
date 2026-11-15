@@ -129,3 +129,14 @@ Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_eva
 
 
 CI archive follow-up: the previous run passed all 216 browser tests but the XGBoost resume audit still lacked non-forecast hashed outputs. The dashboard package now includes every independently audited XGBoost artifact except its 228 MB daily CSV; the separate CI archive supplies that CSV. Local package hash checks and pipeline/deployment/final-guard tests pass.
+
+
+### Final acceptance follow-up — 15 November 2026
+
+- Fresh dashboard run: `.venv\Scripts\python.exe -m pytest tests/app -q` — 217 passed in 556.52 seconds. Three browser checks initially failed; their focused rerun passed 3/3 after fixing the comparison page's summary filename and waiting for the selected Streamlit tab. The full rerun then passed.
+- Required non-slow run: `.venv\Scripts\python.exe -m pytest -q -m "not slow"` — 944 passed, 15 skipped, 86 deselected in 198.65 seconds.
+- Safe pipeline resume: `python -m src.pipeline development --resume` validated inputs and skipped every one of the 14 verified stages without rewriting outputs or retraining models.
+- Alternative inventory results were independently recomputed from saved forecast and decision artifacts: all-history 92.4748%, recent-two 86.7236%, recency-weighted 91.6544%, same-class normalized 92.5940% against the 95% target. All four use the same 823 products, folds 3–16, and 930,248 evaluation windows. Same-class's 0.12 pp point-estimate increase over all-history is not reliable because the intervals overlap.
+- Updated the inventory dashboard comparison view and tests; updated the README, reproducibility notes, speaking script, audit log and presentation metrics. Slide 19 and 24 were rendered and visually inspected; matching PDF has 33 pages. Slide 28 geometry and content were left unchanged.
+- Bundle rebuilt and verified: 8,466,148 bytes, SHA-256 `a738029e374d9f0df9820072aec6e458d39be9885a3f4e716060b34fb788c706`, 113 manifest-listed files. Raw M5 inputs and row-level holdout forecasts are absent.
+- Read-only final-holdout status confirms the frozen candidates remain scored once. GitHub CLI is unavailable; read-only remote access works. A remote Actions run and public provider deployment remain unverified.

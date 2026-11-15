@@ -200,7 +200,7 @@ with tab_expanded:
         render_table(inventory_summary, caption="7-day protection interval; calibration uses earlier folds only", download_name="expanded_inventory_service_level.csv", key="dl_expanded_inventory")
         st.caption("Overlapping windows are dependent; intervals use an item-fold cluster bootstrap. Targets remain illustrative inputs, not achieved guarantees.")
     alternative_inventory = resolve_path(Path("artifacts/expanded_inventory_calibration_v2"))
-    alternative_summary = alternative_inventory / "calibration_model_summary.csv"
+    alternative_summary = alternative_inventory / "calibration_method_summary.csv"
     if alternative_summary.exists():
         st.markdown("### Alternative inventory calibration methods")
         st.caption("All methods use the same later evaluation folds and 7-day windows. Calibration uses only strictly earlier, completed out-of-sample folds. The target is 95% cycle service; no method is a guarantee.")

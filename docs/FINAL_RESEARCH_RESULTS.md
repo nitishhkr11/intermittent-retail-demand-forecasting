@@ -108,14 +108,18 @@ On the common 183-item sample, pooled Poisson XGBoost had MAE 2.500 and per-item
 
 Four causal methods were compared on the same 42,284 eligible model/item/fold cells and 930,248 overlapping seven-day evaluation windows; each origin used earlier completed folds only. Confidence intervals use item-fold cluster resampling, keeping overlapping windows together.
 
-| Calibration rule | Target | Observed cycle service | 90% cluster interval |
-|---|---:|---:|---:|
-| All earlier folds, empirical higher quantile | 95% | 92.475% | 92.321–92.629% |
-| Recency weighted (2-fold half-life) | 95% | 91.654% | 91.497–91.807% |
-| Most recent two folds | 95% | 86.724% | 86.511–86.922% |
-| Same-class normalized errors | 95% | 92.594% | 92.443–92.737% |
+| Calibration rule | Target | Observed cycle service | 90% cluster interval | Mean safety stock | Mean reorder point | Mean calibration samples (range) |
+|---|---:|---:|---:|---:|---:|---:|
+| All earlier folds, empirical higher quantile | 95% | 92.475% | 92.321–92.629% | 19.129 | 39.616 | 178.2 (22–330) |
+| Recency weighted (2-fold half-life) | 95% | 91.654% | 91.497–91.807% | 17.682 | 38.170 | 178.2 (22–330) |
+| Most recent two folds | 95% | 86.724% | 86.511–86.922% | 13.855 | 34.343 | 43.7 (22–44) |
+| Same-class normalized errors | 95% | 92.594% | 92.443–92.737% | 17.497 | 37.984 | 46,293 (22–120,054) |
 
-The class-normalized point estimate is only 0.12 percentage points above the all-history method and the intervals overlap; this does not establish a robust gain. The simpler all-history per-model empirical calibration remains the dashboard default. Per-model and fold-local demand-class results are in `artifacts/expanded_inventory_calibration_v2/`. None of these methods meets the 95% target. Fill rate is not inferred.
+Each method covers 823 products over 14 later evaluation folds (folds 3–16). The safety-stock and reorder-point means are equal-weight means over successful item/model/fold cells, in units for a seven-day protection interval. Overlapping windows are dependent and are not an independent sample size. Each rule has 3,210 failed test cells, 6,584 cells with fewer than two earlier folds, and 594 additional cells without usable prior calibration history or scale. Those cells are excluded, never imputed.
+
+Same-class normalization has the highest point estimate, only 0.12 percentage points above all-history; their cluster-bootstrap intervals overlap. That does not establish a dependable improvement. All-history empirical calibration remains the more defensible dashboard default because it is simpler, calibrates each item/model from its own earlier errors, and performs nearly as well. None of the alternatives reaches 95%.
+
+Fold-level and demand-class results are saved in `artifacts/expanded_inventory_calibration_v2/calibration_fold_summary.csv` and `calibration_class_operating_summary.csv`; model/class cluster-bootstrap intervals are in `calibration_model_class_summary.csv`. Across rules, pooled service varied from 83.29% to 96.51% by evaluation fold. Demand-class rates were 85.57–92.21% for Lumpy, 85.91–93.18% for Intermittent, 85.89–94.37% for Erratic and 91.65–92.90% for Smooth. NoDemand was 96.71% for each rule; the InsufficientData stratum was 51.70% based on only four products and should be read as highly uncertain. Fill rate is not inferred.
 
 ## Development candidate selection
 

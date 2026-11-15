@@ -120,3 +120,12 @@ Public provider deployment and a remote GitHub Actions run were not verified. Th
 
 
 Final bundle manifest check (15 November 2026): `dashboard_data_bundle_final_evaluation.zip`, 8,458,777 bytes, SHA-256 `9c1d3fd5eff3a24eeb42375e25bf1297d79a2380bca680f824fb54d65ab114f7`; 112 manifest-listed files verified. Raw inputs and row-level final-holdout forecasts are absent. The archive includes candidate/freeze metadata and compact result summaries.
+
+
+## Acceptance follow-up — 15 November 2026
+
+This section supersedes the earlier test counts and inventory-calibration status above. The latest expanded calibration compares four earlier-fold rules across 823 products, evaluation folds 3–16, and 930,248 common seven-day windows per rule. Achieved cycle service at the 95% target was 92.47% for all-history empirical, 86.72% for recent-two-fold, 91.65% for recency-weighted, and 92.59% for same-class normalized errors. The latter point estimate is only 0.12 percentage points above all-history and their 90% cluster-bootstrap intervals overlap; retain the simpler all-history rule as default. None reaches target. Per rule, 3,210 test cells failed and 7,178 had insufficient history or no prior calibration (10,388 cells with no service estimate in total); none were imputed.
+
+Fresh Windows verification: `pytest tests/app -q` passed 217 tests; `pytest -q -m "not slow"` passed 944, skipped 15, and deselected 86 slow tests. The focused rerun of the three initially failing browser checks passed after correcting the model-comparison summary path and waiting for Streamlit tab selection in the browser tests. `python -m src.pipeline development --resume` validated inputs, skipped all 14 verified stages and left existing outputs unchanged. Read-only holdout status remains frozen and evaluated once; no holdout operation was repeated.
+
+The 33-slide deck and matching 33-page PDF now include the expanded inventory comparison; Slide 28 was not edited and retains the verified nine 0.60-inch table rows. Slides 19 and 24 were rendered for visual inspection. The final-evaluation deployment bundle is 8,466,148 bytes with SHA-256 `a738029e374d9f0df9820072aec6e458d39be9885a3f4e716060b34fb788c706`; all 113 manifest-listed files were verified, and raw M5 inputs and row-level holdout forecasts are absent. GitHub CLI is not installed; only read-only `git ls-remote` succeeded. No remote Actions success or public deployment is claimed.

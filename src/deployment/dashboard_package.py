@@ -64,7 +64,8 @@ def package(output: Path | None = None) -> Path:
     if alternative_inventory.exists():
         required.extend(Path("artifacts/expanded_inventory_calibration_v2") / name for name in (
             "calibration_summary.csv", "fold_class_summary.csv", "calibration_model_summary.csv",
-            "calibration_model_class_summary.csv",
+            "calibration_model_class_summary.csv", "calibration_method_summary.csv",
+            "calibration_fold_summary.csv", "calibration_class_operating_summary.csv",
         ))
     final_dir = resolve_path(Path(config["phase3"]["final_dir"]))
     development_selection = final_dir / "DEVELOPMENT_SELECTION.json"
