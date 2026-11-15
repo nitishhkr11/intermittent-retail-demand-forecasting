@@ -1,0 +1,48 @@
+{
+  "errors": [],
+  "files": {
+    "comparison": {
+      "bytes": 1248,
+      "path": "artifacts/metrics/comparison_artifact_audit.csv",
+      "sha256": "67050f99592485651d4eb87a2b4c148b4e4863f01c107a3feff81d615118eea3"
+    },
+    "intermittent": {
+      "bytes": 11851879,
+      "path": "artifacts/expanded_intermittent/fold_metrics.csv",
+      "sha256": "eeaf135e397156beb57791cc17059eeaa1695020eb10bf17b10a433f8a3bf507"
+    },
+    "inventory": {
+      "bytes": 2204,
+      "path": "artifacts/expanded_inventory_calibration_v2/calibration_model_summary.csv",
+      "sha256": "1296efb5a5954b8a5075bc1469960fbbe2be1aabf32db3908f1498772c81a571"
+    },
+    "neural": {
+      "bytes": 741,
+      "path": "artifacts/expanded_neural/model_summary.csv",
+      "sha256": "8371671f96c72156750dc0cf178ee44e6be3749354808d88f7c104c6c4c2d0b7"
+    },
+    "prophet": {
+      "bytes": 603,
+      "path": "artifacts/expanded_prophet_block_conformal/model_summary.csv",
+      "sha256": "59af8e6a4bf6b08f05349a6238cd1c34f7e54e4821d83e9042f5a6127075ba7d"
+    },
+    "seasonal": {
+      "bytes": 1714,
+      "path": "artifacts/expanded_seasonal/model_summary.csv",
+      "sha256": "3b1c05533624d66e7c8e5b33603e300ac7a24a5fd7c67845753c8218aa57e063"
+    },
+    "selection": {
+      "bytes": 14115,
+      "path": "artifacts/final/FROZEN_CANDIDATES.json",
+      "sha256": "e58951290ca344d15b2a3a8566173787d2122cfdfbded7bef4011491fafc8192"
+    },
+    "xgboost": {
+      "bytes": 2256,
+      "path": "artifacts/expanded_xgboost/independent_audit.json",
+      "sha256": "406c9748c9eaae0455ff5db1726faee4cb61f01359ba148c1a13aa4df084a470"
+    }
+  },
+  "final_holdout_evaluated": false,
+  "generated_at_utc": "2026-11-14T19:37:50Z",
+  "passed": true
+}

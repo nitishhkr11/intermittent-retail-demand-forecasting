@@ -1,8 +1,12 @@
+## Current record status — 15 November 2026
+
+The period 2016-04-25 through 2016-05-22 has been evaluated exactly once after candidate freeze. See `FINAL_HOLDOUT_RESULTS.md` and `artifacts/final/FINAL_EVALUATION_RECORD.json`. The provenance limitation described below concerns earlier transient reads during development and does not change the saved evaluation count. Do not rerun or tune against the holdout.
+
 # Final holdout data boundary audit
 
 ## Current evaluation status
 
-The final period, 2016-04-25 through 2016-05-22, has not been evaluated: no frozen candidate file, final forecast table, result table, or evaluation record exists. No development model or metric was fit/scored on those 28 target values. The protected evaluation workflow remains closed while research prerequisites are incomplete.
+The final period, 2016-04-25 through 2016-05-22, was evaluated exactly once after candidate freeze. The immutable record is `artifacts/final/FINAL_EVALUATION_RECORD.json` (record count 1, no override); results are in `reports/final/FINAL_HOLDOUT_RESULTS.md`. Do not rerun or tune against this period. This status supersedes the earlier pre-evaluation text in the historical audit notes below.
 
 ## Loader issue found during source audit — 14 November 2026
 
@@ -19,4 +23,4 @@ Both development loaders now first read date metadata only, derive the cutoff, t
 
 Focused loader and feature tests passed: 115 tests covering XGBoost features, aggregate development loading, and all-item development loading. The complete neural run and the prior results remain development-only and were not tuned or scored using reserved values. Future development runs now use the predicate-protected loaders.
 
-This correction cannot undo the earlier transient reads. It does preserve the distinction between a data-access breach and a holdout evaluation. Whether to treat the period as suitable for a future first scoring event must be disclosed in the final report; no such event has occurred here. The one-time final evaluation remains blocked by the incomplete XGBoost, inventory-calibration and class-selection work.
+This correction cannot undo the earlier transient reads. It preserves the distinction between transient data access and model fitting/scoring during those development runs. The later one-time final evaluation happened only after candidate freeze and is recorded separately. The data-boundary history remains a limitation and is disclosed in final materials.

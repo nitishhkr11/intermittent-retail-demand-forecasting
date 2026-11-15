@@ -1,0 +1,24 @@
+{
+  "calendar_sha256": "f2d097d6f3bb735f8b26d5bfbd9d86217f84627e912d95bbaed31aac2390050a",
+  "checkpointed": true,
+  "code_sha256": "80f3f4eb5038f50c607cc4ae57a7a339efd405210b6aee152ae632b10b4ebed5",
+  "component": "expanded_neural_seasonal_backtest",
+  "development_series_sha256": "38201b6aab057073fce1a68ff8ca7c9d8e234769cb75b553be5dce0b9a04a3ba",
+  "device": "cpu",
+  "experiment_sha256": "e9124045e70d4213d6843b7a0488fe445b062511db98ded27d9967997762eebd",
+  "fold_manifest_sha256": "24575c7c1c1131a5c7fd630c735965f063b52eafc82a53dc103c3de0b0719b11",
+  "folds": 16,
+  "generated_at_utc": "2026-11-14T17:05:44Z",
+  "holdout_accessed": false,
+  "horizon_days": 28,
+  "items": 1,
+  "scope": "aggregate CA_1 / FOODS_3",
+  "seeds_per_variant_fold": 5,
+  "selection_or_tuning": "none; config.yaml settings retained",
+  "variants": [
+    "LSTM(calendar)",
+    "GRU(calendar)",
+    "LSTM(univariate)",
+    "GRU(univariate)"
+  ]
+}

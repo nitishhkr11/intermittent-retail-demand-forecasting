@@ -1,0 +1,43 @@
+{
+  "generated_at_utc": "2026-11-14T23:56:23Z",
+  "input_sha256": {
+    "intermittent": "eeaf135e397156beb57791cc17059eeaa1695020eb10bf17b10a433f8a3bf507",
+    "neural": "54b5f1e53881501d21ca58f22fd8d6c069d0192f80f032cbf79736d530780a3e",
+    "neural_diagnostics": "dc543c16656b0eff494610ead57e3822a4d857419f5450cfa1a2fa4472a10402",
+    "prophet": "68e6cee9ca6c2c2b9421aecd09a028ddfde16ee372d67925279dc5205f08dbb7",
+    "xgboost": "8e77633143ea50512b0407c60b5aa8ae7936e5223a1edfa4231625dfa99322d3"
+  },
+  "intermittent_failures_by_model": {
+    "Croston(alpha=0.1)": 2236,
+    "SBA(alpha=0.1)": 2236,
+    "SeasonalNaive": 0,
+    "TSB(alpha=0.1,beta=0.1)": 0
+  },
+  "limitations": [
+    "Prophet nominal 80% intervals under-cover in this development sample.",
+    "Cycle service is not fill rate; failures and missing calibration cells are not imputed."
+  ],
+  "neural": {
+    "cells": 64,
+    "early_stopped_seeds": 303,
+    "failed": 0,
+    "planned_seeds": 320,
+    "successful": 64
+  },
+  "passed": true,
+  "prophet": {
+    "all_variants_below_80_percent": true,
+    "fits": 48,
+    "nominal_80_day_coverage_by_model": {
+      "Prophet(additive)": 0.65625,
+      "Prophet(additive,no-regressors)": 0.6763392857142857,
+      "Prophet(multiplicative)": 0.6607142857142857
+    },
+    "successful": 48
+  },
+  "xgboost": {
+    "failed": 0,
+    "item_fold_cells": 68768,
+    "successful": 68768
+  }
+}

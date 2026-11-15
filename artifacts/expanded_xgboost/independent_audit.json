@@ -1,0 +1,54 @@
+{
+  "artifact_sha256": {
+    "class_fold_metrics.csv": "2ecc603418aa2f483a857c8a12b725ac51969221c390dfc05d59cc0edae35232",
+    "feature_importance_by_fold.csv": "de12a69cac7d8b09dbd02e2317daed841a040e7c45c3901144fb85671382b4ae",
+    "feature_importance_summary.csv": "14dad457916a132df32ac54454bc83e10be8ffbe00c1ac7d11b2630c217ed62e",
+    "fit_diagnostics.csv": "d8fb5a2b77515b4f56f154abb4ed4deba5ba50907b4db9730028f121c65b53a8",
+    "fold_manifest.json": "c854722e138a6eb4314aacd7117d1b6dc3abb27bdfb22b260d8331b2cbfa75d8",
+    "fold_metrics.csv": "97acf42b3550d0da798e018387625424ac8a6abe4ba28c99705283b154c71c65",
+    "folds.csv": "2f373777ef1c837fed405308af6097733253d0ebee6eda2fb791050ddde5c75c",
+    "forecasts.csv": "5239bbad788b4a77612ae4c4a6e0f31b930aa7b6b9aee0e8a3b58b050c5f419e",
+    "item_fold_metrics.csv": "8e77633143ea50512b0407c60b5aa8ae7936e5223a1edfa4231625dfa99322d3",
+    "model_summary.csv": "f8323bc33a52e5a7f0bf4abae4c9d88f71fd475eeaca82814fa9902c8dcc0bf8",
+    "per_item_sample.csv": "76290c3ea0084eeedfc4b2005145464fb124fc4ceabe7a5e9423187d2c94875e",
+    "run_metadata.json": "75a2e213550284602c06aca1a4c07ee097891a77951af3ff43e47631da5a81b6"
+  },
+  "forecast_rows": 1925504,
+  "holdout_evaluated": false,
+  "independent_row_recalculation": "MAE, RMSE, bias recomputed from raw forecast rows by model/item/fold",
+  "item_fold_rows": 68768,
+  "last_development_date": "2016-04-24",
+  "manifest_sha256": "b74051a8140a50130ec547d02392ae1affbd2b38619fe4671007d84782767ea5",
+  "max_forecast_date": "2015-10-28",
+  "mismatch_count": 0,
+  "mismatches_first_20": [],
+  "passed": true,
+  "planned_forecast_rows": 1925504,
+  "planned_item_fold_rows": 68768,
+  "success_counts_by_model": {
+    "XGBoost(per-item,lags_calendar_events)": {
+      "size": 2928,
+      "sum": 2928
+    },
+    "XGBoost(pooled,lags_calendar)": {
+      "size": 13168,
+      "sum": 13168
+    },
+    "XGBoost(pooled,lags_calendar_events)": {
+      "size": 13168,
+      "sum": 13168
+    },
+    "XGBoost(pooled,lags_calendar_events_poisson,poisson)": {
+      "size": 13168,
+      "sum": 13168
+    },
+    "XGBoost(pooled,lags_only)": {
+      "size": 13168,
+      "sum": 13168
+    },
+    "XGBoost(pooled,lags_rolling)": {
+      "size": 13168,
+      "sum": 13168
+    }
+  }
+}

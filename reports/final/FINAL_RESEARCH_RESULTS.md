@@ -1,3 +1,9 @@
+## Current verified finalization status — 15 November 2026
+
+The expanded research work is complete and summarized in `FINAL_RESEARCH_RESULTS.md`. The protected 28-day holdout was evaluated once after the candidate freeze; its immutable record is count=1 and must not be rerun or used for tuning. The current audit and 19-slide deliverable acceptance matrix is `FINAL_CONTENT_CONSISTENCY_AUDIT.md`. This status supersedes older dated snapshots in this file.
+
+Current checks: app suite 217 passed; non-slow suite 944 passed, 15 skipped, 86 deselected; development resume validated and skipped 14 verified stages without rewriting outputs. GitHub Actions run 43660358970 passed on commit a8b7a6a. Public Streamlit hosting remains unverified because provider/GitHub owner authentication is unavailable. The final PPTX/PDF contain 19 slides/pages.
+
 # RiverDemand final research results
 
 ## Scope and holdout status

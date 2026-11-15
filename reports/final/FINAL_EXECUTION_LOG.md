@@ -140,3 +140,13 @@ CI archive follow-up: the previous run passed all 216 browser tests but the XGBo
 - Updated the inventory dashboard comparison view and tests; updated the README, reproducibility notes, speaking script, audit log and presentation metrics. Slide 19 and 24 were rendered and visually inspected; matching PDF has 33 pages. Slide 28 geometry and content were left unchanged.
 - Bundle rebuilt and verified: 8,466,148 bytes, SHA-256 `a738029e374d9f0df9820072aec6e458d39be9885a3f4e716060b34fb788c706`, 113 manifest-listed files. Raw M5 inputs and row-level holdout forecasts are absent.
 - Read-only final-holdout status confirms the frozen candidates remain scored once. GitHub CLI is unavailable; the configured Git remote accepted the reviewed branch push. GitHub Actions run 43658775929 passed on commit d136c2c. Public provider deployment remains unverified.
+
+
+### Final 19-slide submission and content audit — 15 November 2026
+
+- Preserved the existing cream/maroon/blue/gold deck identity and condensed the saved final deck to 19 slides. Corrected synthesis-slide heading and body collisions; adjusted Prophet slide spacing. Re-exported the PDF from the saved PPTX and verified 19 slides / 19 PDF pages.
+- Rendered and inspected all deck pages. Confirmed separate aggregate and item-level metric tables, actual one-time holdout results, 95% inventory shortfall, slide numbering, 19-slide settings appendix, and no stale “holdout not evaluated” statement in the final deck.
+- Created the 19-slide speaking script with chart explanations, values, likely questions/answers and transitions, including core 15–20 minute and short 8–10 minute versions. Created the six-page dashboard viva guide and the synchronized technical report in DOCX/PDF/Markdown formats where applicable; rendered outputs for visual review.
+- Wrote `FINAL_CONTENT_CONSISTENCY_AUDIT.md` and updated current-status sections in the project audit, holdout boundary audit, research results, methodology, freeze report, deployment report, README and execution log. Historical dated snapshots remain labelled as such.
+- Frozen manifest SHA-256: `f4f36f8a78cafcc88df4be10829c609690c6115cbcd1725a4268fd683fc261ea`. Final evaluation record SHA-256: `a680a15ba458a814387c049980c599d792de79c7065d7565c2a9f5f70b9f092d`. Neither file was modified.
+- Final documentation and presentation generation did not change forecasting code, model configuration, experiment outputs, candidate freeze or holdout record. Public provider deployment remains unverified for lack of authenticated owner access.

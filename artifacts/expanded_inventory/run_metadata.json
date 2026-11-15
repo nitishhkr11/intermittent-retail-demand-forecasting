@@ -1,0 +1,10 @@
+{
+  "calibration": "earlier folds only; at least two earlier folds",
+  "holdout_accessed": false,
+  "method_module_sha256": "75efeffb59c7bbc51d3500e67fecbe0b5860723c96f1b781daea12b78731b55e",
+  "source": "artifacts/expanded_intermittent/forecasts.csv",
+  "source_sha256": "4385fac85b7fa9b4bb0fb5f2ee864197b483e216ba415a9dcda40073347fd1dc",
+  "target_cycle_service": 0.95,
+  "uncertainty": "90% cluster bootstrap over item-fold cells; overlapping windows retained within cells",
+  "window_days": 7
+}

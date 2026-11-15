@@ -1,3 +1,7 @@
+## Current status update — 15 November 2026
+
+Local dashboard QA and current CI are verified. GitHub Actions run [43660358970](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting/actions/runs/43660358970) passed on commit `a8b7a6a`. The safe final-evaluation bundle has SHA-256 `a738029e374d9f0df9820072aec6e458d39be9885a3f4e716060b34fb788c706` (113 files verified). Public deployment remains unverified and requires an authenticated Streamlit Community Cloud/GitHub owner session. The 15 November status supersedes older run and bundle details below; no public URL is claimed.
+
 # RiverDemand deployment verification
 
 ## Status

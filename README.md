@@ -4,7 +4,7 @@ A comparative classical, machine-learning and deep-learning forecasting framewor
 support, built on the Walmart M5 Forecasting - Accuracy dataset (store `CA_1`, department `FOODS_3`,
 823 items, 1,941 days, 2011-01-29 to 2016-05-22).
 
-**Status (15 November 2026):** Phases 1–3, expanded development experiments, dashboard QA and the one-time final holdout evaluation are complete. The holdout was scored once (2016-04-25–2016-05-22) from frozen candidates. Latest local checks: 217 dashboard tests passed; the non-slow suite passed 944 tests (15 skipped, 86 slow tests deselected). GitHub Actions run [43658775929](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting/actions/runs/43658775929) passed on commit `d136c2c`; public hosting is not verified. See `reports/final/FINAL_HOLDOUT_RESULTS.md` and `reports/final/FINAL_PROJECT_AUDIT.md`.
+**Status (15 November 2026):** Phases 1–3, expanded development experiments, dashboard QA and the one-time final holdout evaluation are complete. The holdout was scored once (2016-04-25–2016-05-22) from frozen candidates. Latest local checks: 217 dashboard tests passed; the non-slow suite passed 944 tests (15 skipped, 86 slow tests deselected). GitHub Actions run [43660358970](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting/actions/runs/43660358970) passed on commit `a8b7a6a`; public hosting is not verified. See `reports/final/FINAL_HOLDOUT_RESULTS.md` and `reports/final/FINAL_PROJECT_AUDIT.md`.
 
 ## What is in the repository
 
@@ -213,7 +213,7 @@ tests/                mirrors src/ and app/
   computed on the full history, so 110 of 4,115 (item, fold) pairs change class.
 - Sales are censored by stock-outs, so true demand can be higher than recorded. The inventory layer uses illustrative
   lead times and service levels, no cost model and claims no savings.
-- `src/pipeline.py` is a documented placeholder; the real entry points are the commands in "Run order".
+- `python -m src.pipeline development --resume` validates inputs and resumes the staged development workflow; the latest verified resume checked and skipped all 14 hash-verified stages without rewriting outputs.
 - `notebooks/06_xgboost.ipynb` still carries its original Step 1 sentence that Phase 3 was not complete; it was left
   byte-for-byte unchanged because it is a completed deliverable and a test asserts it.
 
@@ -225,3 +225,14 @@ MIT, see [LICENSE](LICENSE).
 ## Final holdout results (single evaluation)
 
 The protected 28-day window (2016-04-25 through 2016-05-22) was evaluated once. The aggregate LSTM(calendar) result was MAE 128.087, RMSE 183.143, WAPE 0.0543 and MASE 0.492. The item-level class-selected strategy scored macro MAE 1.684, RMSE 2.188, WAPE 1.007 and MASE 1.375 over all 823 items. Item-level MAPE excludes 8,432 zero-actual rows; aggregate and item metrics are not comparable. The evaluation record, frozen manifest and result hashes are in `artifacts/final/`; complete tables and caveats are in `reports/final/FINAL_HOLDOUT_RESULTS.md`. Do not use this test period for tuning.
+
+
+## Final submission — 15 November 2026
+
+- Current 19-slide presentation: `presentation/RiverDemand_Final_Project_Presentation_Final.pptx` and matching 19-page PDF.
+- Technical report: `reports/final/RiverDemand_Final_Technical_Report.docx/.pdf`.
+- Slide-wise speaking script: `docs/PRESENTATION_SPEAKING_SCRIPT.docx/.pdf` and `.md` (15–20 minute core plus 8–10 minute short version).
+- Dashboard viva guide: `docs/VIVA_GUIDE.docx/.pdf` and `.md`.
+- Research, acceptance and holdout evidence: `reports/final/FINAL_RESEARCH_RESULTS.md`, `FINAL_CONTENT_CONSISTENCY_AUDIT.md`, and `FINAL_HOLDOUT_RESULTS.md`.
+
+Latest verified local test counts: app suite 217 passed; non-slow suite 944 passed, 15 skipped, 86 deselected. Development resume checked 14 hash-verified stages without rewriting. GitHub Actions run 43660358970 passed on a8b7a6a. The final holdout was evaluated once and must not be rerun. Public Streamlit deployment is not yet verified; no public URL is claimed.

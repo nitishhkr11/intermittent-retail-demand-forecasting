@@ -1,3 +1,7 @@
+## Current freeze and evaluation status — 15 November 2026
+
+The candidate manifest `artifacts/final/FROZEN_CANDIDATES.json` is frozen and immutable. The matching final evaluation record `artifacts/final/FINAL_EVALUATION_RECORD.json` has count=1 and matching evidence hashes. The final 28-day evaluation was performed once after freeze. Do not rerun it, alter candidate configuration or tune against its result. Exact hashes and scores are in `FINAL_CONTENT_CONSISTENCY_AUDIT.md` and `FINAL_HOLDOUT_RESULTS.md`. Earlier dated sections remain historical evidence.
+
 # Development candidate selection and freeze
 
 Selection used development-only folds before any final-period scoring. Fold means are descriptive; no significance claim is made.

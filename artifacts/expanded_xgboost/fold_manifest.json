@@ -1,0 +1,1800 @@
+{
+  "calendar_sha256": "f2d097d6f3bb735f8b26d5bfbd9d86217f84627e912d95bbaed31aac2390050a",
+  "created_at_utc": "2026-11-14T17:21:58Z",
+  "data_scope": "CA_1 / FOODS_3 all 823 item series; development values through 2016-04-24",
+  "development_panel_sha256": "d3e717963dae5802c31b3ee2ac4242053c8acab9a3a231df186fb8cf7ffa730b",
+  "development_window": {
+    "days": 1913,
+    "end": "2016-04-24",
+    "start": "2011-01-29"
+  },
+  "folds": [
+    {
+      "fold": 1,
+      "forecast_end": "2012-02-25",
+      "forecast_start": "2012-01-29",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 1,
+      "test_end_pos": 393,
+      "test_start_pos": 365,
+      "train_end": "2012-01-28",
+      "train_start": "2011-01-29",
+      "training_days": 365,
+      "year": 2012
+    },
+    {
+      "fold": 2,
+      "forecast_end": "2012-04-28",
+      "forecast_start": "2012-04-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 2,
+      "test_end_pos": 456,
+      "test_start_pos": 428,
+      "train_end": "2012-03-31",
+      "train_start": "2011-01-29",
+      "training_days": 428,
+      "year": 2012
+    },
+    {
+      "fold": 3,
+      "forecast_end": "2012-07-28",
+      "forecast_start": "2012-07-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 3,
+      "test_end_pos": 547,
+      "test_start_pos": 519,
+      "train_end": "2012-06-30",
+      "train_start": "2011-01-29",
+      "training_days": 519,
+      "year": 2012
+    },
+    {
+      "fold": 4,
+      "forecast_end": "2012-10-28",
+      "forecast_start": "2012-10-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 4,
+      "test_end_pos": 639,
+      "test_start_pos": 611,
+      "train_end": "2012-09-30",
+      "train_start": "2011-01-29",
+      "training_days": 611,
+      "year": 2012
+    },
+    {
+      "fold": 5,
+      "forecast_end": "2013-01-28",
+      "forecast_start": "2013-01-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 1,
+      "test_end_pos": 731,
+      "test_start_pos": 703,
+      "train_end": "2012-12-31",
+      "train_start": "2011-01-29",
+      "training_days": 703,
+      "year": 2013
+    },
+    {
+      "fold": 6,
+      "forecast_end": "2013-04-28",
+      "forecast_start": "2013-04-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 2,
+      "test_end_pos": 821,
+      "test_start_pos": 793,
+      "train_end": "2013-03-31",
+      "train_start": "2011-01-29",
+      "training_days": 793,
+      "year": 2013
+    },
+    {
+      "fold": 7,
+      "forecast_end": "2013-07-28",
+      "forecast_start": "2013-07-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 3,
+      "test_end_pos": 912,
+      "test_start_pos": 884,
+      "train_end": "2013-06-30",
+      "train_start": "2011-01-29",
+      "training_days": 884,
+      "year": 2013
+    },
+    {
+      "fold": 8,
+      "forecast_end": "2013-10-28",
+      "forecast_start": "2013-10-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 4,
+      "test_end_pos": 1004,
+      "test_start_pos": 976,
+      "train_end": "2013-09-30",
+      "train_start": "2011-01-29",
+      "training_days": 976,
+      "year": 2013
+    },
+    {
+      "fold": 9,
+      "forecast_end": "2014-01-28",
+      "forecast_start": "2014-01-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 1,
+      "test_end_pos": 1096,
+      "test_start_pos": 1068,
+      "train_end": "2013-12-31",
+      "train_start": "2011-01-29",
+      "training_days": 1068,
+      "year": 2014
+    },
+    {
+      "fold": 10,
+      "forecast_end": "2014-04-28",
+      "forecast_start": "2014-04-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 2,
+      "test_end_pos": 1186,
+      "test_start_pos": 1158,
+      "train_end": "2014-03-31",
+      "train_start": "2011-01-29",
+      "training_days": 1158,
+      "year": 2014
+    },
+    {
+      "fold": 11,
+      "forecast_end": "2014-07-28",
+      "forecast_start": "2014-07-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 3,
+      "test_end_pos": 1277,
+      "test_start_pos": 1249,
+      "train_end": "2014-06-30",
+      "train_start": "2011-01-29",
+      "training_days": 1249,
+      "year": 2014
+    },
+    {
+      "fold": 12,
+      "forecast_end": "2014-10-28",
+      "forecast_start": "2014-10-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 4,
+      "test_end_pos": 1369,
+      "test_start_pos": 1341,
+      "train_end": "2014-09-30",
+      "train_start": "2011-01-29",
+      "training_days": 1341,
+      "year": 2014
+    },
+    {
+      "fold": 13,
+      "forecast_end": "2015-01-28",
+      "forecast_start": "2015-01-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 1,
+      "test_end_pos": 1461,
+      "test_start_pos": 1433,
+      "train_end": "2014-12-31",
+      "train_start": "2011-01-29",
+      "training_days": 1433,
+      "year": 2015
+    },
+    {
+      "fold": 14,
+      "forecast_end": "2015-04-28",
+      "forecast_start": "2015-04-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 2,
+      "test_end_pos": 1551,
+      "test_start_pos": 1523,
+      "train_end": "2015-03-31",
+      "train_start": "2011-01-29",
+      "training_days": 1523,
+      "year": 2015
+    },
+    {
+      "fold": 15,
+      "forecast_end": "2015-07-28",
+      "forecast_start": "2015-07-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 3,
+      "test_end_pos": 1642,
+      "test_start_pos": 1614,
+      "train_end": "2015-06-30",
+      "train_start": "2011-01-29",
+      "training_days": 1614,
+      "year": 2015
+    },
+    {
+      "fold": 16,
+      "forecast_end": "2015-10-28",
+      "forecast_start": "2015-10-01",
+      "horizon": 28,
+      "minimum_training_days": 365,
+      "quarter": 4,
+      "test_end_pos": 1734,
+      "test_start_pos": 1706,
+      "train_end": "2015-09-30",
+      "train_start": "2011-01-29",
+      "training_days": 1706,
+      "year": 2015
+    }
+  ],
+  "holdout_sales_used": false,
+  "manifest_sha256": "b74051a8140a50130ec547d02392ae1affbd2b38619fe4671007d84782767ea5",
+  "per_item_sample": [
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_026",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_063",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_080",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_091",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_098",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_102",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_115",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_124",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_136",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_139",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_150",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_154",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_155",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_156",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_163",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_202",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_212",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_228",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_232",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_273",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_305",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_311",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_324",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_331",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_349",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_377",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_400",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_446",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_460",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_473",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_477",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_516",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_534",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_546",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_572",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_577",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_592",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_628",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_635",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_655",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_668",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_674",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_681",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_685",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_694",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_704",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_756",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_786",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_804",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 110,
+      "item_id": "FOODS_3_820",
+      "sample_class_at_first_origin": "Smooth",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_017",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_025",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_028",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_095",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_096",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_103",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_117",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_126",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_128",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_131",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_149",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_174",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_201",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_243",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_246",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_250",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_257",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_259",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_269",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_280",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_315",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_347",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_357",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_375",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_391",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_394",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_418",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_467",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_488",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_490",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_491",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_496",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_536",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_548",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_559",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_581",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_610",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_612",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_620",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_645",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_651",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_667",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_671",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_678",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_687",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_700",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_734",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_748",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_781",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 242,
+      "item_id": "FOODS_3_822",
+      "sample_class_at_first_origin": "Intermittent",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_014",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_035",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_079",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_086",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_109",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_127",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_203",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_225",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_241",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_319",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_334",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_336",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_363",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_368",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_376",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_405",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_412",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_462",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_468",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_541",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_547",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_574",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_611",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_664",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_702",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_705",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_752",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_753",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_767",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_783",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_785",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_800",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 33,
+      "item_id": "FOODS_3_808",
+      "sample_class_at_first_origin": "Erratic",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 33
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_007",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_030",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_050",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_056",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_069",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_089",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_130",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_133",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_138",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_199",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_200",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_211",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_213",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_234",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_235",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_267",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_274",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_313",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_317",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_320",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_326",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_332",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_356",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_383",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_387",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_422",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_431",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_433",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_435",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_454",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_475",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_498",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_503",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_508",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_542",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_564",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_580",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_584",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_614",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_646",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_648",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_666",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_711",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_718",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_736",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_750",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_784",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_788",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_816",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    },
+    {
+      "class_available": 105,
+      "item_id": "FOODS_3_825",
+      "sample_class_at_first_origin": "Lumpy",
+      "sample_origin": "2012-01-28",
+      "sample_seed": 4207,
+      "sampled_from_class": 50
+    }
+  ],
+  "per_item_sample_n": 183,
+  "schema_version": 1,
+  "settings": {
+    "feature_variants": [
+      {
+        "calendar": false,
+        "events": false,
+        "key": "lags_only",
+        "objective": "reg:squarederror",
+        "rolling": false,
+        "scope": "pooled"
+      },
+      {
+        "calendar": false,
+        "events": false,
+        "key": "lags_rolling",
+        "objective": "reg:squarederror",
+        "rolling": true,
+        "scope": "pooled"
+      },
+      {
+        "calendar": true,
+        "events": false,
+        "key": "lags_calendar",
+        "objective": "reg:squarederror",
+        "rolling": false,
+        "scope": "pooled"
+      },
+      {
+        "calendar": true,
+        "events": true,
+        "key": "lags_calendar_events",
+        "objective": "reg:squarederror",
+        "rolling": true,
+        "scope": "pooled"
+      },
+      {
+        "calendar": true,
+        "events": true,
+        "key": "lags_calendar_events_poisson",
+        "objective": "count:poisson",
+        "rolling": true,
+        "scope": "pooled"
+      },
+      {
+        "calendar": true,
+        "events": true,
+        "key": "per_item_lags_calendar_events",
+        "objective": "reg:squarederror",
+        "rolling": true,
+        "scope": "per_item"
+      }
+    ],
+    "fold_manifest_sha256": "24575c7c1c1131a5c7fd630c735965f063b52eafc82a53dc103c3de0b0719b11",
+    "horizon": 28,
+    "lags": [
+      1,
+      7,
+      14,
+      28
+    ],
+    "minimum_training_days": 365,
+    "per_item_sample_per_class": 50,
+    "per_item_workers": 8,
+    "rolling_windows": [
+      7,
+      14,
+      28
+    ],
+    "sample_seed": 4207,
+    "xgboost_hyperparameters": {
+      "colsample_bytree": 0.8,
+      "learning_rate": 0.05,
+      "max_depth": 6,
+      "min_child_weight": 1.0,
+      "n_estimators": 300,
+      "n_jobs": 1,
+      "objective": "reg:squarederror",
+      "random_state": 42,
+      "reg_lambda": 1.0,
+      "subsample": 0.8,
+      "tree_method": "hist"
+    },
+    "years": [
+      2012,
+      2013,
+      2014,
+      2015
+    ]
+  },
+  "source_code_sha256": {
+    "data_loader": "5eee7315abd45254a6308a9f5be854c57a554e99f72a8d309eade8d76edf8949",
+    "experiment": "65e026016d43bead9b53656af61df3ac67614ba95c7ec2295cafa2fa668c1240",
+    "model": "1e3ce8f1fcfb7ed5081943e087fd5b85dad767f078fc3a450cd8477860695540"
+  }
+}

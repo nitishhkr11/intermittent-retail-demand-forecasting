@@ -1,13 +1,19 @@
+## Current verified finalization status — 15 November 2026
+
+The 19-slide final deck, matching 19-page PDF, technical report, 19-slide speaking script and dashboard viva guide have been generated and visually checked. The current acceptance matrix is `FINAL_CONTENT_CONSISTENCY_AUDIT.md`. The remainder of this audit contains useful dated checkpoints; later historical “pending” statements are superseded by this current status and must not be treated as the latest state.
+
 # RiverDemand Finalization Audit
 
-**Audit date:** 2026-11-13  
+**Audit date:** 2026-11-13 baseline; superseding finalization update 2026-11-15  
 **Repository branch:** `finalization/riverdemand-research-completion`  
-**Base commit:** `9b141a8` — Phase 3 forecasting and dashboard implementation  
-**Audit scope:** source, local M5 data, saved development artifacts, tests, validation design, inventory method, dashboard, and deployment evidence.
+**Current commit inspected:** `a8b7a6a20215c12ba6fe163532ba0ab39a974057`  
+**Audit scope:** source, local M5 data, saved development artifacts, tests, validation design, inventory method, dashboard, deployment evidence and final presentation.
 
 ## Executive status
 
-RiverDemand has a substantial Phase 1–3 implementation and saved development-fold results. The local M5 files are available and the raw-to-panel pipeline was rerun for this audit. The original holdout remains unscored and no candidates are frozen. This audit does not certify the project as final-ready: the brief's expanded seasonal experiments, corrected fold-local classical selection, inventory recalibration, and downstream documentation changes remain outstanding.
+**Superseding final status (2026-11-15):** The expanded seasonal, intermittent, XGBoost, LSTM/GRU and Prophet studies are complete; inventory alternatives are independently checked; candidates are frozen; and the final 28-day period was evaluated once. The existing holdout evaluation record is immutable. The required 19-slide deck, matching PDF, technical report, speaking script and viva guide are now generated. The detailed acceptance matrix is `FINAL_CONTENT_CONSISTENCY_AUDIT.md`. The remainder of this document preserves the 13 November point-in-time baseline and must not be read as current task status.
+
+At the 13 November baseline, the original holdout had not yet been evaluated and the expanded work remained incomplete. That historical status has since been superseded as documented above.
 
 ## Repository and data evidence
 

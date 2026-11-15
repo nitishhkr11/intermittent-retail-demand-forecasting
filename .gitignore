@@ -46,3 +46,39 @@ artifacts/residuals/*
 !artifacts/residuals/.gitkeep
 artifacts/inventory/*
 !artifacts/inventory/.gitkeep
+
+# --- Generated experiment checkpoints ----------------------------------
+artifacts/checkpoints/
+
+# --- Presentation build dependencies ----------------------------------
+presentation/_build/node_modules/
+
+# --- Local execution recovery backups ---------------------------------
+reports/final/_execution_checkpoint_*/
+
+# --- Local presentation builds and previews ---
+presentation/_build/
+presentation/_preview/
+presentation/_output/
+
+# --- Local report rendering and build files ---
+reports/final/_build/
+
+# --- Superseded artifacts and old evaluation bundles ---
+reports/final/_superseded/
+
+# --- Dashboard visual QA screenshots ---
+reports/final/dashboard_ui_review/
+
+# --- Backup copies; keep canonical final deliverables ---
+README_backup_*.md
+docs/*_backup_*
+presentation/*_backup_*
+reports/final/*_backup_*
+
+# Large generated forecast dumps (reproducible locally)
+artifacts/expanded_xgboost/forecasts.csv
+artifacts/expanded_intermittent/forecasts.csv
+
+# Local pre-refresh candidate snapshot
+artifacts/final/FROZEN_CANDIDATES_pre_source_hash_refresh.json

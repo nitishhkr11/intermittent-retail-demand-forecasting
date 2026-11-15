@@ -1,5 +1,10 @@
 # RiverDemand final research results
 
+## Current status — 15 November 2026
+
+This is a development-results report with the final holdout reported separately. The protected 28-day period was evaluated once after candidate freeze; record count is 1 and the record is immutable. Do not rerun or tune against it. The later alternative inventory calibration results below supersede earlier statements that those alternatives had not been evaluated. Current acceptance and hashes are in `reports/final/FINAL_CONTENT_CONSISTENCY_AUDIT.md`.
+
+
 ## Scope and holdout status
 
 This report records development-only experiments completed on 14–15 November 2026. The original five-fold results and raw user work remain in place. The final 28 days (2016-04-25 through 2016-05-22) were evaluated once after candidate freeze; final-test metrics are reported separately in `FINAL_HOLDOUT_RESULTS.md` and were not used for selection. Earlier development loaders transiently read reserved sales before slicing; those values were not used for fitting, tuning, candidate selection or scoring. See `HOLDOUT_DATA_BOUNDARY_AUDIT.md` for the correction and limitation.
@@ -57,7 +62,7 @@ The source formula was verified: protection interval is lead plus review days; e
 | Seasonal Naive | 95% | 91.4744% | 91.1647–91.7720% | 253,484 |
 | TSB | 95% | 91.1706% | 90.8716–91.4488% | 253,484 |
 
-None reaches the 95% target. Failed or uncalibrated cells remain labeled in the output. This measures cycle service, not fill rate; it does not estimate operating savings or establish a real supplier policy. Recency-weighted, class-normalized and calibration-window alternatives plus sensitivity by lead/review interval have not been evaluated.
+None reaches the 95% target. Failed or uncalibrated cells remain labeled in the output. This measures cycle service, not fill rate; it does not estimate operating savings or establish a real supplier policy. This original Phase 3 table predates the later alternative calibration study; see the subsequent “Alternative inventory calibration” section for current four-rule results and shared-window comparisons.
 
 ## Prophet seasonal interval study
 
