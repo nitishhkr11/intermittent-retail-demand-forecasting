@@ -8,7 +8,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.x-1F6FEB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-0F766E?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20App-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnt.streamlit.app/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20App-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnf.streamlit.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/nitishhkr11/intermittent-retail-demand-forecasting)
 [![PyTorch](https://img.shields.io/badge/Deep_Learning-PyTorch-9A3412?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-64748B?style=flat-square)](LICENSE)
@@ -25,7 +25,7 @@ RiverDemand is an end-to-end forecasting and inventory decision-support project 
 
 The study uses the **Walmart M5 Forecasting – Accuracy** data for store `CA_1`, department `FOODS_3`: **823 items across 1,941 daily observations**, from **29 January 2011 to 22 May 2016**.
 
-> **Project status — 16 November 2026:** The research phases, expanded development experiments, dashboard QA and one-time final-holdout evaluation are complete. The protected 28-day holdout was evaluated once after candidate freeze. The dashboard is deployed on Streamlit Community Cloud: [open the live RiverDemand app](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnt.streamlit.app/). The hosted application reads saved artifacts and does not train models or access the protected final holdout.
+> **Project status — 16 November 2026:** The research phases, expanded development experiments, dashboard QA and one-time final-holdout evaluation are complete. The protected 28-day holdout was evaluated once after candidate freeze. The dashboard is deployed on Streamlit Community Cloud: [open the live RiverDemand app](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnf.streamlit.app/). The hosted application reads saved artifacts and does not train models or access the protected final holdout.
 
 ---
 
@@ -44,7 +44,7 @@ The study uses the **Walmart M5 Forecasting – Accuracy** data for store `CA_1`
 | Evaluation | Expanding-window and disjoint chronological backtests; a separately controlled final holdout |
 | Decision-support layer | Reorder point, safety stock and cycle-service backtesting |
 | Application | Six-page Streamlit dashboard with light and dark themes |
-| Public application | [RiverDemand on Streamlit Community Cloud](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnt.streamlit.app/) |
+| Public application | [RiverDemand on Streamlit Community Cloud](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnf.streamlit.app/) |
 
 ## Contents
 
@@ -416,7 +416,7 @@ The dashboard reads saved artifacts; it does not train models. It does not forec
 
 ## Live application
 
-**[Launch the RiverDemand dashboard](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnt.streamlit.app/)**
+**[Launch the RiverDemand dashboard](https://intermittent-retail-demand-forecasting-h4ep7gtxns9mfye7fcgpnf.streamlit.app/)**
 
 The public application is hosted on **Streamlit Community Cloud** and is connected to the `main` branch of this GitHub repository. The deployment serves the saved development artifacts packaged with the repository; it does not run the model-training notebooks or retrain forecasting models when a visitor opens the app.
 
